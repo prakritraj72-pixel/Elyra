@@ -90,6 +90,20 @@
       border-color: #9b315b;
     }
 
+    .forgot {
+      display: block;
+      text-align: right;
+      color: #e28aae;
+      text-decoration: none;
+      font-size: 13px;
+      margin-top: -8px;
+      margin-bottom: 18px;
+    }
+
+    .forgot:hover {
+      text-decoration: underline;
+    }
+
     button {
       width: 100%;
       border: none;
@@ -168,6 +182,7 @@
     <form id="loginForm">
 
       <label>Email</label>
+
       <input
         type="email"
         id="email"
@@ -176,12 +191,19 @@
       >
 
       <label>Password</label>
+
       <input
         type="password"
         id="password"
         placeholder="Enter your password"
         required
       >
+
+      <!-- FORGOT PASSWORD -->
+
+      <a href="forgot-password.html" class="forgot">
+        Forgot password?
+      </a>
 
       <button type="submit" id="loginBtn">
         Log in
@@ -196,7 +218,9 @@
       <a href="register.html">Create account</a>
     </div>
 
-    <a class="back" href="index.html">← Back to Elyra</a>
+    <a class="back" href="index.html">
+      ← Back to Elyra
+    </a>
 
   </div>
 </div>
@@ -235,72 +259,89 @@
 
 
   function showMessage(text, type) {
+
     message.textContent = text;
-    message.className = "message " + type;
+
+    message.className =
+      "message " + type;
+
   }
 
 
-  form.addEventListener("submit", async function(event) {
+  form.addEventListener(
+    "submit",
+    async function(event) {
 
-    event.preventDefault();
-
-    const email =
-      document.getElementById("email").value.trim();
-
-    const password =
-      document.getElementById("password").value;
+      event.preventDefault();
 
 
-    button.disabled = true;
-    button.textContent = "Logging in...";
+      const email =
+        document.getElementById("email")
+        .value
+        .trim();
 
 
-    try {
-
-      const { data, error } =
-        await supabaseClient.auth.signInWithPassword({
-          email: email,
-          password: password
-        });
+      const password =
+        document.getElementById("password")
+        .value;
 
 
-      if (error) {
-        throw error;
+      button.disabled = true;
+
+      button.textContent =
+        "Logging in...";
+
+
+      try {
+
+        const { data, error } =
+          await supabaseClient.auth.signInWithPassword({
+
+            email: email,
+
+            password: password
+
+          });
+
+
+        if (error) {
+
+          throw error;
+
+        }
+
+
+        showMessage(
+          "Login successful! Redirecting...",
+          "success"
+        );
+
+
+        setTimeout(function() {
+
+          window.location.href =
+            "index.html";
+
+        }, 1000);
+
+
+      } catch (error) {
+
+        showMessage(
+          error.message,
+          "error"
+        );
+
       }
 
 
-      showMessage(
-        "Login successful! Redirecting...",
-        "success"
-      );
+      button.disabled = false;
 
-
-      /*
-        TEMPORARY REDIRECT
-
-        Abhi dashboard.html nahi bana hai,
-        isliye login ke baad index.html par bhej rahe hain.
-      */
-
-      setTimeout(function() {
-        window.location.href = "index.html";
-      }, 1000);
-
-
-    } catch (error) {
-
-      showMessage(
-        error.message,
-        "error"
-      );
+      button.textContent =
+        "Log in";
 
     }
-
-
-    button.disabled = false;
-    button.textContent = "Log in";
-
-  });
+  );
 
 </script>
 
