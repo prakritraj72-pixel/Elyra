@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Elyra — Discover Creators</title>
+
+  <meta
+    name="description"
+    content="Discover verified Elyra creators near you."
+  >
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --bg: #09090d;
+      --card: #111117;
+      --card2: #17171f;
+      --border: rgba(255,255,255,0.09);
+      --text: #f7f7fb;
+      --muted: #9c9ca8;
+      --pink: #ff4f91;
+      --purple: #9b6cff;
+      --green: #51d88a;
+      --danger: #ff5b72;
+      --shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+      background:
+        radial-gradient(
+          circle at 20% 0%,
+          rgba(155,108,255,0.12),
+          transparent 30%
+        ),
+        radial-gradient(
+          circle at 90% 15%,
+          rgba(255,79,145,0.10),
+          transparent 28%
+        ),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    /* =========================
+       NAVBAR
+    ========================= */
+
+    .navbar {
+      width: 100%;
+      border-bottom: 1px solid var(--border);
+      background: rgba(9,9,13,0.82);
+      backdrop-filter: blur(18px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-inner {
+      max-width: 1180px;
+      margin: auto;
+      padding: 17px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .logo {
+      font-size: 23px;
+      font-weight: 800;
+      letter-spacing: -0.7px;
+    }
+
+    .logo span {
+      color: var(--pink);
+    }
+
+    .back-btn {
+      color: var(--muted);
+      font-size: 14px;
+      padding: 9px 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      transition: 0.2s;
+    }
+
+    .back-btn:hover {
+      color: white;
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    /* =========================
+       HERO
+    ========================= */
+
+    .hero {
+      max-width: 1180px;
+      margin: auto;
+      padding: 60px 20px 30px;
+      text-align: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      color: #c8c8d3;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 12px rgba(81,216,138,0.7);
+    }
+
+    .hero h1 {
+      font-size: clamp(36px, 7vw, 68px);
+      line-height: 1.02;
+      letter-spacing: -2.8px;
+      max-width: 850px;
+      margin: auto;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(
+        110deg,
+        var(--pink),
+        var(--purple)
+      );
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero p {
+      max-width: 650px;
+      margin: 18px auto 0;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 15px;
+    }
+
+    /* =========================
+       FILTER BAR
+    ========================= */
+
+    .controls {
+      max-width: 1180px;
+      margin: 25px auto 0;
+      padding: 0 20px;
+    }
+
+    .control-box {
+      background: rgba(17,17,23,0.8);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 14px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      box-shadow: var(--shadow);
+    }
+
+    .gender-buttons {
+      display: flex;
+      gap: 8px;
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .gender-btn {
+      flex: 1;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.035);
+      color: var(--muted);
+      padding: 12px 14px;
+      border-radius: 14px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: 0.2s;
+    }
+
+    .gender-btn:hover {
+      color: white;
+      background: rgba(255,255,255,0.07);
+    }
+
+    .gender-btn.active {
+      color: white;
+      border-color: rgba(255,79,145,0.45);
+      background:
+        linear-gradient(
+          135deg,
+          rgba(255,79,145,0.16),
+          rgba(155,108,255,0.12)
+        );
+    }
+
+    .search-wrap {
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .search {
+      width: 100%;
+      height: 46px;
+      padding: 0 16px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      outline: none;
+      background: rgba(255,255,255,0.04);
+      color: white;
+    }
+
+    .search::placeholder {
+      color: #747481;
+    }
+
+    .search:focus {
+      border-color: rgba(255,79,145,0.4);
+    }
+
+    /* =========================
+       RESULTS INFO
+    ========================= */
+
+    .results-bar {
+      max-width: 1180px;
+      margin: 32px auto 18px;
+      padding: 0 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .results-title {
+      font-size: 18px;
+      font-weight: 750;
+    }
+
+    .results-count {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    /* =========================
+       CREATOR GRID
+    ========================= */
+
+    .creator-grid {
+      max-width: 1180px;
+      margin: auto;
+      padding: 0 20px 70px;
+
+      display: grid;
+      grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+
+      gap: 18px;
+    }
+
+    .creator-card {
+      background:
+        linear-gradient(
+          180deg,
+          rgba(255,255,255,0.045),
+          rgba(255,255,255,0.018)
+        );
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      overflow: hidden;
+      transition:
+        transform 0.25s ease,
+        border-color 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    .creator-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(255,255,255,0.16);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+
+    .photo-wrap {
+      position: relative;
+      aspect-ratio: 0.88;
+      background:
+        linear-gradient(
+          145deg,
+          #1b1724,
+          #0e0e14
+        );
+      overflow: hidden;
+    }
+
+    .creator-photo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 58px;
+      color: #686875;
+      background:
+        radial-gradient(
+          circle at 50% 30%,
+          rgba(255,79,145,0.15),
+          transparent 35%
+        );
+    }
+
+    .available-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(8,8,12,0.75);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #d8ffe7;
+    }
+
+    .available-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+    }
+
+    .card-content {
+      padding: 17px;
+    }
+
+    .name-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .creator-name {
+      font-size: 18px;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .age {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .location {
+      margin-top: 7px;
+      color: #aaaab5;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .bio {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+      margin-top: 12px;
+
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .card-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 17px;
+    }
+
+    .price {
+      font-weight: 800;
+      font-size: 15px;
+    }
+
+    .price small {
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 11px;
+    }
+
+    .book-btn {
+      border: 0;
+      color: white;
+      background:
+        linear-gradient(
+          135deg,
+          var(--pink),
+          var(--purple)
+        );
+      padding: 10px 15px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s;
+    }
+
+    .book-btn:hover {
+      transform: scale(1.03);
+      opacity: 0.93;
+    }
+
+    /* =========================
+       EMPTY / LOADING / ERROR
+    ========================= */
+
+    .state-box {
+      max-width: 700px;
+      margin: 10px auto 80px;
+      padding: 50px 25px;
+      text-align: center;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.025);
+      border-radius: 24px;
+    }
+
+    .state-icon {
+      font-size: 40px;
+      margin-bottom: 15px;
+    }
+
+    .state-box h2 {
+      font-size: 21px;
+      margin-bottom: 8px;
+    }
+
+    .state-box p {
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .retry-btn {
+      margin-top: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: white;
+      padding: 10px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* =========================
+       FOOTER
+    ========================= */
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 30px 20px;
+      text-align: center;
+      color: #71717d;
+      font-size: 12px;
+    }
+
+    footer strong {
+      color: #bcbcc6;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================= */
+
+    @media (max-width: 1000px) {
+      .creator-grid {
+        grid-template-columns:
+          repeat(3, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 720px) {
+      .hero {
+        padding-top: 45px;
+      }
+
+      .hero h1 {
+        letter-spacing: -1.8px;
+      }
+
+      .creator-grid {
+        grid-template-columns:
+          repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .card-content {
+        padding: 13px;
+      }
+
+      .creator-name {
+        font-size: 16px;
+      }
+
+      .book-btn {
+        padding: 9px 11px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .nav-inner {
+        padding: 14px 15px;
+      }
+
+      .logo {
+        font-size: 21px;
+      }
+
+      .back-btn {
+        font-size: 12px;
+        padding: 8px 11px;
+      }
+
+      .hero {
+        padding: 40px 16px 22px;
+      }
+
+      .hero h1 {
+        font-size: 39px;
+      }
+
+      .hero p {
+        font-size: 13px;
+      }
+
+      .controls {
+        padding: 0 14px;
+      }
+
+      .control-box {
+        padding: 10px;
+        border-radius: 18px;
+      }
+
+      .gender-buttons {
+        min-width: 100%;
+      }
+
+      .search-wrap {
+        min-width: 100%;
+      }
+
+      .results-bar {
+        padding: 0 14px;
+      }
+
+      .creator-grid {
+        padding: 0 14px 55px;
+        gap: 10px;
+      }
+
+      .photo-wrap {
+        aspect-ratio: 0.82;
+      }
+
+      .available-badge {
+        top: 8px;
+        left: 8px;
+        padding: 6px 8px;
+        font-size: 9px;
+      }
+
+      .creator-name {
+        font-size: 14px;
+      }
+
+      .age {
+        font-size: 12px;
+      }
+
+      .location {
+        font-size: 11px;
+      }
+
+      .bio {
+        font-size: 11px;
+      }
+
+      .price {
+        font-size: 12px;
+      }
+
+      .price small {
+        font-size: 9px;
+      }
+
+      .book-btn {
+        font-size: 10px;
+        padding: 8px 9px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =========================
+       NAVBAR
+  ========================== -->
+
+  <nav class="navbar">
+    <div class="nav-inner">
+
+      <a href="index.html" class="logo">
+        Ely<span>ra</span>
+      </a>
+
+      <a href="index.html" class="back-btn">
+        ← Back to Elyra
+      </a>
+
+    </div>
+  </nav>
+
+
+  <!-- =========================
+       HERO
+  ========================== -->
+
+  <section class="hero">
+
+    <div class="eyebrow">
+      <span class="eyebrow-dot"></span>
+      Real Elyra creators
+    </div>
+
+    <h1>
+      Find someone
+      <span>worth meeting.</span>
+    </h1>
+
+    <p>
+      Discover Elyra creators available for genuine social
+      companionship and activities. Browse profiles and choose
+      someone who matches your vibe.
+    </p>
+
+  </section>
+
+
+  <!-- =========================
+       FILTERS
+  ========================== -->
+
+  <section class="controls">
+
+    <div class="control-box">
+
+      <div class="gender-buttons">
+
+        <button
+          class="gender-btn"
+          id="maleBtn"
+          type="button"
+          onclick="changeGender('male')"
+        >
+          ✦ Book Your BF
+        </button>
+
+        <button
+          class="gender-btn"
+          id="femaleBtn"
+          type="button"
+          onclick="changeGender('female')"
+        >
+          ♡ Book Your GF
+        </button>
+
+      </div>
+
+      <div class="search-wrap">
+
+        <input
+          id="searchInput"
+          class="search"
+          type="search"
+          placeholder="Search by name, city or area..."
+          autocomplete="off"
+        >
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       RESULTS HEADER
+  ========================== -->
+
+  <section class="results-bar">
+
+    <div>
+      <div class="results-title" id="resultsTitle">
+        Available creators
+      </div>
+
+      <div class="results-count" id="resultsCount">
+        Loading...
+      </div>
+    </div>
+
+  </section>
+
+
+  <!-- =========================
+       LOADING
+  ========================== -->
+
+  <div id="loadingState" class="state-box">
+
+    <div class="state-icon">✦</div>
+
+    <h2>Finding creators...</h2>
+
+    <p>
+      We're checking the latest available Elyra profiles.
+    </p>
+
+  </div>
+
+
+  <!-- =========================
+       ERROR
+  ========================== -->
+
+  <div id="errorState" class="state-box hidden">
+
+    <div class="state-icon">⚠️</div>
+
+    <h2>Something went wrong</h2>
+
+    <p id="errorMessage">
+      We couldn't load creators right now.
+    </p>
+
+    <button
+      class="retry-btn"
+      type="button"
+      onclick="loadCreators()"
+    >
+      Try again
+    </button>
+
+  </div>
+
+
+  <!-- =========================
+       EMPTY
+  ========================== -->
+
+  <div id="emptyState" class="state-box hidden">
+
+    <div class="state-icon">♡</div>
+
+    <h2 id="emptyTitle">
+      No creators available yet
+    </h2>
+
+    <p id="emptyMessage">
+      New Elyra creators will appear here once their profiles
+      are activated.
+    </p>
+
+  </div>
+
+
+  <!-- =========================
+       CREATOR GRID
+  ========================== -->
+
+  <main
+    id="creatorGrid"
+    class="creator-grid hidden"
+  >
+  </main>
+
+
+  <!-- =========================
+       FOOTER
+  ========================== -->
+
+  <footer>
+    <strong>Elyra</strong> — Connect. Meet. Experience.
+    <br><br>
+    18+ only. Elyra is for lawful social companionship and
+    activities. Sexual services, prostitution, exploitation,
+    harassment and illegal activity are strictly prohibited.
+  </footer>
+
+
+  <script>
+
+    /* =====================================================
+       SUPABASE CONFIG
+    ===================================================== */
+
+    const SUPABASE_URL =
+      "https://frvvacirnfvlxifvopcm.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_l7fygMVXGAkbskkiBom8uw_-86tU6L0";
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
+
+
+    /* =====================================================
+       GLOBAL STATE
+    ===================================================== */
+
+    let allCreators = [];
+
+    let currentGender =
+      new URLSearchParams(window.location.search)
+        .get("gender");
+
+    if (
+      currentGender !== "male" &&
+      currentGender !== "female"
+    ) {
+      currentGender = "male";
+    }
+
+
+    /* =====================================================
+       DOM
+    ===================================================== */
+
+    const creatorGrid =
+      document.getElementById("creatorGrid");
+
+    const loadingState =
+      document.getElementById("loadingState");
+
+    const errorState =
+      document.getElementById("errorState");
+
+    const errorMessage =
+      document.getElementById("errorMessage");
+
+    const emptyState =
+      document.getElementById("emptyState");
+
+    const emptyTitle =
+      document.getElementById("emptyTitle");
+
+    const emptyMessage =
+      document.getElementById("emptyMessage");
+
+    const resultsTitle =
+      document.getElementById("resultsTitle");
+
+    const resultsCount =
+      document.getElementById("resultsCount");
+
+    const searchInput =
+      document.getElementById("searchInput");
+
+    const maleBtn =
+      document.getElementById("maleBtn");
+
+    const femaleBtn =
+      document.getElementById("femaleBtn");
+
+
+    /* =====================================================
+       PAGE TITLE / GENDER UI
+    ===================================================== */
+
+    function updateGenderUI() {
+
+      maleBtn.classList.remove("active");
+      femaleBtn.classList.remove("active");
+
+      if (currentGender === "male") {
+
+        maleBtn.classList.add("active");
+
+        resultsTitle.textContent =
+          "Available Boyfriends";
+
+        document.title =
+          "Elyra — Book Your BF";
+
+      } else {
+
+        femaleBtn.classList.add("active");
+
+        resultsTitle.textContent =
+          "Available Girlfriends";
+
+        document.title =
+          "Elyra — Book Your GF";
+      }
+    }
+
+
+    /* =====================================================
+       CHANGE GENDER
+    ===================================================== */
+
+    function changeGender(gender) {
+
+      currentGender = gender;
+
+      const url =
+        new URL(window.location.href);
+
+      url.searchParams.set(
+        "gender",
+        gender
+      );
+
+      window.history.replaceState(
+        {},
+        "",
+        url
+      );
+
+      updateGenderUI();
+
+      renderCreators();
+    }
+
+
+    /* =====================================================
+       LOAD CREATORS FROM SUPABASE
+    ===================================================== */
+
+    async function loadCreators() {
+
+      showLoading();
+
+      try {
+
+        const {
+          data,
+          error
+        } = await supabaseClient
+
+          .from("creator_profiles")
+
+          .select(`
+            id,
+            user_id,
+            display_name,
+            age,
+            gender,
+            photo_url,
+            city,
+            area,
+            bio,
+            hourly_rate,
+            availability,
+            profile_status,
+            created_at
+          `)
+
+          .eq(
+            "profile_status",
+            "active"
+          )
+
+          .order(
+            "created_at",
+            {
+              ascending: false
+            }
+          );
+
+
+        if (error) {
+          throw error;
+        }
+
+
+        allCreators =
+          Array.isArray(data)
+            ? data
+            : [];
+
+
+        hideLoading();
+
+        renderCreators();
+
+      } catch (error) {
+
+        console.error(
+          "Creator loading error:",
+          error
+        );
+
+        showError(
+          error.message ||
+          "Unable to load creator profiles."
+        );
+      }
+    }
+
+
+    /* =====================================================
+       RENDER CREATORS
+    ===================================================== */
+
+    function renderCreators() {
+
+      const search =
+        searchInput.value
+          .trim()
+          .toLowerCase();
+
+
+      let filtered =
+        allCreators.filter(
+          creator =>
+            creator.gender === currentGender
+        );
+
+
+      if (search) {
+
+        filtered =
+          filtered.filter(
+            creator => {
+
+              const name =
+                String(
+                  creator.display_name || ""
+                ).toLowerCase();
+
+              const city =
+                String(
+                  creator.city || ""
+                ).toLowerCase();
+
+              const area =
+                String(
+                  creator.area || ""
+                ).toLowerCase();
+
+              return (
+                name.includes(search) ||
+                city.includes(search) ||
+                area.includes(search)
+              );
+            }
+          );
+      }
+
+
+      resultsCount.textContent =
+        `${filtered.length} creator${
+          filtered.length === 1
+            ? ""
+            : "s"
+        } available`;
+
+
+      if (filtered.length === 0) {
+
+        creatorGrid.innerHTML = "";
+
+        creatorGrid.classList.add(
+          "hidden"
+        );
+
+        emptyState.classList.remove(
+          "hidden"
+        );
+
+        if (search) {
+
+          emptyTitle.textContent =
+            "No matching creators";
+
+          emptyMessage.textContent =
+            "Try searching another name, city or area.";
+
+        } else {
+
+          emptyTitle.textContent =
+            currentGender === "male"
+              ? "No boy creators available yet"
+              : "No girl creators available yet";
+
+          emptyMessage.textContent =
+            "New Elyra creators will appear here once their profiles are activated.";
+        }
+
+        return;
+      }
+
+
+      emptyState.classList.add(
+        "hidden"
+      );
+
+      creatorGrid.classList.remove(
+        "hidden"
+      );
+
+
+      creatorGrid.innerHTML =
+        filtered
+          .map(
+            creator =>
+              createCreatorCard(
+                creator
+              )
+          )
+          .join("");
+    }
+
+
+    /* =====================================================
+       CREATE CREATOR CARD
+    ===================================================== */
+
+    function createCreatorCard(
+      creator
+    ) {
+
+      const id =
+        escapeHTML(
+          creator.id
+        );
+
+      const name =
+        escapeHTML(
+          creator.display_name ||
+          "Elyra Creator"
+        );
+
+      const age =
+        escapeHTML(
+          creator.age ?? ""
+        );
+
+      const city =
+        escapeHTML(
+          creator.city ||
+          "India"
+        );
+
+      const area =
+        escapeHTML(
+          creator.area ||
+          ""
+        );
+
+      const bio =
+        escapeHTML(
+          creator.bio ||
+          "Available for social companionship and activities."
+        );
+
+      const availability =
+        escapeHTML(
+          creator.availability ||
+          "Check availability"
+        );
+
+      const photo =
+        creator.photo_url
+          ? escapeAttribute(
+              creator.photo_url
+            )
+          : "";
+
+
+      const location =
+        area
+          ? `${area}, ${city}`
+          : city;
+
+
+      const rate =
+        formatPrice(
+          creator.hourly_rate
+        );
+
+
+      const photoHTML =
+        photo
+          ? `
+            <img
+              class="creator-photo"
+              src="${photo}"
+              alt="${name}"
+              loading="lazy"
+              onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');"
+            >
+
+            <div class="photo-placeholder hidden">
+              ♡
+            </div>
+          `
+          : `
+            <div class="photo-placeholder">
+              ♡
+            </div>
+          `;
+
+
+      return `
+        <article class="creator-card">
+
+          <div class="photo-wrap">
+
+            ${photoHTML}
+
+            <div class="available-badge">
+              <span class="available-dot"></span>
+              Available
+            </div>
+
+          </div>
+
+
+          <div class="card-content">
+
+            <div class="name-row">
+
+              <div class="creator-name">
+                ${name}
+              </div>
+
+              ${
+                age
+                  ? `<div class="age">${age}</div>`
+                  : ""
+              }
+
+            </div>
+
+
+            <div class="location">
+              📍 ${location}
+            </div>
+
+
+            <div
+              class="bio"
+              title="${bio}"
+            >
+              ${bio}
+            </div>
+
+
+            <div class="card-bottom">
+
+              <div class="price">
+                ₹${rate}
+                <small>/ hour</small>
+              </div>
+
+              <button
+                class="book-btn"
+                type="button"
+                onclick="openCreator('${id}')"
+              >
+                Book Now
+              </button>
+
+            </div>
+
+          </div>
+
+        </article>
+      `;
+    }
+
+
+    /* =====================================================
+       OPEN CREATOR
+    ===================================================== */
+
+    function openCreator(
+      creatorId
+    ) {
+
+      window.location.href =
+        `creator.html?id=${encodeURIComponent(
+          creatorId
+        )}`;
+    }
+
+
+    /* =====================================================
+       FORMAT PRICE
+    ===================================================== */
+
+    function formatPrice(
+      value
+    ) {
+
+      const number =
+        Number(value);
+
+      if (
+        !Number.isFinite(number)
+      ) {
+        return "—";
+      }
+
+      return new Intl.NumberFormat(
+        "en-IN",
+        {
+          maximumFractionDigits: 0
+        }
+      ).format(number);
+    }
+
+
+    /* =====================================================
+       ESCAPE HTML
+       Prevents database text from becoming HTML.
+    ===================================================== */
+
+    function escapeHTML(
+      value
+    ) {
+
+      return String(value)
+        .replace(
+          /&/g,
+          "&amp;"
+        )
+        .replace(
+          /</g,
+          "&lt;"
+        )
+        .replace(
+          />/g,
+          "&gt;"
+        )
+        .replace(
+          /"/g,
+          "&quot;"
+        )
+        .replace(
+          /'/g,
+          "&#039;"
+        );
+    }
+
+
+    /* =====================================================
+       ESCAPE ATTRIBUTE
+    ===================================================== */
+
+    function escapeAttribute(
+      value
+    ) {
+
+      return String(value)
+        .replace(
+          /&/g,
+          "&amp;"
+        )
+        .replace(
+          /"/g,
+          "&quot;"
+        )
+        .replace(
+          /</g,
+          "&lt;"
+        )
+        .replace(
+          />/g,
+          "&gt;"
+        );
+    }
+
+
+    /* =====================================================
+       LOADING / ERROR STATES
+    ===================================================== */
+
+    function showLoading() {
+
+      loadingState.classList.remove(
+        "hidden"
+      );
+
+      errorState.classList.add(
+        "hidden"
+      );
+
+      emptyState.classList.add(
+        "hidden"
+      );
+
+      creatorGrid.classList.add(
+        "hidden"
+      );
+
+      resultsCount.textContent =
+        "Loading...";
+    }
+
+
+    function hideLoading() {
+
+      loadingState.classList.add(
+        "hidden"
+      );
+    }
+
+
+    function showError(
+      message
+    ) {
+
+      loadingState.classList.add(
+        "hidden"
+      );
+
+      emptyState.classList.add(
+        "hidden"
+      );
+
+      creatorGrid.classList.add(
+        "hidden"
+      );
+
+      errorState.classList.remove(
+        "hidden"
+      );
+
+      errorMessage.textContent =
+        message;
+
+      resultsCount.textContent =
+        "Unable to load";
+    }
+
+
+    /* =====================================================
+       SEARCH
+    ===================================================== */
+
+    searchInput.addEventListener(
+      "input",
+      renderCreators
+    );
+
+
+    /* =====================================================
+       INITIALIZE
+    ===================================================== */
+
+    updateGenderUI();
+
+    loadCreators();
+
+  </script>
+
+</body>
+</html>
