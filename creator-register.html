@@ -1,0 +1,1948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Elyra Creator Dashboard</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top, #24102f 0%, #0c0810 38%, #050507 100%);
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    .page {
+      width: 100%;
+      min-height: 100vh;
+      padding: 20px 15px 50px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 950px;
+      margin: auto;
+    }
+
+    /* HEADER */
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 25px;
+    }
+
+    .brand {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 2px;
+    }
+
+    .brand span {
+      color: #d88cff;
+    }
+
+    .back-btn {
+      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(255,255,255,.06);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .back-btn:hover {
+      background: rgba(255,255,255,.12);
+    }
+
+    /* HERO */
+
+    .hero {
+      background:
+        linear-gradient(
+          135deg,
+          rgba(255,255,255,.08),
+          rgba(255,255,255,.025)
+        );
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 24px;
+      padding: 25px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(15px);
+    }
+
+    .hero h1 {
+      font-size: 30px;
+      margin-bottom: 8px;
+    }
+
+    .hero p {
+      color: #b9b4bf;
+      line-height: 1.6;
+    }
+
+    /* STATUS */
+
+    .status-box {
+      margin-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 13px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .status.pending {
+      background: rgba(255, 190, 70, .12);
+      color: #ffc45b;
+      border: 1px solid rgba(255,190,70,.25);
+    }
+
+    .status.active {
+      background: rgba(70, 220, 130, .12);
+      color: #66e39a;
+      border: 1px solid rgba(70,220,130,.25);
+    }
+
+    .status.inactive {
+      background: rgba(255,255,255,.08);
+      color: #bbb;
+      border: 1px solid rgba(255,255,255,.12);
+    }
+
+    /* CARD */
+
+    .card {
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255,255,255,.07),
+          rgba(255,255,255,.025)
+        );
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 24px;
+      padding: 25px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(15px);
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+
+    /* PHOTO */
+
+    .photo-section {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      flex-wrap: wrap;
+    }
+
+    .photo-preview {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(216,140,255,.55);
+      background: #17131b;
+    }
+
+    .photo-info {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .photo-info h3 {
+      font-size: 17px;
+      margin-bottom: 7px;
+    }
+
+    .photo-info p {
+      color: #a7a1ad;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 13px;
+    }
+
+    .file-input {
+      width: 100%;
+      max-width: 350px;
+      color: #bbb;
+      font-size: 13px;
+    }
+
+    /* FORM */
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #ddd;
+    }
+
+    .required {
+      color: #ff6b9d;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.28);
+      color: white;
+      border-radius: 13px;
+      padding: 13px 14px;
+      outline: none;
+      transition: .2s;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: rgba(216,140,255,.7);
+      box-shadow: 0 0 0 3px rgba(216,140,255,.08);
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    select option {
+      background: #151018;
+      color: white;
+    }
+
+    .locked {
+      opacity: .65;
+      cursor: not-allowed;
+    }
+
+    .field-note {
+      font-size: 12px;
+      color: #8e8995;
+      line-height: 1.4;
+    }
+
+    /* SAVE */
+
+    .save-area {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 22px;
+    }
+
+    .save-btn {
+      border: none;
+      background:
+        linear-gradient(135deg, #d88cff, #a95cff);
+      color: #fff;
+      padding: 14px 25px;
+      border-radius: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      min-width: 180px;
+      transition: .2s;
+      box-shadow: 0 8px 30px rgba(169,92,255,.2);
+    }
+
+    .save-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 35px rgba(169,92,255,.3);
+    }
+
+    .save-btn:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* INFO */
+
+    .info-box {
+      background: rgba(216,140,255,.06);
+      border: 1px solid rgba(216,140,255,.13);
+      border-radius: 15px;
+      padding: 16px;
+      color: #c9c2cf;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .info-box strong {
+      color: white;
+    }
+
+    /* MESSAGE */
+
+    .message {
+      display: none;
+      padding: 13px 15px;
+      border-radius: 12px;
+      margin-bottom: 18px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .message.success {
+      display: block;
+      background: rgba(65, 220, 125, .10);
+      border: 1px solid rgba(65,220,125,.2);
+      color: #69e89d;
+    }
+
+    .message.error {
+      display: block;
+      background: rgba(255, 75, 100, .10);
+      border: 1px solid rgba(255,75,100,.2);
+      color: #ff8799;
+    }
+
+    /* LOADING */
+
+    .loading {
+      min-height: 60vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 15px;
+      color: #aaa;
+    }
+
+    .loader {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,.1);
+      border-top-color: #d88cff;
+      border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* FOOTER */
+
+    .footer {
+      text-align: center;
+      color: #777;
+      font-size: 12px;
+      margin-top: 25px;
+    }
+
+    /* MOBILE */
+
+    @media (max-width: 700px) {
+
+      .page {
+        padding: 15px 12px 40px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+      }
+
+      .brand {
+        font-size: 24px;
+      }
+
+      .back-btn {
+        padding: 9px 12px;
+        font-size: 12px;
+      }
+
+      .hero {
+        padding: 20px;
+        border-radius: 20px;
+      }
+
+      .hero h1 {
+        font-size: 25px;
+      }
+
+      .card {
+        padding: 19px;
+        border-radius: 20px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field.full {
+        grid-column: auto;
+      }
+
+      .photo-section {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .photo-preview {
+        width: 115px;
+        height: 115px;
+      }
+
+      .save-area {
+        display: block;
+      }
+
+      .save-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="loadingScreen" class="loading">
+    <div class="loader"></div>
+    <div>Loading your creator profile...</div>
+  </div>
+
+
+  <main id="mainPage" class="page" style="display:none;">
+
+    <div class="container">
+
+      <!-- TOP BAR -->
+
+      <div class="topbar">
+
+        <div class="brand">
+          EL<span>Y</span>RA
+        </div>
+
+        <button
+          class="back-btn"
+          onclick="goBack()"
+        >
+          ← Back
+        </button>
+
+      </div>
+
+
+      <!-- HERO -->
+
+      <section class="hero">
+
+        <h1>Creator Dashboard</h1>
+
+        <p>
+          Manage your Elyra creator profile, update your information,
+          change your hourly rate and keep your availability updated.
+        </p>
+
+        <div class="status-box">
+
+          <div id="activationStatus" class="status pending">
+            Checking status...
+          </div>
+
+          <div id="profileStatus" class="status inactive">
+            Checking profile...
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- MESSAGE -->
+
+      <div id="messageBox" class="message"></div>
+
+
+      <!-- PHOTO -->
+
+      <section class="card">
+
+        <div class="card-title">
+          Profile Photo
+        </div>
+
+        <div class="photo-section">
+
+          <img
+            id="photoPreview"
+            class="photo-preview"
+            src=""
+            alt="Creator profile photo"
+          />
+
+          <div class="photo-info">
+
+            <h3>Update your profile picture</h3>
+
+            <p>
+              Use a clear and genuine photo. JPG, PNG or WEBP.
+              Maximum size: 5 MB.
+            </p>
+
+            <input
+              id="photoInput"
+              class="file-input"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+            />
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- PROFILE INFORMATION -->
+
+      <section class="card">
+
+        <div class="card-title">
+          Profile Information
+        </div>
+
+        <form id="profileForm">
+
+          <div class="form-grid">
+
+            <!-- NAME -->
+
+            <div class="field">
+
+              <label>
+                Display Name
+                <span class="required">*</span>
+              </label>
+
+              <input
+                id="displayName"
+                type="text"
+                maxlength="60"
+                placeholder="Your display name"
+                required
+              />
+
+            </div>
+
+
+            <!-- AGE -->
+
+            <div class="field">
+
+              <label>
+                Age
+                <span class="required">*</span>
+              </label>
+
+              <input
+                id="age"
+                type="number"
+                min="18"
+                max="100"
+                required
+              />
+
+              <div class="field-note">
+                Elyra is strictly 18+.
+              </div>
+
+            </div>
+
+
+            <!-- GENDER -->
+
+            <div class="field">
+
+              <label>
+                Gender
+                <span class="required">*</span>
+              </label>
+
+              <select id="gender" required>
+
+                <option value="male">
+                  Male
+                </option>
+
+                <option value="female">
+                  Female
+                </option>
+
+              </select>
+
+              <div class="field-note">
+                Gender is locked after profile creation.
+              </div>
+
+            </div>
+
+
+            <!-- CITY -->
+
+            <div class="field">
+
+              <label>
+                City
+                <span class="required">*</span>
+              </label>
+
+              <input
+                id="city"
+                type="text"
+                maxlength="80"
+                placeholder="Patna"
+                required
+              />
+
+            </div>
+
+
+            <!-- AREA -->
+
+            <div class="field">
+
+              <label>
+                Area / Locality
+              </label>
+
+              <input
+                id="area"
+                type="text"
+                maxlength="100"
+                placeholder="Your area"
+              />
+
+            </div>
+
+
+            <!-- HOURLY RATE -->
+
+            <div class="field">
+
+              <label>
+                Hourly Charge
+                <span class="required">*</span>
+              </label>
+
+              <input
+                id="hourlyRate"
+                type="number"
+                min="1"
+                max="100000"
+                step="1"
+                placeholder="500"
+                required
+              />
+
+              <div class="field-note">
+                This is the amount customers will see per hour.
+              </div>
+
+            </div>
+
+
+            <!-- BIO -->
+
+            <div class="field full">
+
+              <label>
+                About You
+              </label>
+
+              <textarea
+                id="bio"
+                maxlength="500"
+                placeholder="Tell customers a little about yourself..."
+              ></textarea>
+
+              <div class="field-note">
+                Maximum 500 characters.
+              </div>
+
+            </div>
+
+
+            <!-- AVAILABILITY -->
+
+            <div class="field full">
+
+              <label>
+                Availability
+              </label>
+
+              <textarea
+                id="availability"
+                maxlength="500"
+                placeholder="Example: Available Monday to Saturday, 5 PM - 10 PM"
+              ></textarea>
+
+              <div class="field-note">
+                Tell customers when you are generally available.
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div class="save-area">
+
+            <button
+              id="saveBtn"
+              class="save-btn"
+              type="submit"
+            >
+              Save Changes
+            </button>
+
+          </div>
+
+        </form>
+
+      </section>
+
+
+      <!-- ACTIVATION INFO -->
+
+      <section class="card">
+
+        <div class="card-title">
+          Elyra Profile Status
+        </div>
+
+        <div class="info-box">
+
+          <strong>Creator activation:</strong><br><br>
+
+          Your creator profile requires a one-time
+          <strong>₹20 activation payment</strong> before it can
+          become publicly visible on Elyra.
+
+          <br><br>
+
+          Your profile cannot be activated manually from this dashboard.
+          Activation will be handled after successful payment verification.
+
+          <br><br>
+
+          <strong>Important:</strong>
+          Never share your password, payment credentials or private
+          account information with anyone claiming to be an Elyra admin.
+
+        </div>
+
+      </section>
+
+
+      <!-- SAFETY -->
+
+      <section class="card">
+
+        <div class="card-title">
+          Safety & Privacy
+        </div>
+
+        <div class="info-box">
+
+          <strong>18+ only.</strong>
+
+          <br><br>
+
+          Elyra is intended for lawful social companionship and
+          activities only.
+
+          <br><br>
+
+          Sexual services, prostitution, exploitation, harassment,
+          illegal activity and non-consensual activity are prohibited.
+
+          <br><br>
+
+          Your exact home address or GPS location should never be
+          displayed publicly on your creator profile.
+
+        </div>
+
+      </section>
+
+
+      <div class="footer">
+        © 2026 Elyra. All rights reserved.
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <script>
+
+    /* ============================================
+       SUPABASE CONFIG
+    ============================================ */
+
+    const SUPABASE_URL =
+      "https://frvvacirnfvlxifvopcm.supabase.co";
+
+    const SUPABASE_ANON_KEY =
+      "sb_publishable_l7fygMVXGAkbskkiBom8uw_-86tU6L0";
+
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+      );
+
+
+    /* ============================================
+       GLOBAL VARIABLES
+    ============================================ */
+
+    let currentUser = null;
+    let currentProfile = null;
+    let newPhotoFile = null;
+
+
+    /* ============================================
+       ELEMENTS
+    ============================================ */
+
+    const loadingScreen =
+      document.getElementById("loadingScreen");
+
+    const mainPage =
+      document.getElementById("mainPage");
+
+    const messageBox =
+      document.getElementById("messageBox");
+
+    const profileForm =
+      document.getElementById("profileForm");
+
+    const photoInput =
+      document.getElementById("photoInput");
+
+    const photoPreview =
+      document.getElementById("photoPreview");
+
+    const displayNameInput =
+      document.getElementById("displayName");
+
+    const ageInput =
+      document.getElementById("age");
+
+    const genderInput =
+      document.getElementById("gender");
+
+    const cityInput =
+      document.getElementById("city");
+
+    const areaInput =
+      document.getElementById("area");
+
+    const bioInput =
+      document.getElementById("bio");
+
+    const hourlyRateInput =
+      document.getElementById("hourlyRate");
+
+    const availabilityInput =
+      document.getElementById("availability");
+
+    const saveBtn =
+      document.getElementById("saveBtn");
+
+    const activationStatus =
+      document.getElementById("activationStatus");
+
+    const profileStatus =
+      document.getElementById("profileStatus");
+
+
+    /* ============================================
+       INIT
+    ============================================ */
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeDashboard
+    );
+
+
+    async function initializeDashboard() {
+
+      try {
+
+        /*
+          Get authenticated user from Supabase Auth.
+        */
+
+        const {
+          data,
+          error
+        } = await supabaseClient.auth.getUser();
+
+
+        if (error) {
+          throw error;
+        }
+
+
+        if (!data || !data.user) {
+
+          window.location.href =
+            "login.html?redirect=creator-dashboard.html";
+
+          return;
+        }
+
+
+        currentUser = data.user;
+
+
+        /*
+          Load creator profile.
+        */
+
+        await loadCreatorProfile();
+
+
+        loadingScreen.style.display = "none";
+
+        mainPage.style.display = "block";
+
+
+      } catch (error) {
+
+        console.error(error);
+
+        showMessage(
+          "Unable to load your creator profile. Please login again.",
+          "error"
+        );
+
+        loadingScreen.style.display = "none";
+
+        mainPage.style.display = "block";
+      }
+
+    }
+
+
+    /* ============================================
+       LOAD CREATOR PROFILE
+    ============================================ */
+
+    async function loadCreatorProfile() {
+
+      const {
+        data,
+        error
+      } = await supabaseClient
+
+        .from("creator_profiles")
+
+        .select(`
+          id,
+          user_id,
+          display_name,
+          age,
+          gender,
+          photo_url,
+          city,
+          area,
+          bio,
+          hourly_rate,
+          availability,
+          activation_payment_status,
+          profile_status,
+          created_at,
+          updated_at
+        `)
+
+        .eq(
+          "user_id",
+          currentUser.id
+        )
+
+        .maybeSingle();
+
+
+      if (error) {
+
+        console.error(error);
+
+        throw new Error(
+          "Could not load creator profile."
+        );
+
+      }
+
+
+      if (!data) {
+
+        showMessage(
+          "You don't have a creator profile yet. Please create one first.",
+          "error"
+        );
+
+        setTimeout(() => {
+
+          window.location.href =
+            "creator-register.html";
+
+        }, 2500);
+
+        return;
+      }
+
+
+      currentProfile = data;
+
+
+      populateForm(data);
+
+    }
+
+
+    /* ============================================
+       POPULATE FORM
+    ============================================ */
+
+    function populateForm(profile) {
+
+      displayNameInput.value =
+        profile.display_name || "";
+
+      ageInput.value =
+        profile.age || "";
+
+      genderInput.value =
+        profile.gender || "male";
+
+      cityInput.value =
+        profile.city || "";
+
+      areaInput.value =
+        profile.area || "";
+
+      bioInput.value =
+        profile.bio || "";
+
+      hourlyRateInput.value =
+        profile.hourly_rate || "";
+
+      availabilityInput.value =
+        profile.availability || "";
+
+
+      /*
+        Gender locked.
+      */
+
+      genderInput.disabled = true;
+
+      genderInput.classList.add("locked");
+
+
+      /*
+        Photo.
+      */
+
+      if (profile.photo_url) {
+
+        photoPreview.src =
+          profile.photo_url;
+
+      } else {
+
+        photoPreview.src =
+          createPlaceholderImage();
+
+      }
+
+
+      /*
+        Activation status.
+      */
+
+      updateStatusUI(profile);
+
+    }
+
+
+    /* ============================================
+       STATUS UI
+    ============================================ */
+
+    function updateStatusUI(profile) {
+
+      const activation =
+        profile.activation_payment_status;
+
+      const status =
+        profile.profile_status;
+
+
+      /*
+        Activation
+      */
+
+      if (activation === "paid") {
+
+        activationStatus.className =
+          "status active";
+
+        activationStatus.textContent =
+          "✓ Activation Paid";
+
+      } else if (activation === "failed") {
+
+        activationStatus.className =
+          "status inactive";
+
+        activationStatus.textContent =
+          "Activation Failed";
+
+      } else if (activation === "refunded") {
+
+        activationStatus.className =
+          "status inactive";
+
+        activationStatus.textContent =
+          "Activation Refunded";
+
+      } else {
+
+        activationStatus.className =
+          "status pending";
+
+        activationStatus.textContent =
+          "₹20 Activation Pending";
+
+      }
+
+
+      /*
+        Profile
+      */
+
+      if (status === "active") {
+
+        profileStatus.className =
+          "status active";
+
+        profileStatus.textContent =
+          "● Profile Live";
+
+      } else if (status === "suspended") {
+
+        profileStatus.className =
+          "status inactive";
+
+        profileStatus.textContent =
+          "Profile Suspended";
+
+      } else {
+
+        profileStatus.className =
+          "status inactive";
+
+        profileStatus.textContent =
+          "Profile Inactive";
+
+      }
+
+    }
+
+
+    /* ============================================
+       PHOTO SELECT
+    ============================================ */
+
+    photoInput.addEventListener(
+      "change",
+      function () {
+
+        const file =
+          this.files[0];
+
+
+        if (!file) {
+
+          newPhotoFile = null;
+
+          return;
+        }
+
+
+        /*
+          File type check.
+        */
+
+        const allowedTypes = [
+          "image/jpeg",
+          "image/png",
+          "image/webp"
+        ];
+
+
+        if (
+          !allowedTypes.includes(
+            file.type
+          )
+        ) {
+
+          showMessage(
+            "Please select JPG, PNG or WEBP image.",
+            "error"
+          );
+
+          this.value = "";
+
+          newPhotoFile = null;
+
+          return;
+        }
+
+
+        /*
+          File size check.
+        */
+
+        const maxSize =
+          5 * 1024 * 1024;
+
+
+        if (file.size > maxSize) {
+
+          showMessage(
+            "Photo must be smaller than 5 MB.",
+            "error"
+          );
+
+          this.value = "";
+
+          newPhotoFile = null;
+
+          return;
+        }
+
+
+        newPhotoFile = file;
+
+
+        /*
+          Local preview.
+        */
+
+        const reader =
+          new FileReader();
+
+
+        reader.onload = function (event) {
+
+          photoPreview.src =
+            event.target.result;
+
+        };
+
+
+        reader.readAsDataURL(file);
+
+      }
+    );
+
+
+    /* ============================================
+       SAVE PROFILE
+    ============================================ */
+
+    profileForm.addEventListener(
+      "submit",
+      async function (event) {
+
+        event.preventDefault();
+
+
+        if (!currentUser) {
+
+          showMessage(
+            "Please login first.",
+            "error"
+          );
+
+          return;
+        }
+
+
+        /*
+          Read values.
+        */
+
+        const displayName =
+          displayNameInput.value.trim();
+
+        const age =
+          Number(ageInput.value);
+
+        const city =
+          cityInput.value.trim();
+
+        const area =
+          areaInput.value.trim();
+
+        const bio =
+          bioInput.value.trim();
+
+        const hourlyRate =
+          Number(hourlyRateInput.value);
+
+        const availability =
+          availabilityInput.value.trim();
+
+
+        /*
+          Validation.
+        */
+
+        if (!displayName) {
+
+          showMessage(
+            "Please enter your display name.",
+            "error"
+          );
+
+          return;
+        }
+
+
+        if (
+          !Number.isInteger(age) ||
+          age < 18 ||
+          age > 100
+        ) {
+
+          showMessage(
+            "Age must be between 18 and 100.",
+            "error"
+          );
+
+          return;
+        }
+
+
+        if (!city) {
+
+          showMessage(
+            "Please enter your city.",
+            "error"
+          );
+
+          return;
+        }
+
+
+        if (
+          !hourlyRate ||
+          hourlyRate <= 0
+        ) {
+
+          showMessage(
+            "Please enter a valid hourly charge.",
+            "error"
+          );
+
+          return;
+        }
+
+
+        /*
+          Disable button.
+        */
+
+        saveBtn.disabled = true;
+
+        saveBtn.textContent =
+          "Saving...";
+
+
+        try {
+
+          let photoUrl =
+            currentProfile.photo_url || null;
+
+
+          /* ======================================
+             PHOTO UPLOAD
+          ====================================== */
+
+          if (newPhotoFile) {
+
+            const extension =
+              getFileExtension(
+                newPhotoFile.name
+              );
+
+
+            const randomName =
+              crypto.randomUUID();
+
+
+            const filePath =
+              currentUser.id +
+              "/" +
+              randomName +
+              "." +
+              extension;
+
+
+            const {
+              error: uploadError
+            } = await supabaseClient
+
+              .storage
+
+              .from("creator-photos")
+
+              .upload(
+                filePath,
+                newPhotoFile,
+                {
+                  cacheControl: "3600",
+                  upsert: false
+                }
+              );
+
+
+            if (uploadError) {
+
+              console.error(uploadError);
+
+              throw new Error(
+                "Photo upload failed: " +
+                uploadError.message
+              );
+
+            }
+
+
+            /*
+              Get public URL.
+            */
+
+            const {
+              data: publicData
+            } =
+              supabaseClient
+
+                .storage
+
+                .from("creator-photos")
+
+                .getPublicUrl(
+                  filePath
+                );
+
+
+            photoUrl =
+              publicData.publicUrl;
+
+
+            /*
+              Delete old photo if it belongs
+              to our creator storage bucket.
+            */
+
+            await deleteOldPhotoIfPossible(
+              currentProfile.photo_url
+            );
+
+          }
+
+
+          /* ======================================
+             DATABASE UPDATE
+          ====================================== */
+
+          /*
+            IMPORTANT:
+
+            We intentionally DO NOT send:
+
+            activation_payment_status
+            profile_status
+            user_id
+            gender
+
+            This prevents this dashboard from
+            trying to change activation/payment state.
+          */
+
+          const updateData = {
+
+            display_name:
+              displayName,
+
+            age:
+              age,
+
+            city:
+              city,
+
+            area:
+              area || null,
+
+            bio:
+              bio || null,
+
+            hourly_rate:
+              hourlyRate,
+
+            availability:
+              availability || null,
+
+            photo_url:
+              photoUrl,
+
+            updated_at:
+              new Date().toISOString()
+
+          };
+
+
+          const {
+            data: updatedProfile,
+            error: updateError
+          } = await supabaseClient
+
+            .from("creator_profiles")
+
+            .update(updateData)
+
+            .eq(
+              "id",
+              currentProfile.id
+            )
+
+            .eq(
+              "user_id",
+              currentUser.id
+            )
+
+            .select(`
+              id,
+              user_id,
+              display_name,
+              age,
+              gender,
+              photo_url,
+              city,
+              area,
+              bio,
+              hourly_rate,
+              availability,
+              activation_payment_status,
+              profile_status,
+              created_at,
+              updated_at
+            `)
+
+            .single();
+
+
+          if (updateError) {
+
+            console.error(updateError);
+
+            throw new Error(
+              "Profile update failed: " +
+              updateError.message
+            );
+
+          }
+
+
+          /*
+            Update local profile.
+          */
+
+          currentProfile =
+            updatedProfile;
+
+
+          /*
+            Reset selected photo.
+          */
+
+          newPhotoFile = null;
+
+          photoInput.value = "";
+
+
+          /*
+            Update status UI.
+          */
+
+          updateStatusUI(
+            updatedProfile
+          );
+
+
+          showMessage(
+            "✓ Profile updated successfully.",
+            "success"
+          );
+
+
+        } catch (error) {
+
+          console.error(error);
+
+          showMessage(
+            error.message ||
+            "Something went wrong while saving.",
+            "error"
+          );
+
+        } finally {
+
+          saveBtn.disabled = false;
+
+          saveBtn.textContent =
+            "Save Changes";
+
+        }
+
+      }
+    );
+
+
+    /* ============================================
+       DELETE OLD PHOTO
+    ============================================ */
+
+    async function deleteOldPhotoIfPossible(
+      oldPhotoUrl
+    ) {
+
+      if (!oldPhotoUrl) {
+        return;
+      }
+
+
+      try {
+
+        /*
+          Only attempt deletion for URLs that
+          belong to our creator-photos bucket.
+        */
+
+        if (
+          !oldPhotoUrl.includes(
+            "/storage/v1/object/public/creator-photos/"
+          )
+        ) {
+
+          return;
+        }
+
+
+        const marker =
+          "/storage/v1/object/public/creator-photos/";
+
+
+        const index =
+          oldPhotoUrl.indexOf(marker);
+
+
+        if (index === -1) {
+          return;
+        }
+
+
+        const oldPath =
+          oldPhotoUrl.substring(
+            index + marker.length
+          );
+
+
+        if (!oldPath) {
+          return;
+        }
+
+
+        /*
+          Safety check:
+          old image should be inside current
+          user's folder.
+        */
+
+        if (
+          !oldPath.startsWith(
+            currentUser.id + "/"
+          )
+        ) {
+
+          return;
+        }
+
+
+        await supabaseClient
+
+          .storage
+
+          .from("creator-photos")
+
+          .remove([
+            oldPath
+          ]);
+
+
+      } catch (error) {
+
+        /*
+          Don't fail the entire profile update
+          only because old photo cleanup failed.
+        */
+
+        console.warn(
+          "Old photo cleanup failed:",
+          error
+        );
+
+      }
+
+    }
+
+
+    /* ============================================
+       FILE EXTENSION
+    ============================================ */
+
+    function getFileExtension(
+      filename
+    ) {
+
+      const parts =
+        filename.split(".");
+
+      const extension =
+        parts[parts.length - 1]
+          .toLowerCase();
+
+
+      if (
+        ["jpg", "jpeg", "png", "webp"]
+          .includes(extension)
+      ) {
+
+        if (extension === "jpeg") {
+          return "jpg";
+        }
+
+        return extension;
+
+      }
+
+
+      return "jpg";
+
+    }
+
+
+    /* ============================================
+       PLACEHOLDER IMAGE
+    ============================================ */
+
+    function createPlaceholderImage() {
+
+      return (
+        "data:image/svg+xml;charset=UTF-8," +
+        encodeURIComponent(`
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="300"
+            height="300"
+            viewBox="0 0 300 300"
+          >
+
+            <rect
+              width="300"
+              height="300"
+              fill="#17131b"
+            />
+
+            <circle
+              cx="150"
+              cy="115"
+              r="55"
+              fill="#302736"
+            />
+
+            <path
+              d="
+                M70 270
+                C70 205 105 175 150 175
+                C195 175 230 205 230 270
+                Z
+              "
+              fill="#302736"
+            />
+
+            <text
+              x="150"
+              y="290"
+              text-anchor="middle"
+              fill="#8f8597"
+              font-size="16"
+              font-family="Arial"
+            >
+              ELYRA
+            </text>
+
+          </svg>
+        `)
+      );
+
+    }
+
+
+    /* ============================================
+       MESSAGE
+    ============================================ */
+
+    function showMessage(
+      message,
+      type
+    ) {
+
+      messageBox.className =
+        "message " + type;
+
+      messageBox.textContent =
+        message;
+
+
+      /*
+        Scroll message into view.
+      */
+
+      messageBox.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+
+
+      /*
+        Automatically hide success.
+      */
+
+      if (type === "success") {
+
+        setTimeout(() => {
+
+          messageBox.className =
+            "message";
+
+          messageBox.textContent =
+            "";
+
+        }, 4000);
+
+      }
+
+    }
+
+
+    /* ============================================
+       BACK BUTTON
+    ============================================ */
+
+    function goBack() {
+
+      if (
+        document.referrer &&
+        document.referrer.includes(
+          window.location.hostname
+        )
+      ) {
+
+        history.back();
+
+      } else {
+
+        window.location.href =
+          "index.html";
+
+      }
+
+    }
+
+  </script>
+
+</body>
+</html>
