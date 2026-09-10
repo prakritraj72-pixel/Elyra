@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register — Elyra</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, #3a0d20 0%, transparent 35%),
+        radial-gradient(circle at bottom right, #24103d 0%, transparent 35%),
+        #080709;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 25px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 470px;
+    }
+
+    .logo {
+      text-align: center;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: 5px;
+      margin-bottom: 8px;
+    }
+
+    .tagline {
+      text-align: center;
+      color: #aaa;
+      margin-bottom: 25px;
+      font-size: 14px;
+    }
+
+    .card {
+      background: rgba(20, 17, 22, 0.95);
+      border: 1px solid #302934;
+      border-radius: 22px;
+      padding: 30px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.45);
+    }
+
+    h1 {
+      font-size: 27px;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: #999;
+      font-size: 14px;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      color: #cfcfcf;
+      margin-bottom: 7px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 15px;
+      border-radius: 11px;
+      border: 1px solid #39333d;
+      background: #100e12;
+      color: white;
+      outline: none;
+      margin-bottom: 17px;
+      font-size: 14px;
+    }
+
+    input:focus {
+      border-color: #9b315b;
+    }
+
+    .age-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 3px 0 20px;
+      color: #bbb;
+      font-size: 13px;
+    }
+
+    .age-row input {
+      width: auto;
+      margin: 0;
+    }
+
+    .age-row label {
+      margin: 0;
+    }
+
+    button {
+      width: 100%;
+      border: none;
+      padding: 15px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #8e234d, #4e1e62);
+      color: white;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .message {
+      display: none;
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .error {
+      display: block;
+      background: rgba(150, 30, 50, .15);
+      border: 1px solid #692637;
+      color: #ff9cad;
+    }
+
+    .success {
+      display: block;
+      background: rgba(30, 130, 80, .12);
+      border: 1px solid #286b4b;
+      color: #8ce0b2;
+    }
+
+    .login {
+      text-align: center;
+      color: #999;
+      font-size: 14px;
+      margin-top: 22px;
+    }
+
+    .login a {
+      color: #e28aae;
+      text-decoration: none;
+    }
+
+    .back {
+      display: block;
+      text-align: center;
+      margin-top: 18px;
+      color: #777;
+      text-decoration: none;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <div class="logo">ELYRA</div>
+  <div class="tagline">Meet someone worth knowing.</div>
+
+  <div class="card">
+
+    <h1>Create your account</h1>
+    <p class="subtitle">Join Elyra and start meeting new people.</p>
+
+    <form id="registerForm">
+
+      <label>Full name</label>
+      <input type="text" id="fullName"
+             placeholder="Enter your full name" required>
+
+      <label>Username</label>
+      <input type="text" id="username"
+             placeholder="Choose a username" required>
+
+      <label>Email</label>
+      <input type="email" id="email"
+             placeholder="you@example.com" required>
+
+      <label>Password</label>
+      <input type="password" id="password"
+             placeholder="Minimum 6 characters"
+             minlength="6" required>
+
+      <label>Age</label>
+      <input type="number" id="age"
+             placeholder="18+"
+             min="18" max="100" required>
+
+      <label>City</label>
+      <input type="text" id="city"
+             placeholder="Enter your city" required>
+
+      <div class="age-row">
+        <input type="checkbox" id="adultCheck" required>
+        <label for="adultCheck">
+          I confirm that I am 18 years or older.
+        </label>
+      </div>
+
+      <button type="submit" id="registerBtn">
+        Create account
+      </button>
+
+      <div id="message" class="message"></div>
+
+    </form>
+
+    <div class="login">
+      Already have an account?
+      <a href="login.html">Log in</a>
+    </div>
+
+    <a class="back" href="index.html">← Back to Elyra</a>
+
+  </div>
+</div>
+
+<script>
+
+  /* ==============================
+     SUPABASE CONNECTION
+     ============================== */
+
+  const SUPABASE_URL = "PASTE_YOUR_PROJECT_URL_HERE";
+
+  const SUPABASE_KEY = "PASTE_YOUR_PUBLISHABLE_KEY_HERE";
+
+  const supabaseClient =
+    window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+
+  /* ==============================
+     REGISTER
+     ============================== */
+
+  const form = document.getElementById("registerForm");
+  const button = document.getElementById("registerBtn");
+  const message = document.getElementById("message");
+
+  function showMessage(text, type) {
+    message.textContent = text;
+    message.className = "message " + type;
+  }
+
+  form.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const fullName =
+      document.getElementById("fullName").value.trim();
+
+    const username =
+      document.getElementById("username").value.trim();
+
+    const email =
+      document.getElementById("email").value.trim();
+
+    const password =
+      document.getElementById("password").value;
+
+    const age =
+      Number(document.getElementById("age").value);
+
+    const city =
+      document.getElementById("city").value.trim();
+
+
+    if (age < 18) {
+      showMessage(
+        "Elyra is available only to users aged 18 or above.",
+        "error"
+      );
+      return;
+    }
+
+
+    button.disabled = true;
+    button.textContent = "Creating account...";
+
+
+    try {
+
+      const { data, error } =
+        await supabaseClient.auth.signUp({
+
+          email: email,
+
+          password: password,
+
+          options: {
+            data: {
+              full_name: fullName,
+              username: username,
+              age: age,
+              city: city
+            }
+          }
+
+        });
+
+
+      if (error) {
+        throw error;
+      }
+
+
+      showMessage(
+        "Account created successfully!",
+        "success"
+      );
+
+      form.reset();
+
+
+    } catch (error) {
+
+      showMessage(
+        error.message,
+        "error"
+      );
+
+    }
+
+
+    button.disabled = false;
+    button.textContent = "Create account";
+
+  });
+
+</script>
+
+</body>
+</html>
