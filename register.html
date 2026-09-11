@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Register — Elyra</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -65,6 +66,7 @@
       color: #999;
       font-size: 14px;
       margin-bottom: 25px;
+      line-height: 1.5;
     }
 
     label {
@@ -90,6 +92,10 @@
       border-color: #9b315b;
     }
 
+    input::placeholder {
+      color: #666;
+    }
+
     .age-row {
       display: flex;
       align-items: center;
@@ -100,12 +106,17 @@
     }
 
     .age-row input {
-      width: auto;
+      width: 16px;
+      height: 16px;
       margin: 0;
+      accent-color: #9b315b;
+      cursor: pointer;
     }
 
     .age-row label {
       margin: 0;
+      cursor: pointer;
+      line-height: 1.4;
     }
 
     button {
@@ -118,11 +129,18 @@
       font-weight: 700;
       font-size: 15px;
       cursor: pointer;
+      transition: .2s;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      opacity: .95;
     }
 
     button:disabled {
       opacity: .6;
       cursor: not-allowed;
+      transform: none;
     }
 
     .message {
@@ -160,6 +178,10 @@
       text-decoration: none;
     }
 
+    .login a:hover {
+      text-decoration: underline;
+    }
+
     .back {
       display: block;
       text-align: center;
@@ -167,6 +189,36 @@
       color: #777;
       text-decoration: none;
       font-size: 13px;
+    }
+
+    .back:hover {
+      color: #aaa;
+    }
+
+    .terms {
+      color: #666;
+      font-size: 11px;
+      line-height: 1.5;
+      text-align: center;
+      margin-top: 18px;
+    }
+
+    @media (max-width: 520px) {
+      body {
+        padding: 15px;
+      }
+
+      .card {
+        padding: 23px 20px;
+      }
+
+      .logo {
+        font-size: 28px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
     }
   </style>
 </head>
@@ -176,75 +228,171 @@
 <div class="container">
 
   <div class="logo">ELYRA</div>
-  <div class="tagline">Meet someone worth knowing.</div>
+
+  <div class="tagline">
+    Meet someone worth knowing.
+  </div>
 
   <div class="card">
 
     <h1>Create your account</h1>
-    <p class="subtitle">Join Elyra and start meeting new people.</p>
+
+    <p class="subtitle">
+      Join Elyra and start meeting new people.
+    </p>
 
     <form id="registerForm">
 
-      <label>Full name</label>
-      <input type="text" id="fullName"
-             placeholder="Enter your full name" required>
+      <label for="fullName">
+        Full name
+      </label>
 
-      <label>Username</label>
-      <input type="text" id="username"
-             placeholder="Choose a username" required>
+      <input
+        type="text"
+        id="fullName"
+        placeholder="Enter your full name"
+        maxlength="100"
+        required
+      >
 
-      <label>Email</label>
-      <input type="email" id="email"
-             placeholder="you@example.com" required>
 
-      <label>Password</label>
-      <input type="password" id="password"
-             placeholder="Minimum 6 characters"
-             minlength="6" required>
+      <label for="username">
+        Username
+      </label>
 
-      <label>Age</label>
-      <input type="number" id="age"
-             placeholder="18+"
-             min="18" max="100" required>
+      <input
+        type="text"
+        id="username"
+        placeholder="Choose a username"
+        maxlength="30"
+        required
+      >
 
-      <label>City</label>
-      <input type="text" id="city"
-             placeholder="Enter your city" required>
+
+      <label for="email">
+        Email
+      </label>
+
+      <input
+        type="email"
+        id="email"
+        placeholder="you@example.com"
+        required
+      >
+
+
+      <label for="password">
+        Password
+      </label>
+
+      <input
+        type="password"
+        id="password"
+        placeholder="Minimum 6 characters"
+        minlength="6"
+        required
+      >
+
+
+      <label for="age">
+        Age
+      </label>
+
+      <input
+        type="number"
+        id="age"
+        placeholder="18+"
+        min="18"
+        max="100"
+        required
+      >
+
+
+      <label for="city">
+        City
+      </label>
+
+      <input
+        type="text"
+        id="city"
+        placeholder="Enter your city"
+        maxlength="80"
+        required
+      >
+
 
       <div class="age-row">
-        <input type="checkbox" id="adultCheck" required>
+
+        <input
+          type="checkbox"
+          id="adultCheck"
+          required
+        >
+
         <label for="adultCheck">
           I confirm that I am 18 years or older.
         </label>
+
       </div>
 
-      <button type="submit" id="registerBtn">
+
+      <button
+        type="submit"
+        id="registerBtn"
+      >
         Create account
       </button>
 
-      <div id="message" class="message"></div>
+
+      <div
+        id="message"
+        class="message"
+      ></div>
 
     </form>
 
+
     <div class="login">
+
       Already have an account?
-      <a href="login.html">Log in</a>
+
+      <a href="login.html">
+        Log in
+      </a>
+
     </div>
 
-    <a class="back" href="index.html">← Back to Elyra</a>
+
+    <div class="terms">
+      By creating an account, you agree to use Elyra
+      lawfully and respectfully. Elyra is strictly 18+.
+    </div>
+
+
+    <a
+      class="back"
+      href="index.html"
+    >
+      ← Back to Elyra
+    </a>
 
   </div>
+
 </div>
+
 
 <script>
 
-  /* ==============================
-     SUPABASE CONNECTION
-     ============================== */
+  /* ==========================================
+     SUPABASE CONFIGURATION
+     ========================================== */
 
-  const SUPABASE_URL = "https://frvvacirnfvlxifvopcm.supabase.co";
+  const SUPABASE_URL =
+    "https://frvvacirnfvlxifvopcm.supabase.co";
 
-  const SUPABASE_KEY = "sb_publishable_l7fygMVXGAkbskkiBom8uw_-86tU6L0";
+  const SUPABASE_KEY =
+    "sb_publishable_l7fygMVXGAkbskkiBom8uw_-86tU6L0";
+
 
   const supabaseClient =
     window.supabase.createClient(
@@ -253,103 +401,341 @@
     );
 
 
-  /* ==============================
-     REGISTER
-     ============================== */
+  /* ==========================================
+     ELEMENTS
+     ========================================== */
 
-  const form = document.getElementById("registerForm");
-  const button = document.getElementById("registerBtn");
-  const message = document.getElementById("message");
+  const form =
+    document.getElementById("registerForm");
+
+  const button =
+    document.getElementById("registerBtn");
+
+  const message =
+    document.getElementById("message");
+
+
+  /* ==========================================
+     MESSAGE
+     ========================================== */
 
   function showMessage(text, type) {
+
     message.textContent = text;
-    message.className = "message " + type;
+
+    message.className =
+      "message " + type;
+
   }
 
-  form.addEventListener("submit", async function(event) {
 
-    event.preventDefault();
+  /* ==========================================
+     REGISTER
+     ========================================== */
 
-    const fullName =
-      document.getElementById("fullName").value.trim();
+  form.addEventListener(
+    "submit",
+    async function(event) {
 
-    const username =
-      document.getElementById("username").value.trim();
-
-    const email =
-      document.getElementById("email").value.trim();
-
-    const password =
-      document.getElementById("password").value;
-
-    const age =
-      Number(document.getElementById("age").value);
-
-    const city =
-      document.getElementById("city").value.trim();
+      event.preventDefault();
 
 
-    if (age < 18) {
-      showMessage(
-        "Elyra is available only to users aged 18 or above.",
-        "error"
-      );
-      return;
-    }
+      const fullName =
+        document
+          .getElementById("fullName")
+          .value
+          .trim();
 
 
-    button.disabled = true;
-    button.textContent = "Creating account...";
+      const username =
+        document
+          .getElementById("username")
+          .value
+          .trim();
 
 
-    try {
-
-      const { data, error } =
-        await supabaseClient.auth.signUp({
-
-          email: email,
-
-          password: password,
-
-          options: {
-            data: {
-              full_name: fullName,
-              username: username,
-              age: age,
-              city: city
-            }
-          }
-
-        });
+      const email =
+        document
+          .getElementById("email")
+          .value
+          .trim()
+          .toLowerCase();
 
 
-      if (error) {
-        throw error;
+      const password =
+        document
+          .getElementById("password")
+          .value;
+
+
+      const age =
+        Number(
+          document
+            .getElementById("age")
+            .value
+        );
+
+
+      const city =
+        document
+          .getElementById("city")
+          .value
+          .trim();
+
+
+      /* ========================================
+         VALIDATION
+         ======================================== */
+
+      if (
+        !Number.isInteger(age) ||
+        age < 18 ||
+        age > 100
+      ) {
+
+        showMessage(
+          "Elyra is available only to users aged 18 or above.",
+          "error"
+        );
+
+        return;
       }
 
 
-      showMessage(
-        "Account created successfully!",
-        "success"
-      );
+      if (
+        !fullName ||
+        !username ||
+        !email ||
+        !password ||
+        !city
+      ) {
 
-      form.reset();
+        showMessage(
+          "Please fill in all required fields.",
+          "error"
+        );
+
+        return;
+      }
 
 
-    } catch (error) {
+      if (password.length < 6) {
 
-      showMessage(
-        error.message,
-        "error"
-      );
+        showMessage(
+          "Password must contain at least 6 characters.",
+          "error"
+        );
+
+        return;
+      }
+
+
+      /* ========================================
+         DISABLE BUTTON
+         ======================================== */
+
+      button.disabled = true;
+
+      button.textContent =
+        "Creating account...";
+
+
+      try {
+
+        /* ======================================
+           CREATE SUPABASE AUTH USER
+           ====================================== */
+
+        const {
+          data,
+          error
+        } =
+          await supabaseClient.auth.signUp({
+
+            email: email,
+
+            password: password,
+
+            options: {
+
+              data: {
+
+                full_name:
+                  fullName,
+
+                username:
+                  username,
+
+                age:
+                  age,
+
+                city:
+                  city
+
+              }
+
+            }
+
+          });
+
+
+        if (error) {
+          throw error;
+        }
+
+
+        if (!data || !data.user) {
+
+          throw new Error(
+            "Account could not be created. Please try again."
+          );
+
+        }
+
+
+        /* ======================================
+           CREATE CUSTOMER PROFILE
+           ====================================== */
+
+        /*
+          If email confirmation is disabled,
+          Supabase gives us a session and we
+          create the profile immediately.
+
+          If email confirmation is enabled,
+          the database trigger we will add next
+          will create the profile automatically.
+        */
+
+        if (data.session) {
+
+          const {
+            error: profileError
+          } =
+            await supabaseClient
+              .from("profiles")
+              .upsert({
+
+                id:
+                  data.user.id,
+
+                full_name:
+                  fullName,
+
+                username:
+                  username,
+
+                age:
+                  age,
+
+                city:
+                  city,
+
+                role:
+                  "customer"
+
+              }, {
+
+                onConflict:
+                  "id"
+
+              });
+
+
+          if (profileError) {
+
+            console.error(
+              "Profile creation error:",
+              profileError
+            );
+
+            throw new Error(
+              "Account created, but profile setup failed. Please contact support."
+            );
+
+          }
+
+        }
+
+
+        /* ======================================
+           SUCCESS
+           ====================================== */
+
+        showMessage(
+          "Account created successfully! Redirecting to login...",
+          "success"
+        );
+
+
+        form.reset();
+
+
+        /* ======================================
+           REDIRECT TO LOGIN
+           ====================================== */
+
+        setTimeout(
+          function() {
+
+            window.location.href =
+              "login.html";
+
+          },
+          1800
+        );
+
+
+      } catch (error) {
+
+        console.error(
+          "Registration error:",
+          error
+        );
+
+
+        let errorMessage =
+          error.message ||
+          "Something went wrong while creating your account.";
+
+
+        /* Friendly Supabase messages */
+
+        if (
+          errorMessage
+            .toLowerCase()
+            .includes("user already registered")
+        ) {
+
+          errorMessage =
+            "This email is already registered. Please log in instead.";
+
+        }
+
+
+        showMessage(
+          errorMessage,
+          "error"
+        );
+
+
+        button.disabled = false;
+
+        button.textContent =
+          "Create account";
+
+        return;
+
+      }
+
+
+      button.disabled = false;
+
+      button.textContent =
+        "Create account";
 
     }
-
-
-    button.disabled = false;
-    button.textContent = "Create account";
-
-  });
+  );
 
 </script>
 
