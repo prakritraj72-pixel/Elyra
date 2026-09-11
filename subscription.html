@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Elyra Subscription</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(circle at top, #24102f 0%, #0c0810 40%, #050507 100%);
+      color: #fff;
+      min-height: 100vh;
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 20px 15px 50px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 950px;
+      margin: auto;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 35px;
+      gap: 15px;
+    }
+
+    .brand {
+      font-size: 28px;
+      font-weight: 900;
+      letter-spacing: 2px;
+    }
+
+    .brand span {
+      color: #d88cff;
+    }
+
+    .back-btn {
+      border: 1px solid rgba(255,255,255,.15);
+      background: rgba(255,255,255,.06);
+      color: white;
+      padding: 10px 15px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .hero {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .hero h1 {
+      font-size: 36px;
+      margin-bottom: 12px;
+    }
+
+    .hero h1 span {
+      color: #d88cff;
+    }
+
+    .hero p {
+      color: #aaa4b1;
+      max-width: 600px;
+      margin: auto;
+      line-height: 1.6;
+    }
+
+    .message {
+      display: none;
+      padding: 14px 16px;
+      border-radius: 13px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .message.error {
+      display: block;
+      background: rgba(255,75,100,.10);
+      border: 1px solid rgba(255,75,100,.25);
+      color: #ff8a9a;
+    }
+
+    .message.success {
+      display: block;
+      background: rgba(65,220,125,.10);
+      border: 1px solid rgba(65,220,125,.25);
+      color: #69e89d;
+    }
+
+    .current-plan {
+      display: none;
+      background:
+        linear-gradient(
+          135deg,
+          rgba(216,140,255,.12),
+          rgba(255,255,255,.035)
+        );
+      border: 1px solid rgba(216,140,255,.22);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 25px;
+      text-align: center;
+    }
+
+    .current-plan.show {
+      display: block;
+    }
+
+    .current-plan h3 {
+      margin-bottom: 8px;
+    }
+
+    .current-plan p {
+      color: #bdb6c4;
+      font-size: 14px;
+    }
+
+    .plans {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 22px;
+      max-width: 760px;
+      margin: auto;
+    }
+
+    .plan {
+      position: relative;
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255,255,255,.08),
+          rgba(255,255,255,.025)
+        );
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 24px;
+      padding: 28px;
+      backdrop-filter: blur(15px);
+      transition: .2s;
+    }
+
+    .plan:hover {
+      transform: translateY(-3px);
+      border-color: rgba(216,140,255,.35);
+    }
+
+    .plan.popular {
+      border-color: rgba(216,140,255,.45);
+      box-shadow: 0 15px 50px rgba(169,92,255,.10);
+    }
+
+    .badge {
+      position: absolute;
+      top: -12px;
+      right: 20px;
+      background: linear-gradient(135deg, #d88cff, #a95cff);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+    }
+
+    .plan-name {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .price {
+      font-size: 38px;
+      font-weight: 900;
+      margin-bottom: 5px;
+    }
+
+    .price span {
+      font-size: 14px;
+      color: #99929f;
+      font-weight: 500;
+    }
+
+    .description {
+      color: #a7a0ad;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 22px;
+      min-height: 40px;
+    }
+
+    .features {
+      list-style: none;
+      margin-bottom: 25px;
+    }
+
+    .features li {
+      color: #d2ccd7;
+      font-size: 14px;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    .features li::before {
+      content: "✓";
+      color: #d88cff;
+      font-weight: 900;
+      margin-right: 9px;
+    }
+
+    .subscribe-btn {
+      width: 100%;
+      border: none;
+      padding: 14px;
+      border-radius: 13px;
+      background: linear-gradient(135deg, #d88cff, #a95cff);
+      color: white;
+      font-weight: 800;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .subscribe-btn:hover {
+      opacity: .92;
+    }
+
+    .subscribe-btn:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .info {
+      max-width: 760px;
+      margin: 30px auto 0;
+      background: rgba(216,140,255,.05);
+      border: 1px solid rgba(216,140,255,.12);
+      border-radius: 18px;
+      padding: 18px;
+      color: #aaa4b1;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .info strong {
+      color: white;
+    }
+
+    .footer {
+      text-align: center;
+      color: #777;
+      font-size: 12px;
+      margin-top: 35px;
+    }
+
+    @media (max-width: 700px) {
+
+      .page {
+        padding: 15px 12px 40px;
+      }
+
+      .topbar {
+        margin-bottom: 28px;
+      }
+
+      .brand {
+        font-size: 24px;
+      }
+
+      .hero h1 {
+        font-size: 29px;
+      }
+
+      .plans {
+        grid-template-columns: 1fr;
+      }
+
+      .plan {
+        padding: 23px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="page">
+
+    <div class="container">
+
+      <div class="topbar">
+
+        <div class="brand">
+          EL<span>Y</span>RA
+        </div>
+
+        <button
+          class="back-btn"
+          onclick="goBack()"
+        >
+          ← Back
+        </button>
+
+      </div>
+
+
+      <section class="hero">
+
+        <h1>
+          Choose Your <span>Plan</span>
+        </h1>
+
+        <p>
+          Unlock Elyra bookings and connect with creators
+          for lawful social companionship.
+        </p>
+
+      </section>
+
+
+      <div id="messageBox" class="message"></div>
+
+
+      <div id="currentPlan" class="current-plan">
+
+        <h3 id="currentPlanTitle">
+          Subscription Active
+        </h3>
+
+        <p id="currentPlanText">
+          Your Elyra subscription is currently active.
+        </p>
+
+      </div>
+
+
+      <section class="plans">
+
+
+        <!-- MONTHLY -->
+
+        <div class="plan">
+
+          <div class="plan-name">
+            Monthly
+          </div>
+
+          <div class="price">
+            ₹199
+            <span>/ month</span>
+          </div>
+
+          <div class="description">
+            Flexible monthly access for Elyra bookings.
+          </div>
+
+          <ul class="features">
+
+            <li>
+              Browse creator profiles
+            </li>
+
+            <li>
+              Book Elyra creators
+            </li>
+
+            <li>
+              Nearby-first discovery
+            </li>
+
+            <li>
+              Safety & reporting features
+            </li>
+
+            <li>
+              Cancel anytime
+            </li>
+
+          </ul>
+
+          <button
+            class="subscribe-btn"
+            onclick="selectPlan('monthly')"
+          >
+            Choose Monthly
+          </button>
+
+        </div>
+
+
+        <!-- YEARLY -->
+
+        <div class="plan popular">
+
+          <div class="badge">
+            BEST VALUE
+          </div>
+
+          <div class="plan-name">
+            Yearly
+          </div>
+
+          <div class="price">
+            ₹699
+            <span>/ year</span>
+          </div>
+
+          <div class="description">
+            Long-term access at a much lower effective monthly cost.
+          </div>
+
+          <ul class="features">
+
+            <li>
+              Everything in Monthly
+            </li>
+
+            <li>
+              Full-year booking access
+            </li>
+
+            <li>
+              Better overall value
+            </li>
+
+            <li>
+              Nearby-first discovery
+            </li>
+
+            <li>
+              Safety & reporting features
+            </li>
+
+          </ul>
+
+          <button
+            class="subscribe-btn"
+            onclick="selectPlan('yearly')"
+          >
+            Choose Yearly
+          </button>
+
+        </div>
+
+      </section>
+
+
+      <div class="info">
+
+        <strong>Important:</strong>
+
+        <br><br>
+
+        Subscription payment is not connected yet.
+        Your plan selection will be saved for the next
+        payment integration step.
+
+        <br><br>
+
+        Elyra is 18+ only and is intended for lawful
+        social companionship. Sexual services,
+        prostitution, exploitation, harassment and
+        illegal activity are prohibited.
+
+      </div>
+
+
+      <div class="footer">
+        © 2026 Elyra. All rights reserved.
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <script>
+
+    /* ============================================
+       SUPABASE
+    ============================================ */
+
+    const SUPABASE_URL =
+      "https://frvvacirnfvlxifvopcm.supabase.co";
+
+    const SUPABASE_ANON_KEY =
+      "sb_publishable_l7fygMVXGAkbskkiBom8uw_-86tU6L0";
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+      );
+
+
+    /* ============================================
+       ELEMENTS
+    ============================================ */
+
+    const messageBox =
+      document.getElementById("messageBox");
+
+    const currentPlanBox =
+      document.getElementById("currentPlan");
+
+    const currentPlanTitle =
+      document.getElementById("currentPlanTitle");
+
+    const currentPlanText =
+      document.getElementById("currentPlanText");
+
+
+    /* ============================================
+       INIT
+    ============================================ */
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      initializeSubscription
+    );
+
+
+    async function initializeSubscription() {
+
+      const {
+        data,
+        error
+      } = await supabaseClient.auth.getUser();
+
+
+      if (error || !data.user) {
+
+        window.location.href =
+          "login.html?redirect=subscription.html";
+
+        return;
+      }
+
+
+      await loadSubscription(data.user.id);
+
+    }
+
+
+    /* ============================================
+       LOAD CURRENT SUBSCRIPTION
+    ============================================ */
+
+    async function loadSubscription(userId) {
+
+      const {
+        data,
+        error
+      } = await supabaseClient
+
+        .from("subscriptions")
+
+        .select(`
+          id,
+          plan,
+          amount,
+          status,
+          started_at,
+          expires_at
+        `)
+
+        .eq(
+          "user_id",
+          userId
+        )
+
+        .order(
+          "created_at",
+          {
+            ascending: false
+          }
+        )
+
+        .limit(1)
+        .maybeSingle();
+
+
+      if (error) {
+
+        console.error(
+          "Subscription load error:",
+          error
+        );
+
+        return;
+
+      }
+
+
+      if (
+        data &&
+        data.status === "active"
+      ) {
+
+        currentPlanBox.classList.add("show");
+
+        const planName =
+          data.plan === "yearly"
+            ? "Yearly"
+            : "Monthly";
+
+        currentPlanTitle.textContent =
+          "✓ " + planName + " Subscription Active";
+
+        if (data.expires_at) {
+
+          const expiry =
+            new Date(
+              data.expires_at
+            ).toLocaleDateString(
+              "en-IN",
+              {
+                day: "numeric",
+                month: "short",
+                year: "numeric"
+              }
+            );
+
+          currentPlanText.textContent =
+            "Your subscription is active until " +
+            expiry +
+            ".";
+
+        } else {
+
+          currentPlanText.textContent =
+            "Your subscription is currently active.";
+
+        }
+
+      }
+
+    }
+
+
+    /* ============================================
+       PLAN SELECTION
+    ============================================ */
+
+    function selectPlan(plan) {
+
+      showMessage(
+        "Payment integration is coming next. " +
+        "Your selected plan: " +
+        (plan === "yearly"
+          ? "₹699/year"
+          : "₹199/month"),
+        "success"
+      );
+
+    }
+
+
+    /* ============================================
+       MESSAGE
+    ============================================ */
+
+    function showMessage(
+      message,
+      type
+    ) {
+
+      messageBox.className =
+        "message " + type;
+
+      messageBox.textContent =
+        message;
+
+      messageBox.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+
+    }
+
+
+    /* ============================================
+       BACK
+    ============================================ */
+
+    function goBack() {
+
+      if (
+        document.referrer &&
+        document.referrer.includes(
+          window.location.hostname
+        )
+      ) {
+
+        history.back();
+
+      } else {
+
+        window.location.href =
+          "index.html";
+
+      }
+
+    }
+
+  </script>
+
+</body>
+</html>
