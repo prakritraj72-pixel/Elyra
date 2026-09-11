@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -165,6 +166,7 @@
       font-size: 13px;
     }
   </style>
+
 </head>
 
 <body>
@@ -176,51 +178,53 @@
 
   <div class="card">
 
-    <h1>Welcome back</h1>
-    <p class="subtitle">Log in to continue to Elyra.</p>
+```
+<h1>Welcome back</h1>
+<p class="subtitle">Log in to continue to Elyra.</p>
 
-    <form id="loginForm">
+<form id="loginForm">
 
-      <label>Email</label>
+  <label for="email">Email</label>
 
-      <input
-        type="email"
-        id="email"
-        placeholder="you@example.com"
-        required
-      >
+  <input
+    type="email"
+    id="email"
+    placeholder="you@example.com"
+    autocomplete="email"
+    required
+  >
 
-      <label>Password</label>
+  <label for="password">Password</label>
 
-      <input
-        type="password"
-        id="password"
-        placeholder="Enter your password"
-        required
-      >
+  <input
+    type="password"
+    id="password"
+    placeholder="Enter your password"
+    autocomplete="current-password"
+    required
+  >
 
-      <!-- FORGOT PASSWORD -->
+  <a href="forgot-password.html" class="forgot">
+    Forgot password?
+  </a>
 
-      <a href="forgot-password.html" class="forgot">
-        Forgot password?
-      </a>
+  <button type="submit" id="loginBtn">
+    Log in
+  </button>
 
-      <button type="submit" id="loginBtn">
-        Log in
-      </button>
+  <div id="message" class="message"></div>
 
-      <div id="message" class="message"></div>
+</form>
 
-    </form>
+<div class="register">
+  Don't have an account?
+  <a href="register.html">Create account</a>
+</div>
 
-    <div class="register">
-      Don't have an account?
-      <a href="register.html">Create account</a>
-    </div>
-
-    <a class="back" href="index.html">
-      ← Back to Elyra
-    </a>
+<a class="back" href="index.html">
+  ← Back to Elyra
+</a>
+```
 
   </div>
 </div>
@@ -245,7 +249,7 @@
 
 
   /* ==============================
-     LOGIN
+     ELEMENTS
      ============================== */
 
   const form =
@@ -258,6 +262,10 @@
     document.getElementById("message");
 
 
+  /* ==============================
+     MESSAGE
+     ============================== */
+
   function showMessage(text, type) {
 
     message.textContent = text;
@@ -268,23 +276,63 @@
   }
 
 
+  /* ==============================
+     SAFE REDIRECT
+     ============================== */
+
+  function getRedirectPage() {
+
+    const params =
+      new URLSearchParams(window.location.search);
+
+    const redirect =
+      params.get("redirect");
+
+    if (
+      redirect &&
+      !redirect.startsWith("http://") &&
+      !redirect.startsWith("https://") &&
+      !redirect.startsWith("//") &&
+      !redirect.includes(":")
+    ) {
+      return redirect;
+    }
+
+    return "index.html";
+
+  }
+
+
+  /* ==============================
+     LOGIN
+     ============================== */
+
   form.addEventListener(
     "submit",
     async function(event) {
 
       event.preventDefault();
 
-
       const email =
         document.getElementById("email")
         .value
-        .trim();
-
+        .trim()
+        .toLowerCase();
 
       const password =
         document.getElementById("password")
         .value;
 
+      if (!email || !password) {
+
+        showMessage(
+          "Please enter your email and password.",
+          "error"
+        );
+
+        return;
+
+      }
 
       button.disabled = true;
 
@@ -293,6 +341,10 @@
 
 
       try {
+
+        /* ==============================
+           SUPABASE LOGIN
+           ============================== */
 
         const { data, error } =
           await supabaseClient.auth.signInWithPassword({
@@ -305,11 +357,110 @@
 
 
         if (error) {
-
           throw error;
+        }
+
+
+        if (!data || !data.user) {
+
+          throw new Error(
+            "Login failed. Please try again."
+          );
 
         }
 
+
+        /* ==============================
+           CHECK PROFILE
+           ============================== */
+
+        const user =
+          data.user;
+
+        const { data: profile, error: profileError } =
+          await supabaseClient
+            .from("profiles")
+            .select("id, role, full_name, username")
+            .eq("id", user.id)
+            .maybeSingle();
+
+
+        if (profileError) {
+
+          console.error(
+            "Profile check error:",
+            profileError
+          );
+
+        }
+
+
+        /*
+         * Normally the database trigger has already
+         * created the profile.
+         *
+         * If the profile is somehow missing, we try
+         * to create it safely from the user's metadata.
+         */
+
+        if (!profile) {
+
+          const metadata =
+            user.user_metadata || {};
+
+          const ageValue =
+            Number(metadata.age);
+
+          const profileData = {
+
+            id: user.id,
+
+            full_name:
+              metadata.full_name ||
+              "",
+
+            username:
+              metadata.username ||
+              email.split("@")[0],
+
+            age:
+              Number.isInteger(ageValue) &&
+              ageValue >= 18 &&
+              ageValue <= 100
+                ? ageValue
+                : null,
+
+            city:
+              metadata.city ||
+              "",
+
+            role:
+              "customer"
+
+          };
+
+
+          const { error: insertError } =
+            await supabaseClient
+              .from("profiles")
+              .insert(profileData);
+
+
+          if (insertError) {
+
+            console.error(
+              "Profile creation error:",
+              insertError
+            );
+
+          }
+
+        }
+
+
+        /* ==============================
+           SUCCESS
+           ============================== */
 
         showMessage(
           "Login successful! Redirecting...",
@@ -317,18 +468,57 @@
         );
 
 
+        const redirectPage =
+          getRedirectPage();
+
+
         setTimeout(function() {
 
           window.location.href =
-            "index.html";
+            redirectPage;
 
-        }, 1000);
+        }, 700);
 
 
       } catch (error) {
 
+        console.error(
+          "Login error:",
+          error
+        );
+
+
+        let errorMessage =
+          error?.message ||
+          "Unable to log in. Please try again.";
+
+
+        if (
+          errorMessage
+            .toLowerCase()
+            .includes("email not confirmed")
+        ) {
+
+          errorMessage =
+            "Please verify your email before logging in.";
+
+        }
+
+
+        if (
+          errorMessage
+            .toLowerCase()
+            .includes("invalid login credentials")
+        ) {
+
+          errorMessage =
+            "Incorrect email or password.";
+
+        }
+
+
         showMessage(
-          error.message,
+          errorMessage,
           "error"
         );
 
@@ -342,6 +532,49 @@
 
     }
   );
+
+
+  /* ==============================
+     ALREADY LOGGED IN
+     ============================== */
+
+  async function checkExistingSession() {
+
+    const { data } =
+      await supabaseClient.auth.getSession();
+
+    if (
+      data &&
+      data.session &&
+      data.session.user
+    ) {
+
+      /*
+       * Don't automatically redirect while the
+       * user is typing/login page is being opened.
+       *
+       * Only redirect if a valid session already
+       * exists and the page was intentionally opened.
+       */
+
+      const params =
+        new URLSearchParams(
+          window.location.search
+        );
+
+      if (params.get("redirect")) {
+
+        window.location.href =
+          getRedirectPage();
+
+      }
+
+    }
+
+  }
+
+
+  checkExistingSession();
 
 </script>
 
