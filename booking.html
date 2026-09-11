@@ -1,0 +1,1469 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Book | ELYRA</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --pink: #ff3f8f;
+      --pink-light: #ff72ae;
+      --pink-soft: rgba(255, 63, 143, 0.10);
+      --pink-border: rgba(255, 63, 143, 0.25);
+
+      --black: #050505;
+      --card: #0d0d0d;
+      --card-light: #111111;
+
+      --white: #ffffff;
+      --muted: #9b9b9b;
+      --border: rgba(255,255,255,0.09);
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        radial-gradient(
+          circle at 50% -10%,
+          rgba(255, 63, 143, 0.13),
+          transparent 40%
+        ),
+        #050505;
+      color: var(--white);
+      min-height: 100vh;
+    }
+
+    /* ================= HEADER ================= */
+
+    header {
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      padding: 0 7%;
+
+      border-bottom: 1px solid var(--border);
+
+      background: rgba(5,5,5,0.88);
+
+      backdrop-filter: blur(18px);
+
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .logo {
+      color: #fff;
+      font-size: 25px;
+      font-weight: 900;
+      letter-spacing: 5px;
+    }
+
+    .logo span {
+      color: var(--pink);
+    }
+
+    .back {
+      color: #aaa;
+      text-decoration: none;
+      font-size: 14px;
+      transition: .2s;
+    }
+
+    .back:hover {
+      color: var(--pink);
+    }
+
+    /* ================= MAIN ================= */
+
+    main {
+      width: min(700px, 92%);
+      margin: 48px auto 80px;
+    }
+
+    .heading {
+      margin-bottom: 25px;
+    }
+
+    .heading h1 {
+      font-size: 34px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .heading h1 span {
+      color: var(--pink);
+    }
+
+    .heading p {
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    /* ================= CARDS ================= */
+
+    .card {
+      background: linear-gradient(
+        145deg,
+        #111111,
+        #0a0a0a
+      );
+
+      border: 1px solid var(--border);
+
+      border-radius: 22px;
+
+      padding: 25px;
+
+      margin-bottom: 18px;
+
+      box-shadow:
+        0 20px 70px rgba(0,0,0,.45);
+    }
+
+    /* ================= CREATOR ================= */
+
+    .creator {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .creator img,
+    .creator-placeholder {
+      width: 78px;
+      height: 78px;
+
+      border-radius: 50%;
+
+      object-fit: cover;
+
+      background: #181818;
+
+      border: 2px solid var(--pink);
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      color: var(--pink);
+
+      font-size: 25px;
+      font-weight: 800;
+
+      flex-shrink: 0;
+    }
+
+    .creator-info {
+      flex: 1;
+    }
+
+    .creator-info h2 {
+      font-size: 21px;
+      margin-bottom: 7px;
+    }
+
+    .creator-info p {
+      color: #999;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .rate {
+      text-align: right;
+    }
+
+    .rate strong {
+      display: block;
+
+      color: var(--pink);
+
+      font-size: 21px;
+    }
+
+    .rate span {
+      color: #777;
+      font-size: 12px;
+    }
+
+    /* ================= FORM ================= */
+
+    .field {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+
+      margin-bottom: 8px;
+
+      color: #ddd;
+
+      font-size: 14px;
+
+      font-weight: 600;
+    }
+
+    input,
+    select {
+      width: 100%;
+
+      height: 51px;
+
+      background: #080808;
+
+      color: #fff;
+
+      border: 1px solid var(--border);
+
+      border-radius: 12px;
+
+      padding: 0 14px;
+
+      outline: none;
+
+      font-size: 15px;
+
+      transition: .2s;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--pink);
+
+      box-shadow:
+        0 0 0 3px rgba(255,63,143,.08);
+    }
+
+    input::-webkit-calendar-picker-indicator {
+      filter: invert(1);
+      cursor: pointer;
+    }
+
+    select option {
+      background: #0b0b0b;
+      color: white;
+    }
+
+    .row {
+      display: grid;
+
+      grid-template-columns: 1fr 1fr;
+
+      gap: 15px;
+    }
+
+    /* ================= SUMMARY ================= */
+
+    .summary {
+      background: #080808;
+
+      border: 1px solid var(--border);
+
+      border-radius: 16px;
+
+      padding: 18px;
+
+      margin-top: 7px;
+    }
+
+    .summary-row {
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      gap: 15px;
+
+      padding: 9px 0;
+
+      color: #999;
+
+      font-size: 14px;
+    }
+
+    .summary-row span:last-child {
+      color: #ddd;
+    }
+
+    .summary-row.total {
+      border-top: 1px solid var(--border);
+
+      margin-top: 8px;
+
+      padding-top: 16px;
+
+      color: #fff;
+
+      font-size: 19px;
+
+      font-weight: 800;
+    }
+
+    .summary-row.total span:last-child {
+      color: var(--pink);
+
+      font-size: 22px;
+    }
+
+    /* ================= PAYMENT NOTE ================= */
+
+    .payment-note {
+      margin-top: 15px;
+
+      padding: 14px;
+
+      border-radius: 12px;
+
+      background: var(--pink-soft);
+
+      border: 1px solid var(--pink-border);
+
+      color: #ff9bc4;
+
+      font-size: 13px;
+
+      line-height: 1.55;
+    }
+
+    /* ================= BUTTON ================= */
+
+    button {
+      width: 100%;
+
+      height: 55px;
+
+      border: none;
+
+      border-radius: 13px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #ff3f8f,
+          #ff5ca0
+        );
+
+      color: #fff;
+
+      font-size: 16px;
+
+      font-weight: 800;
+
+      cursor: pointer;
+
+      margin-top: 5px;
+
+      box-shadow:
+        0 10px 30px rgba(255,63,143,.22);
+
+      transition:
+        transform .2s,
+        box-shadow .2s,
+        opacity .2s;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+
+      box-shadow:
+        0 13px 35px rgba(255,63,143,.32);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* ================= WARNING ================= */
+
+    .warning {
+      color: #ff9b9b;
+
+      background: rgba(255,60,60,.07);
+
+      border: 1px solid rgba(255,60,60,.18);
+
+      padding: 14px;
+
+      border-radius: 12px;
+
+      font-size: 13px;
+
+      line-height: 1.5;
+
+      margin-bottom: 18px;
+
+      display: none;
+    }
+
+    /* ================= LOADING ================= */
+
+    .loading {
+      text-align: center;
+
+      color: #888;
+
+      padding: 60px 0;
+    }
+
+    .error {
+      text-align: center;
+
+      color: #ff9b9b;
+
+      padding: 60px 0;
+    }
+
+    /* ================= SAFETY ================= */
+
+    .safety {
+      text-align: center;
+
+      color: #777;
+
+      font-size: 12px;
+
+      line-height: 1.6;
+
+      margin-top: 22px;
+    }
+
+    .safety strong {
+      color: #aaa;
+    }
+
+    /* ================= MOBILE ================= */
+
+    @media (max-width: 600px) {
+
+      header {
+        padding: 0 5%;
+      }
+
+      .logo {
+        font-size: 22px;
+      }
+
+      main {
+        width: 92%;
+        margin-top: 32px;
+      }
+
+      .heading h1 {
+        font-size: 28px;
+      }
+
+      .card {
+        padding: 19px;
+
+        border-radius: 18px;
+      }
+
+      .creator {
+        align-items: flex-start;
+      }
+
+      .creator img,
+      .creator-placeholder {
+        width: 68px;
+        height: 68px;
+      }
+
+      .creator-info h2 {
+        font-size: 18px;
+      }
+
+      .rate {
+        display: none;
+      }
+
+      .row {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- ================= HEADER ================= -->
+
+  <header>
+
+    <div class="logo">
+      ELY<span>R</span>A
+    </div>
+
+    <a href="#" class="back" id="backBtn">
+      ← Back
+    </a>
+
+  </header>
+
+
+  <!-- ================= MAIN ================= -->
+
+  <main>
+
+    <div class="heading">
+
+      <h1>
+        Book your <span>time</span>
+      </h1>
+
+      <p>
+        Choose your date, time and duration.
+        Your booking will be securely processed
+        after verification.
+      </p>
+
+    </div>
+
+
+    <div id="warning" class="warning"></div>
+
+
+    <div id="loading" class="loading">
+      Loading creator...
+    </div>
+
+
+    <div id="content" style="display:none;">
+
+
+      <!-- ================= CREATOR CARD ================= -->
+
+      <div class="card">
+
+        <div class="creator">
+
+          <div id="creatorPhoto"></div>
+
+          <div class="creator-info">
+
+            <h2 id="creatorName">
+              Creator
+            </h2>
+
+            <p id="creatorLocation">
+              Location
+            </p>
+
+          </div>
+
+          <div class="rate">
+
+            <strong id="creatorRate">
+              ₹0
+            </strong>
+
+            <span>
+              per hour
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <!-- ================= BOOKING FORM ================= -->
+
+      <div class="card">
+
+        <div class="field">
+
+          <label for="date">
+            Select Date
+          </label>
+
+          <input
+            type="date"
+            id="date"
+          >
+
+        </div>
+
+
+        <div class="row">
+
+          <div class="field">
+
+            <label for="time">
+              Select Time
+            </label>
+
+            <input
+              type="time"
+              id="time"
+            >
+
+          </div>
+
+
+          <div class="field">
+
+            <label for="hours">
+              Number of Hours
+            </label>
+
+            <select id="hours">
+
+              <option value="1">1 hour</option>
+              <option value="2">2 hours</option>
+              <option value="3">3 hours</option>
+              <option value="4">4 hours</option>
+              <option value="5">5 hours</option>
+              <option value="6">6 hours</option>
+              <option value="7">7 hours</option>
+              <option value="8">8 hours</option>
+              <option value="9">9 hours</option>
+              <option value="10">10 hours</option>
+              <option value="11">11 hours</option>
+              <option value="12">12 hours</option>
+              <option value="13">13 hours</option>
+              <option value="14">14 hours</option>
+              <option value="15">15 hours</option>
+              <option value="16">16 hours</option>
+              <option value="17">17 hours</option>
+              <option value="18">18 hours</option>
+              <option value="19">19 hours</option>
+              <option value="20">20 hours</option>
+              <option value="21">21 hours</option>
+              <option value="22">22 hours</option>
+              <option value="23">23 hours</option>
+              <option value="24">24 hours</option>
+
+            </select>
+
+          </div>
+
+        </div>
+
+
+        <!-- ================= PRICE SUMMARY ================= -->
+
+        <div class="summary">
+
+          <div class="summary-row">
+
+            <span>
+              Hourly rate
+            </span>
+
+            <span id="summaryRate">
+              ₹0
+            </span>
+
+          </div>
+
+
+          <div class="summary-row">
+
+            <span>
+              Duration
+            </span>
+
+            <span id="summaryHours">
+              1 hour
+            </span>
+
+          </div>
+
+
+          <div class="summary-row">
+
+            <span>
+              First payment
+            </span>
+
+            <span id="firstPayment">
+              ₹0
+            </span>
+
+          </div>
+
+
+          <div class="summary-row">
+
+            <span>
+              Second payment
+            </span>
+
+            <span id="secondPayment">
+              ₹0
+            </span>
+
+          </div>
+
+
+          <div class="summary-row total">
+
+            <span>
+              Total
+            </span>
+
+            <span id="totalAmount">
+              ₹0
+            </span>
+
+          </div>
+
+        </div>
+
+
+        <div class="payment-note">
+
+          <strong>Payment:</strong>
+          Payment integration will be connected later.
+          Your booking details will be securely verified
+          before the booking is created.
+
+        </div>
+
+
+        <br>
+
+
+        <button id="bookBtn">
+          Continue Booking
+        </button>
+
+
+        <div class="safety">
+
+          <strong>ELYRA Safety</strong><br>
+
+          Meet only in safe and lawful environments.
+          Never share unnecessary personal information.
+          Use ELYRA's report and block features if needed.
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <!-- ================= JAVASCRIPT ================= -->
+
+  <script>
+
+    const SUPABASE_URL =
+      "https://frvvacirnfvlxifvopcm.supabase.co";
+
+    const SUPABASE_ANON_KEY =
+      "sb_publishable_l7fygMVXGAkbskkiBom8uw_-86tU6L0";
+
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+      );
+
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+
+    const creatorId =
+      params.get("creator");
+
+
+    let currentUser = null;
+    let creator = null;
+
+
+    const loading =
+      document.getElementById("loading");
+
+
+    const content =
+      document.getElementById("content");
+
+
+    const warning =
+      document.getElementById("warning");
+
+
+    const dateInput =
+      document.getElementById("date");
+
+
+    const timeInput =
+      document.getElementById("time");
+
+
+    const hoursInput =
+      document.getElementById("hours");
+
+
+    const bookBtn =
+      document.getElementById("bookBtn");
+
+
+    /* ================= HELPERS ================= */
+
+    function showWarning(message) {
+
+      warning.textContent = message;
+
+      warning.style.display = "block";
+
+    }
+
+
+    function formatMoney(amount) {
+
+      return "₹" +
+        Number(amount).toLocaleString("en-IN");
+
+    }
+
+
+    function updateSummary() {
+
+      if (!creator) return;
+
+
+      const hours =
+        Number(hoursInput.value || 1);
+
+
+      const rate =
+        Number(creator.hourly_rate || 0);
+
+
+      const total =
+        rate * hours;
+
+
+      const first =
+        Math.floor(total / 2);
+
+
+      const second =
+        total - first;
+
+
+      document.getElementById(
+        "summaryRate"
+      ).textContent =
+        formatMoney(rate);
+
+
+      document.getElementById(
+        "summaryHours"
+      ).textContent =
+        hours === 1
+          ? "1 hour"
+          : `${hours} hours`;
+
+
+      document.getElementById(
+        "firstPayment"
+      ).textContent =
+        formatMoney(first);
+
+
+      document.getElementById(
+        "secondPayment"
+      ).textContent =
+        formatMoney(second);
+
+
+      document.getElementById(
+        "totalAmount"
+      ).textContent =
+        formatMoney(total);
+
+    }
+
+
+    function setMinimumDate() {
+
+      const today =
+        new Date();
+
+
+      const year =
+        today.getFullYear();
+
+
+      const month =
+        String(
+          today.getMonth() + 1
+        ).padStart(2, "0");
+
+
+      const day =
+        String(
+          today.getDate()
+        ).padStart(2, "0");
+
+
+      dateInput.min =
+        `${year}-${month}-${day}`;
+
+    }
+
+
+    /* ================= LOAD PAGE ================= */
+
+    async function loadPage() {
+
+      if (!creatorId) {
+
+        loading.innerHTML = `
+          <div class="error">
+            Creator information is missing.
+          </div>
+        `;
+
+        return;
+      }
+
+
+      const {
+        data: {
+          session
+        }
+      } =
+        await supabaseClient
+          .auth
+          .getSession();
+
+
+      if (!session) {
+
+        const redirect =
+          `booking.html?creator=${encodeURIComponent(
+            creatorId
+          )}`;
+
+
+        window.location.href =
+          `login.html?redirect=${encodeURIComponent(
+            redirect
+          )}`;
+
+        return;
+      }
+
+
+      currentUser =
+        session.user;
+
+
+      /* ================= CREATOR ================= */
+
+      const {
+        data,
+        error
+      } =
+        await supabaseClient
+
+          .from("creator_profiles")
+
+          .select(`
+            id,
+            user_id,
+            display_name,
+            age,
+            photo_url,
+            city,
+            area,
+            bio,
+            hourly_rate,
+            availability,
+            profile_status
+          `)
+
+          .eq("id", creatorId)
+
+          .eq(
+            "profile_status",
+            "active"
+          )
+
+          .maybeSingle();
+
+
+      if (error) {
+
+        console.error(error);
+
+
+        loading.innerHTML = `
+          <div class="error">
+            Unable to load creator.
+          </div>
+        `;
+
+        return;
+      }
+
+
+      if (!data) {
+
+        loading.innerHTML = `
+          <div class="error">
+            This creator is currently unavailable.
+          </div>
+        `;
+
+        return;
+      }
+
+
+      creator = data;
+
+
+      /* ================= SELF BOOKING ================= */
+
+      if (
+        creator.user_id ===
+        currentUser.id
+      ) {
+
+        loading.style.display =
+          "none";
+
+
+        showWarning(
+          "You cannot book your own creator profile."
+        );
+
+        return;
+      }
+
+
+      /* ================= SUBSCRIPTION ================= */
+
+      const {
+        data: subscription,
+        error: subscriptionError
+      } =
+        await supabaseClient
+
+          .from("subscriptions")
+
+          .select(`
+            id,
+            status,
+            expires_at
+          `)
+
+          .eq(
+            "user_id",
+            currentUser.id
+          )
+
+          .eq(
+            "status",
+            "active"
+          )
+
+          .order(
+            "created_at",
+            {
+              ascending: false
+            }
+          )
+
+          .limit(1)
+
+          .maybeSingle();
+
+
+      if (subscriptionError) {
+
+        console.error(
+          subscriptionError
+        );
+
+
+        loading.innerHTML = `
+          <div class="error">
+            Unable to verify subscription.
+          </div>
+        `;
+
+        return;
+      }
+
+
+      if (!subscription) {
+
+        loading.style.display =
+          "none";
+
+
+        showWarning(
+          "You need an active ELYRA subscription before booking."
+        );
+
+
+        setTimeout(() => {
+
+          window.location.href =
+            "subscription.html";
+
+        }, 1800);
+
+
+        return;
+      }
+
+
+      if (
+        subscription.expires_at &&
+        new Date(
+          subscription.expires_at
+        ) <= new Date()
+      ) {
+
+        loading.style.display =
+          "none";
+
+
+        showWarning(
+          "Your subscription has expired. Please renew it before booking."
+        );
+
+
+        setTimeout(() => {
+
+          window.location.href =
+            "subscription.html";
+
+        }, 1800);
+
+
+        return;
+      }
+
+
+      /* ================= RENDER CREATOR ================= */
+
+      document.getElementById(
+        "creatorName"
+      ).textContent =
+        `${creator.display_name}, ${creator.age}`;
+
+
+      document.getElementById(
+        "creatorLocation"
+      ).textContent =
+        [
+          creator.area,
+          creator.city
+        ]
+        .filter(Boolean)
+        .join(" • ");
+
+
+      document.getElementById(
+        "creatorRate"
+      ).textContent =
+        formatMoney(
+          creator.hourly_rate
+        );
+
+
+      const photo =
+        document.getElementById(
+          "creatorPhoto"
+        );
+
+
+      if (creator.photo_url) {
+
+        photo.innerHTML = `
+          <img
+            src="${creator.photo_url}"
+            alt="Creator photo"
+          >
+        `;
+
+      } else {
+
+        photo.innerHTML = `
+          <div class="creator-placeholder">
+            E
+          </div>
+        `;
+
+      }
+
+
+      setMinimumDate();
+
+      updateSummary();
+
+
+      loading.style.display =
+        "none";
+
+
+      content.style.display =
+        "block";
+
+    }
+
+
+    /* ================= EVENTS ================= */
+
+    hoursInput.addEventListener(
+      "change",
+      updateSummary
+    );
+
+
+    hoursInput.addEventListener(
+      "input",
+      updateSummary
+    );
+
+
+    /* ================= BOOK ================= */
+
+    bookBtn.addEventListener(
+      "click",
+      async () => {
+
+        if (
+          !currentUser ||
+          !creator
+        ) {
+          return;
+        }
+
+
+        const selectedDate =
+          dateInput.value;
+
+
+        const selectedTime =
+          timeInput.value;
+
+
+        const hours =
+          Number(
+            hoursInput.value
+          );
+
+
+        if (!selectedDate) {
+
+          alert(
+            "Please select a date."
+          );
+
+          return;
+        }
+
+
+        if (!selectedTime) {
+
+          alert(
+            "Please select a time."
+          );
+
+          return;
+        }
+
+
+        if (
+          !hours ||
+          hours < 1 ||
+          hours > 24
+        ) {
+
+          alert(
+            "Please select valid booking hours."
+          );
+
+          return;
+        }
+
+
+        const totalAmount =
+          Number(
+            creator.hourly_rate
+          ) * hours;
+
+
+        const firstPayment =
+          Math.floor(
+            totalAmount / 2
+          );
+
+
+        const secondPayment =
+          totalAmount -
+          firstPayment;
+
+
+        const scheduledAt =
+          `${selectedDate}T${selectedTime}:00`;
+
+
+        /*
+          IMPORTANT:
+
+          Booking is NOT inserted directly
+          from the browser.
+
+          The secure Supabase Edge Function
+          will verify:
+
+          - logged-in customer
+          - active subscription
+          - active creator
+          - blocks
+          - creator rate
+          - hours
+          - total amount
+          - booking time
+          - customer/creator relationship
+
+          Payment integration will be connected
+          after the secure booking backend.
+        */
+
+
+        bookBtn.disabled =
+          true;
+
+
+        bookBtn.textContent =
+          "Preparing booking...";
+
+
+        try {
+
+          /*
+            Backend connection comes next.
+          */
+
+
+          console.log({
+            creator_id: creator.id,
+            scheduled_at: scheduledAt,
+            hours: hours,
+            hourly_rate:
+              Number(
+                creator.hourly_rate
+              ),
+            total_amount:
+              totalAmount,
+            first_payment:
+              firstPayment,
+            second_payment:
+              secondPayment
+          });
+
+
+          alert(
+            "Booking details are ready.\n\n" +
+            `Creator: ${creator.display_name}\n` +
+            `Date: ${selectedDate}\n` +
+            `Time: ${selectedTime}\n` +
+            `Hours: ${hours}\n` +
+            `Total: ${formatMoney(totalAmount)}\n\n` +
+            "Secure booking backend will be connected next."
+          );
+
+
+        } catch (error) {
+
+          console.error(error);
+
+
+          alert(
+            "Something went wrong. Please try again."
+          );
+
+
+        } finally {
+
+          bookBtn.disabled =
+            false;
+
+
+          bookBtn.textContent =
+            "Continue Booking";
+
+        }
+
+      }
+    );
+
+
+    /* ================= BACK ================= */
+
+    document
+      .getElementById("backBtn")
+      .addEventListener(
+        "click",
+        (event) => {
+
+          event.preventDefault();
+
+
+          if (creatorId) {
+
+            window.location.href =
+              `creator.html?id=${encodeURIComponent(
+                creatorId
+              )}`;
+
+          } else {
+
+            window.location.href =
+              "creators.html";
+
+          }
+
+        }
+      );
+
+
+    /* ================= START ================= */
+
+    loadPage();
+
+  </script>
+
+</body>
+</html>
+```
