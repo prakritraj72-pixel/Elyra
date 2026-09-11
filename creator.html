@@ -1,0 +1,1505 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Elyra — Creator</title>
+
+<meta
+name="description"
+content="View an Elyra creator profile."
+
+>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --bg: #09090d;
+      --card: #111117;
+      --border: rgba(255,255,255,0.09);
+      --text: #f7f7fb;
+      --muted: #9c9ca8;
+      --pink: #ff4f91;
+      --purple: #9b6cff;
+      --green: #51d88a;
+      --danger: #ff5b72;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+      min-height: 100vh;
+      color: var(--text);
+
+      background:
+        radial-gradient(
+          circle at 20% 0%,
+          rgba(155,108,255,0.13),
+          transparent 32%
+        ),
+        radial-gradient(
+          circle at 90% 15%,
+          rgba(255,79,145,0.10),
+          transparent 30%
+        ),
+        var(--bg);
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .navbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+
+      border-bottom: 1px solid var(--border);
+      background: rgba(9,9,13,0.82);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav-inner {
+      max-width: 1100px;
+      margin: auto;
+      padding: 16px 20px;
+
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 15px;
+    }
+
+    .logo {
+      font-size: 23px;
+      font-weight: 800;
+      letter-spacing: -0.7px;
+    }
+
+    .logo span {
+      color: var(--pink);
+    }
+
+    .back-btn {
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 9px 14px;
+      border-radius: 999px;
+      font-size: 13px;
+    }
+
+    .back-btn:hover {
+      color: white;
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .page {
+      max-width: 1000px;
+      margin: auto;
+      padding: 45px 20px 80px;
+    }
+
+    .profile-card {
+      overflow: hidden;
+
+      border: 1px solid var(--border);
+      border-radius: 28px;
+
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255,255,255,0.055),
+          rgba(255,255,255,0.018)
+        );
+
+      box-shadow:
+        0 25px 80px rgba(0,0,0,0.35);
+    }
+
+    .profile-layout {
+      display: grid;
+      grid-template-columns: 390px 1fr;
+    }
+
+    .photo-section {
+      min-height: 560px;
+      position: relative;
+
+      background:
+        linear-gradient(
+          145deg,
+          #1b1724,
+          #0d0d13
+        );
+    }
+
+    .creator-photo {
+      width: 100%;
+      height: 100%;
+      min-height: 560px;
+
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-placeholder {
+      min-height: 560px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 90px;
+      color: #686875;
+
+      background:
+        radial-gradient(
+          circle at 50% 35%,
+          rgba(255,79,145,0.16),
+          transparent 38%
+        );
+    }
+
+    .available-badge {
+      position: absolute;
+      top: 18px;
+      left: 18px;
+
+      display: flex;
+      align-items: center;
+      gap: 7px;
+
+      padding: 8px 12px;
+      border-radius: 999px;
+
+      background: rgba(8,8,12,0.76);
+      border: 1px solid rgba(255,255,255,0.1);
+
+      backdrop-filter: blur(12px);
+
+      color: #d8ffe7;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .available-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 10px rgba(81,216,138,0.65);
+    }
+
+    .details {
+      padding: 38px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-self: flex-start;
+      align-items: center;
+
+      padding: 7px 11px;
+      margin-bottom: 16px;
+
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+
+      color: #c8c8d3;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .creator-name {
+      font-size: clamp(34px, 5vw, 52px);
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+
+    .creator-meta {
+      margin-top: 12px;
+
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .meta-pill {
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+    }
+
+    .rate-box {
+      margin-top: 28px;
+      padding: 18px;
+
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.035);
+    }
+
+    .rate-label {
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .rate {
+      margin-top: 4px;
+      font-size: 28px;
+      font-weight: 850;
+    }
+
+    .rate small {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .section {
+      margin-top: 27px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 9px;
+    }
+
+    .bio {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.75;
+      white-space: pre-line;
+    }
+
+    .availability {
+      color: #d5d5df;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .actions {
+      margin-top: auto;
+      padding-top: 35px;
+
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .book-btn {
+      width: 100%;
+      border: 0;
+
+      color: white;
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--pink),
+          var(--purple)
+        );
+
+      padding: 15px 18px;
+      border-radius: 15px;
+
+      font-size: 14px;
+      font-weight: 800;
+
+      cursor: pointer;
+
+      transition:
+        transform 0.2s,
+        opacity 0.2s;
+    }
+
+    .book-btn:hover {
+      transform: translateY(-1px);
+      opacity: 0.94;
+    }
+
+    .secondary-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .secondary-btn {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.035);
+      color: var(--muted);
+
+      padding: 11px;
+      border-radius: 13px;
+
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .secondary-btn:hover {
+      color: white;
+      background: rgba(255,255,255,0.06);
+    }
+
+    .danger:hover {
+      color: var(--danger);
+      border-color: rgba(255,91,114,0.3);
+    }
+
+    .safety-note {
+      margin-top: 24px;
+
+      padding: 14px;
+
+      border-radius: 14px;
+      border: 1px solid var(--border);
+
+      background: rgba(255,255,255,0.025);
+
+      color: #858592;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .state-box {
+      max-width: 650px;
+      margin: 80px auto;
+
+      padding: 45px 25px;
+      text-align: center;
+
+      border: 1px solid var(--border);
+      border-radius: 24px;
+
+      background: rgba(255,255,255,0.025);
+    }
+
+    .state-icon {
+      font-size: 42px;
+      margin-bottom: 15px;
+    }
+
+    .state-box h2 {
+      font-size: 22px;
+      margin-bottom: 9px;
+    }
+
+    .state-box p {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+    }
+
+    .state-btn {
+      margin-top: 20px;
+
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      color: white;
+
+      padding: 11px 17px;
+      border-radius: 12px;
+
+      cursor: pointer;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 28px 20px;
+
+      text-align: center;
+
+      color: #71717d;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    footer strong {
+      color: #bcbcc6;
+    }
+
+    @media (max-width: 800px) {
+      .profile-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .photo-section,
+      .creator-photo,
+      .photo-placeholder {
+        min-height: 460px;
+      }
+
+      .details {
+        padding: 28px 23px;
+      }
+
+      .actions {
+        margin-top: 25px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .nav-inner {
+        padding: 14px 15px;
+      }
+
+      .logo {
+        font-size: 21px;
+      }
+
+      .back-btn {
+        font-size: 11px;
+        padding: 8px 11px;
+      }
+
+      .page {
+        padding: 25px 12px 60px;
+      }
+
+      .profile-card {
+        border-radius: 22px;
+      }
+
+      .photo-section,
+      .creator-photo,
+      .photo-placeholder {
+        min-height: 390px;
+      }
+
+      .details {
+        padding: 24px 18px;
+      }
+
+      .creator-name {
+        font-size: 36px;
+      }
+
+      .rate {
+        font-size: 25px;
+      }
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <nav class="navbar">
+    <div class="nav-inner">
+
+```
+  <a href="index.html" class="logo">
+    Ely<span>ra</span>
+  </a>
+
+  <a href="creators.html" class="back-btn">
+    ← Back to Creators
+  </a>
+
+</div>
+```
+
+  </nav>
+
+  <main class="page">
+
+```
+<!-- LOADING -->
+
+<div id="loading" class="state-box">
+
+  <div class="state-icon">✦</div>
+
+  <h2>Loading profile...</h2>
+
+  <p>
+    We're getting this creator's Elyra profile ready.
+  </p>
+
+</div>
+
+
+<!-- ERROR -->
+
+<div id="errorBox" class="state-box hidden">
+
+  <div class="state-icon">⚠️</div>
+
+  <h2>Creator not found</h2>
+
+  <p id="errorMessage">
+    This creator may no longer be available.
+  </p>
+
+  <button
+    class="state-btn"
+    type="button"
+    onclick="goBack()"
+  >
+    Back to Creators
+  </button>
+
+</div>
+
+
+<!-- PROFILE -->
+
+<section
+  id="profile"
+  class="profile-card hidden"
+>
+
+  <div class="profile-layout">
+
+    <!-- PHOTO -->
+
+    <div class="photo-section">
+
+      <img
+        id="creatorPhoto"
+        class="creator-photo"
+        src=""
+        alt="Creator"
+      >
+
+      <div
+        id="photoPlaceholder"
+        class="photo-placeholder hidden"
+      >
+        ♡
+      </div>
+
+      <div class="available-badge">
+
+        <span class="available-dot"></span>
+
+        Available on Elyra
+
+      </div>
+
+    </div>
+
+
+    <!-- DETAILS -->
+
+    <div class="details">
+
+      <div class="eyebrow">
+        ✦ Elyra Creator
+      </div>
+
+
+      <h1
+        id="creatorName"
+        class="creator-name"
+      >
+        Creator
+      </h1>
+
+
+      <div class="creator-meta">
+
+        <span
+          id="creatorAge"
+          class="meta-pill"
+        >
+          18+
+        </span>
+
+        <span
+          id="creatorLocation"
+          class="meta-pill"
+        >
+          📍 India
+        </span>
+
+      </div>
+
+
+      <div class="rate-box">
+
+        <div class="rate-label">
+          Creator's rate
+        </div>
+
+        <div
+          id="creatorRate"
+          class="rate"
+        >
+          ₹0
+          <small>/ hour</small>
+        </div>
+
+      </div>
+
+
+      <div class="section">
+
+        <div class="section-title">
+          About
+        </div>
+
+        <div
+          id="creatorBio"
+          class="bio"
+        >
+          No bio available.
+        </div>
+
+      </div>
+
+
+      <div class="section">
+
+        <div class="section-title">
+          Availability
+        </div>
+
+        <div
+          id="creatorAvailability"
+          class="availability"
+        >
+          Check availability before booking.
+        </div>
+
+      </div>
+
+
+      <div class="actions">
+
+        <button
+          id="bookBtn"
+          class="book-btn"
+          type="button"
+        >
+          Book Now
+        </button>
+
+        <div class="secondary-actions">
+
+          <button
+            id="blockBtn"
+            class="secondary-btn"
+            type="button"
+          >
+            🚫 Block
+          </button>
+
+          <button
+            id="reportBtn"
+            class="secondary-btn danger"
+            type="button"
+          >
+            ⚑ Report
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <div class="safety-note">
+        <strong>Safety reminder:</strong>
+        Elyra is for lawful social companionship and
+        activities only. Sexual services, prostitution,
+        exploitation, harassment and illegal activity are
+        strictly prohibited. Never share your home address
+        publicly.
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+```
+
+  </main>
+
+  <footer>
+
+```
+<strong>Elyra</strong> — Connect. Meet. Experience.
+
+<br><br>
+
+18+ only. Lawful social companionship only.
+```
+
+  </footer>
+
+  <script>
+
+    /* =====================================================
+       SUPABASE
+    ===================================================== */
+
+    const SUPABASE_URL =
+      "https://frvvacirnfvlxifvopcm.supabase.co";
+
+    const SUPABASE_PUBLISHABLE_KEY =
+      "sb_publishable_l7fygMVXGAkbskkiBom8uw_-86tU6L0";
+
+    const supabaseClient =
+      window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_PUBLISHABLE_KEY
+      );
+
+
+    /* =====================================================
+       DOM
+    ===================================================== */
+
+    const loading =
+      document.getElementById("loading");
+
+    const errorBox =
+      document.getElementById("errorBox");
+
+    const errorMessage =
+      document.getElementById("errorMessage");
+
+    const profile =
+      document.getElementById("profile");
+
+    const creatorPhoto =
+      document.getElementById("creatorPhoto");
+
+    const photoPlaceholder =
+      document.getElementById("photoPlaceholder");
+
+    const creatorName =
+      document.getElementById("creatorName");
+
+    const creatorAge =
+      document.getElementById("creatorAge");
+
+    const creatorLocation =
+      document.getElementById("creatorLocation");
+
+    const creatorRate =
+      document.getElementById("creatorRate");
+
+    const creatorBio =
+      document.getElementById("creatorBio");
+
+    const creatorAvailability =
+      document.getElementById("creatorAvailability");
+
+    const bookBtn =
+      document.getElementById("bookBtn");
+
+    const blockBtn =
+      document.getElementById("blockBtn");
+
+    const reportBtn =
+      document.getElementById("reportBtn");
+
+
+    /* =====================================================
+       CREATOR ID
+    ===================================================== */
+
+    const params =
+      new URLSearchParams(
+        window.location.search
+      );
+
+    const creatorId =
+      params.get("id");
+
+
+    let creatorData = null;
+    let currentUser = null;
+
+
+    /* =====================================================
+       INITIALIZE
+    ===================================================== */
+
+    async function initialize() {
+
+      if (!creatorId) {
+
+        showError(
+          "No creator profile was selected."
+        );
+
+        return;
+      }
+
+
+      try {
+
+        const {
+          data: {
+            user
+          }
+        } =
+          await supabaseClient.auth.getUser();
+
+        currentUser = user || null;
+
+
+        await loadCreator();
+
+      } catch (error) {
+
+        console.error(error);
+
+        showError(
+          "Unable to load this creator profile."
+        );
+      }
+    }
+
+
+    /* =====================================================
+       LOAD CREATOR
+    ===================================================== */
+
+    async function loadCreator() {
+
+      const {
+        data,
+        error
+      } = await supabaseClient
+
+        .from("creator_profiles")
+
+        .select(`
+          id,
+          user_id,
+          display_name,
+          age,
+          gender,
+          photo_url,
+          city,
+          area,
+          bio,
+          hourly_rate,
+          availability,
+          profile_status
+        `)
+
+        .eq("id", creatorId)
+
+        .eq(
+          "profile_status",
+          "active"
+        )
+
+        .maybeSingle();
+
+
+      if (error) {
+
+        console.error(error);
+
+        showError(
+          "Unable to load creator profile."
+        );
+
+        return;
+      }
+
+
+      if (!data) {
+
+        showError(
+          "This creator is not currently available."
+        );
+
+        return;
+      }
+
+
+      creatorData = data;
+
+      renderCreator(data);
+    }
+
+
+    /* =====================================================
+       RENDER CREATOR
+    ===================================================== */
+
+    function renderCreator(
+      creator
+    ) {
+
+      const name =
+        creator.display_name ||
+        "Elyra Creator";
+
+
+      const age =
+        creator.age
+          ? `${creator.age} years`
+          : "18+";
+
+
+      const area =
+        creator.area ||
+        "";
+
+
+      const city =
+        creator.city ||
+        "India";
+
+
+      const location =
+        area
+          ? `${area}, ${city}`
+          : city;
+
+
+      const rate =
+        formatPrice(
+          creator.hourly_rate
+        );
+
+
+      creatorName.textContent =
+        name;
+
+
+      creatorAge.textContent =
+        age;
+
+
+      creatorLocation.textContent =
+        `📍 ${location}`;
+
+
+      creatorRate.innerHTML =
+        `₹${rate} <small>/ hour</small>`;
+
+
+      creatorBio.textContent =
+        creator.bio ||
+        "Available for social companionship and activities.";
+
+
+      creatorAvailability.textContent =
+        creator.availability ||
+        "Check availability before booking.";
+
+
+      if (creator.photo_url) {
+
+        creatorPhoto.src =
+          creator.photo_url;
+
+        creatorPhoto.alt =
+          name;
+
+        creatorPhoto.classList.remove(
+          "hidden"
+        );
+
+        photoPlaceholder.classList.add(
+          "hidden"
+        );
+
+      } else {
+
+        creatorPhoto.classList.add(
+          "hidden"
+        );
+
+        photoPlaceholder.classList.remove(
+          "hidden"
+        );
+      }
+
+
+      creatorPhoto.onerror =
+        function() {
+
+          creatorPhoto.classList.add(
+            "hidden"
+          );
+
+          photoPlaceholder.classList.remove(
+            "hidden"
+          );
+        };
+
+
+      loading.classList.add(
+        "hidden"
+      );
+
+      errorBox.classList.add(
+        "hidden"
+      );
+
+      profile.classList.remove(
+        "hidden"
+      );
+
+
+      document.title =
+        `Elyra — ${name}`;
+    }
+
+
+    /* =====================================================
+       BOOK NOW
+    ===================================================== */
+
+    bookBtn.addEventListener(
+      "click",
+      startBooking
+    );
+
+
+    async function startBooking() {
+
+      if (!currentUser) {
+
+        const redirect =
+          `creator.html?id=${encodeURIComponent(
+            creatorId
+          )}`;
+
+        window.location.href =
+          `login.html?redirect=${encodeURIComponent(
+            redirect
+          )}`;
+
+        return;
+      }
+
+
+      if (!creatorData) {
+        return;
+      }
+
+
+      if (
+        creatorData.user_id ===
+        currentUser.id
+      ) {
+
+        alert(
+          "You cannot book your own creator profile."
+        );
+
+        return;
+      }
+
+
+      bookBtn.disabled = true;
+
+      bookBtn.textContent =
+        "Checking subscription...";
+
+
+      try {
+
+        const {
+          data: subscription,
+          error
+        } =
+          await supabaseClient
+
+            .from("subscriptions")
+
+            .select(`
+              id,
+              plan,
+              status,
+              expires_at
+            `)
+
+            .eq(
+              "user_id",
+              currentUser.id
+            )
+
+            .eq(
+              "status",
+              "active"
+            )
+
+            .order(
+              "created_at",
+              {
+                ascending: false
+              }
+            )
+
+            .limit(1)
+            .maybeSingle();
+
+
+        if (error) {
+
+          console.error(error);
+
+          throw new Error(
+            "Unable to verify subscription."
+          );
+        }
+
+
+        const validSubscription =
+          subscription &&
+          (
+            !subscription.expires_at ||
+            new Date(
+              subscription.expires_at
+            ) > new Date()
+          );
+
+
+        if (!validSubscription) {
+
+          alert(
+            "An active Elyra subscription is required before booking."
+          );
+
+          window.location.href =
+            "subscription.html";
+
+          return;
+        }
+
+
+        /*
+          REAL BOOKING CREATION WILL BE DONE
+          THROUGH A SECURE EDGE FUNCTION.
+
+          Client-side direct INSERT is intentionally
+          not used because bookings table has RLS
+          and payment/booking rules must stay server-side.
+        */
+
+        alert(
+          "Subscription verified. Booking flow is ready for the next step."
+        );
+
+
+      } catch (error) {
+
+        console.error(error);
+
+        alert(
+          error.message ||
+          "Something went wrong."
+        );
+
+      } finally {
+
+        bookBtn.disabled = false;
+
+        bookBtn.textContent =
+          "Book Now";
+      }
+    }
+
+
+    /* =====================================================
+       BLOCK
+    ===================================================== */
+
+    blockBtn.addEventListener(
+      "click",
+      async function() {
+
+        if (!currentUser) {
+
+          window.location.href =
+            `login.html?redirect=${encodeURIComponent(
+              `creator.html?id=${creatorId}`
+            )}`;
+
+          return;
+        }
+
+
+        if (!creatorData) {
+          return;
+        }
+
+
+        if (
+          creatorData.user_id ===
+          currentUser.id
+        ) {
+
+          alert(
+            "You cannot block yourself."
+          );
+
+          return;
+        }
+
+
+        const confirmed =
+          confirm(
+            `Block ${creatorData.display_name || "this creator"}?`
+          );
+
+
+        if (!confirmed) {
+          return;
+        }
+
+
+        /*
+          Block table exists with RLS.
+
+          The insert is allowed only when
+          blocker_id = auth.uid().
+
+          This is safe for the basic block action.
+        */
+
+        const {
+          error
+        } =
+          await supabaseClient
+
+            .from("blocks")
+
+            .insert({
+              blocker_id:
+                currentUser.id,
+
+              blocked_user_id:
+                creatorData.user_id
+            });
+
+
+        if (error) {
+
+          if (
+            error.code ===
+            "23505"
+          ) {
+
+            alert(
+              "This creator is already blocked."
+            );
+
+          } else {
+
+            console.error(error);
+
+            alert(
+              "Unable to block this creator right now."
+            );
+          }
+
+          return;
+        }
+
+
+        alert(
+          "Creator blocked successfully."
+        );
+
+        window.location.href =
+          "creators.html";
+      }
+    );
+
+
+    /* =====================================================
+       REPORT
+    ===================================================== */
+
+    reportBtn.addEventListener(
+      "click",
+      async function() {
+
+        if (!currentUser) {
+
+          window.location.href =
+            `login.html?redirect=${encodeURIComponent(
+              `creator.html?id=${creatorId}`
+            )}`;
+
+          return;
+        }
+
+
+        if (!creatorData) {
+          return;
+        }
+
+
+        if (
+          creatorData.user_id ===
+          currentUser.id
+        ) {
+
+          alert(
+            "You cannot report yourself."
+          );
+
+          return;
+        }
+
+
+        const reason =
+          prompt(
+            "Why are you reporting this creator?"
+          );
+
+
+        if (!reason || !reason.trim()) {
+          return;
+        }
+
+
+        const {
+          error
+        } =
+          await supabaseClient
+
+            .from("reports")
+
+            .insert({
+              reporter_id:
+                currentUser.id,
+
+              reported_user_id:
+                creatorData.user_id,
+
+              reason:
+                reason.trim()
+            });
+
+
+        if (error) {
+
+          console.error(error);
+
+          alert(
+            "Unable to submit report right now."
+          );
+
+          return;
+        }
+
+
+        alert(
+          "Report submitted. Elyra will review it."
+        );
+      }
+    );
+
+
+    /* =====================================================
+       FORMAT PRICE
+    ===================================================== */
+
+    function formatPrice(
+      value
+    ) {
+
+      const number =
+        Number(value);
+
+
+      if (
+        !Number.isFinite(number)
+      ) {
+
+        return "—";
+      }
+
+
+      return new Intl.NumberFormat(
+        "en-IN",
+        {
+          maximumFractionDigits: 0
+        }
+      ).format(number);
+    }
+
+
+    /* =====================================================
+       ERROR
+    ===================================================== */
+
+    function showError(
+      message
+    ) {
+
+      loading.classList.add(
+        "hidden"
+      );
+
+      profile.classList.add(
+        "hidden"
+      );
+
+      errorBox.classList.remove(
+        "hidden"
+      );
+
+      errorMessage.textContent =
+        message;
+    }
+
+
+    /* =====================================================
+       BACK
+    ===================================================== */
+
+    function goBack() {
+
+      window.location.href =
+        "creators.html";
+    }
+
+
+    /* =====================================================
+       START
+    ===================================================== */
+
+    initialize();
+
+  </script>
+
+</body>
+</html>
