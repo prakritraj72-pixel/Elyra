@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -866,7 +865,6 @@
   © 2026 <span>ELYRA</span>. All rights reserved.
 </footer>
 
-
 <script>
 
   /* =====================================================
@@ -958,42 +956,49 @@
 
 
   /* =====================================================
-     AUTH HEADER
-     IMPORTANT:
-     Explicitly sends current Supabase JWT
-     to protected Edge Functions.
-  ===================================================== */
+     EDGE FUNCTION AUTH
+     ===================================================== */
 
   async function getFunctionAuthHeaders() {
 
     const {
-      data: {
-        session
-      },
+      data,
       error
     } =
-      await supabaseClient.auth.getSession();
+      await supabaseClient.auth.refreshSession();
 
 
     if (
       error ||
-      !session ||
-      !session.access_token
+      !data ||
+      !data.session ||
+      !data.session.access_token
     ) {
 
       throw new Error(
         "Your login session has expired. Please login again."
       );
+
     }
 
 
-    currentSession = session;
+    currentSession =
+      data.session;
 
 
     return {
+
       Authorization:
-        `Bearer ${session.access_token}`
+        `Bearer ${data.session.access_token}`,
+
+      apikey:
+        SUPABASE_ANON_KEY,
+
+      "Content-Type":
+        "application/json"
+
     };
+
   }
 
 
@@ -1013,6 +1018,7 @@
       top: 0,
       behavior: "smooth"
     });
+
   }
 
 
@@ -1042,6 +1048,7 @@
         "Pay ₹20 & Activate";
 
       return;
+
     }
 
 
@@ -1060,6 +1067,7 @@
         "✓ Activated";
 
       return;
+
     }
 
 
@@ -1071,6 +1079,7 @@
 
     activationButton.textContent =
       "Pay ₹20 & Activate";
+
   }
 
 
@@ -1206,6 +1215,7 @@
         "login.html?redirect=creator-dashboard.html";
 
       return;
+
     }
 
 
@@ -1262,6 +1272,7 @@
         "block";
 
       return;
+
     }
 
 
@@ -1280,6 +1291,7 @@
       }, 1500);
 
       return;
+
     }
 
 
@@ -1334,6 +1346,7 @@
 
     dashboardContent.style.display =
       "block";
+
   }
 
 
@@ -1364,6 +1377,7 @@
         /'/g,
         "&#039;"
       );
+
   }
 
 
@@ -1403,6 +1417,7 @@
         );
 
         return;
+
       }
 
 
@@ -1420,6 +1435,7 @@
         );
 
         return;
+
       }
 
 
@@ -1429,6 +1445,7 @@
 
       photoPreview.innerHTML =
         `<img src="${objectUrl}" alt="Preview">`;
+
     }
   );
 
@@ -1445,6 +1462,7 @@
 
       return currentProfile.photo_url ||
         null;
+
     }
 
 
@@ -1498,6 +1516,7 @@
 
 
     return data.publicUrl;
+
   }
 
 
@@ -1610,6 +1629,7 @@
           await supabaseClient
             .from("creator_profiles")
             .update({
+
               display_name:
                 nameValue,
 
@@ -1639,6 +1659,7 @@
 
               updated_at:
                 new Date().toISOString()
+
             })
             .eq(
               "id",
@@ -1663,6 +1684,7 @@
 
 
         currentProfile = {
+
           ...currentProfile,
 
           display_name:
@@ -1691,6 +1713,7 @@
 
           photo_url:
             photoUrl
+
         };
 
 
@@ -1746,6 +1769,7 @@
           "login.html?redirect=creator-dashboard.html";
 
         return;
+
       }
 
 
@@ -1757,6 +1781,7 @@
         );
 
         return;
+
       }
 
 
@@ -1771,6 +1796,7 @@
         );
 
         return;
+
       }
 
 
@@ -1787,51 +1813,64 @@
 
       try {
 
-        /*
-          STEP 1
-          Get the current Supabase JWT.
-        */
+        /* ---------------------------------------------
+           STEP 1 — Get fresh Supabase JWT
+        --------------------------------------------- */
 
         const authHeaders =
           await getFunctionAuthHeaders();
 
 
-        /*
-          STEP 2
-          Ask Edge Function to create
-          Razorpay order.
-        */
+        /* ---------------------------------------------
+           STEP 2 — Call Edge Function directly
+        --------------------------------------------- */
 
-        const {
-          data,
-          error
-        } =
-          await supabaseClient
-            .functions
-            .invoke(
-              "creator-activation",
-              {
-                body: {
+        const functionResponse =
+          await fetch(
+            `${SUPABASE_URL}/functions/v1/creator-activation`,
+            {
+              method: "POST",
+
+              headers:
+                authHeaders,
+
+              body:
+                JSON.stringify({
                   creator_profile_id:
                     currentProfile.id
-                },
-
-                headers:
-                  authHeaders
-              }
-            );
+                })
+            }
+          );
 
 
-        if (error) {
+        let data = null;
+
+        try {
+
+          data =
+            await functionResponse.json();
+
+        } catch (jsonError) {
 
           console.error(
-            "Creator activation error:",
-            error
+            "Could not parse Edge Function response:",
+            jsonError
+          );
+
+        }
+
+
+        if (!functionResponse.ok) {
+
+          console.error(
+            "Creator activation HTTP error:",
+            functionResponse.status,
+            data
           );
 
           throw new Error(
-            error.message ||
-            "Could not create payment."
+            data?.error ||
+            `Creator activation failed (${functionResponse.status}).`
           );
 
         }
@@ -1857,10 +1896,9 @@
         }
 
 
-        /*
-          STEP 3
-          Open Razorpay Checkout.
-        */
+        /* ---------------------------------------------
+           STEP 3 — Open Razorpay Checkout
+        --------------------------------------------- */
 
         const options = {
 
@@ -1920,8 +1958,10 @@
           },
 
           theme: {
+
             color:
               "#ff3f8f"
+
           }
 
         };
@@ -1975,7 +2015,11 @@
 
       } catch (error) {
 
-        console.error(error);
+        console.error(
+          "Creator activation failed:",
+          error
+        );
+
 
         activationButton.disabled =
           false;
@@ -2005,7 +2049,7 @@
   ===================================================== */
 
   async function verifyActivationPayment(
-    response
+    razorpayResponse
   ) {
 
     activationButton.disabled =
@@ -2021,24 +2065,29 @@
 
     try {
 
-      /*
-        Get fresh JWT before verification.
-      */
+      /* ---------------------------------------------
+         Get fresh JWT
+      --------------------------------------------- */
 
       const authHeaders =
         await getFunctionAuthHeaders();
 
 
-      const {
-        data,
-        error
-      } =
-        await supabaseClient
-          .functions
-          .invoke(
-            "creator-activation",
-            {
-              body: {
+      /* ---------------------------------------------
+         Verify payment directly through Edge Function
+      --------------------------------------------- */
+
+      const verifyResponse =
+        await fetch(
+          `${SUPABASE_URL}/functions/v1/creator-activation`,
+          {
+            method: "POST",
+
+            headers:
+              authHeaders,
+
+            body:
+              JSON.stringify({
 
                 action:
                   "verify_payment",
@@ -2047,32 +2096,47 @@
                   currentProfile.id,
 
                 razorpay_order_id:
-                  response.razorpay_order_id,
+                  razorpayResponse.razorpay_order_id,
 
                 razorpay_payment_id:
-                  response.razorpay_payment_id,
+                  razorpayResponse.razorpay_payment_id,
 
                 razorpay_signature:
-                  response.razorpay_signature
+                  razorpayResponse.razorpay_signature
 
-              },
-
-              headers:
-                authHeaders
-            }
-          );
+              })
+          }
+        );
 
 
-      if (error) {
+      let data = null;
+
+      try {
+
+        data =
+          await verifyResponse.json();
+
+      } catch (jsonError) {
 
         console.error(
-          "Verification error:",
-          error
+          "Could not parse verification response:",
+          jsonError
+        );
+
+      }
+
+
+      if (!verifyResponse.ok) {
+
+        console.error(
+          "Payment verification HTTP error:",
+          verifyResponse.status,
+          data
         );
 
         throw new Error(
-          error.message ||
-          "Payment verification failed."
+          data?.error ||
+          `Payment verification failed (${verifyResponse.status}).`
         );
 
       }
@@ -2096,9 +2160,9 @@
       }
 
 
-      /*
-        SUCCESS
-      */
+      /* ---------------------------------------------
+         SUCCESS
+      --------------------------------------------- */
 
       currentProfile.activation_payment_status =
         "paid";
@@ -2108,6 +2172,7 @@
 
 
       updateStatusUI();
+
       updateActivationButton();
 
 
@@ -2119,7 +2184,11 @@
 
     } catch (error) {
 
-      console.error(error);
+      console.error(
+        "Payment verification failed:",
+        error
+      );
+
 
       activationButton.disabled =
         false;
@@ -2180,11 +2249,13 @@
         );
 
         return;
+
       }
 
 
       window.location.href =
         "index.html";
+
     }
   );
 
@@ -2222,4 +2293,3 @@
 
 </body>
 </html>
-```
