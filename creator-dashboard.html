@@ -1,48 +1,67 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>ELYRA Creator Dashboard</title>
+  <title>ELYRA — Creator Dashboard</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
   <style>
+    :root {
+      --bg: #070707;
+      --card: #101010;
+      --card2: #151515;
+      --border: rgba(255, 63, 143, 0.22);
+      --pink: #ff3f8f;
+      --pink-dark: #d92870;
+      --pink-soft: rgba(255, 63, 143, 0.12);
+      --white: #ffffff;
+      --muted: #a5a5a5;
+      --danger: #ff4d67;
+      --success: #36d98b;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
     }
 
-    :root {
-      --pink: #ff3f8f;
-      --pink-light: #ff72ad;
-      --pink-soft: rgba(255, 63, 143, 0.09);
-      --pink-border: rgba(255, 63, 143, 0.25);
-
-      --black: #050505;
-      --card: #0d0d0d;
-      --card-2: #111111;
-
-      --white: #ffffff;
-      --text: #eeeeee;
-      --muted: #999999;
-      --border: rgba(255,255,255,0.09);
+    html {
+      scroll-behavior: smooth;
     }
 
     body {
       font-family: Arial, Helvetica, sans-serif;
       background:
-        radial-gradient(
-          circle at top,
-          rgba(255, 63, 143, 0.12) 0%,
-          #090609 35%,
-          #050505 75%
-        );
+        radial-gradient(circle at top, rgba(255, 63, 143, 0.10), transparent 35%),
+        var(--bg);
       color: var(--white);
       min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(
+          180deg,
+          rgba(255, 63, 143, 0.04),
+          transparent 25%,
+          transparent 75%,
+          rgba(255, 63, 143, 0.04)
+        );
+      z-index: -1;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
     }
 
     button,
@@ -52,34 +71,33 @@
       font: inherit;
     }
 
-    button {
-      cursor: pointer;
+    /* =========================
+       HEADER
+    ========================= */
+
+    header {
+      width: 100%;
+      border-bottom: 1px solid var(--border);
+      background: rgba(7, 7, 7, 0.94);
+      backdrop-filter: blur(14px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
     }
 
-    .page {
-      width: 100%;
-      min-height: 100vh;
-      padding: 20px 15px 50px;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 950px;
+    .nav {
+      max-width: 1180px;
       margin: auto;
-    }
-
-    /* HEADER */
-
-    .topbar {
+      min-height: 72px;
+      padding: 0 22px;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      gap: 15px;
-      margin-bottom: 25px;
+      justify-content: space-between;
+      gap: 20px;
     }
 
     .brand {
-      font-size: 28px;
+      font-size: 27px;
       font-weight: 900;
       letter-spacing: 3px;
       color: #fff;
@@ -89,272 +107,285 @@
       color: var(--pink);
     }
 
-    .back-btn {
-      border: 1px solid var(--border);
-      background: rgba(255,255,255,.05);
-      color: white;
-      padding: 10px 15px;
-      border-radius: 12px;
-      transition: .2s;
-    }
-
-    .back-btn:hover {
-      border-color: var(--pink-border);
-      color: var(--pink-light);
-      background: var(--pink-soft);
-    }
-
-    /* HERO */
-
-    .hero {
-      background:
-        linear-gradient(
-          145deg,
-          rgba(255,255,255,.065),
-          rgba(255,255,255,.02)
-        );
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 25px;
-      margin-bottom: 20px;
-      backdrop-filter: blur(15px);
-    }
-
-    .hero h1 {
-      font-size: 30px;
-      margin-bottom: 8px;
-    }
-
-    .hero p {
-      color: #aaa;
-      line-height: 1.6;
-      font-size: 14px;
-    }
-
-    /* STATUS */
-
-    .status-box {
-      margin-top: 20px;
+    .nav-right {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 15px;
-      flex-wrap: wrap;
+      gap: 12px;
     }
 
-    .status {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 9px 13px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 700;
+    .nav-link {
+      color: #ddd;
+      font-size: 14px;
+      transition: 0.2s ease;
     }
 
-    .status.pending {
-      background: rgba(255,190,70,.10);
-      color: #ffc45b;
-      border: 1px solid rgba(255,190,70,.22);
+    .nav-link:hover {
+      color: var(--pink);
     }
 
-    .status.active {
-      background: rgba(70,220,130,.10);
-      color: #66e39a;
-      border: 1px solid rgba(70,220,130,.22);
+    .logout-btn {
+      border: 1px solid var(--border);
+      background: rgba(255, 63, 143, 0.07);
+      color: #fff;
+      padding: 9px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s ease;
     }
 
-    .status.inactive {
-      background: rgba(255,255,255,.06);
-      color: #aaa;
-      border: 1px solid rgba(255,255,255,.10);
+    .logout-btn:hover {
+      background: var(--pink);
+      color: #000;
     }
 
-    /* CARD */
+    /* =========================
+       MAIN
+    ========================= */
+
+    .container {
+      max-width: 1180px;
+      margin: auto;
+      padding: 35px 20px 70px;
+    }
+
+    .page-heading {
+      margin-bottom: 28px;
+    }
+
+    .page-heading h1 {
+      font-size: clamp(30px, 5vw, 46px);
+      line-height: 1.05;
+      margin-bottom: 10px;
+      font-weight: 900;
+    }
+
+    .page-heading h1 span {
+      color: var(--pink);
+    }
+
+    .page-heading p {
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    /* =========================
+       MESSAGE
+    ========================= */
+
+    #message {
+      display: none;
+      margin-bottom: 20px;
+      padding: 13px 15px;
+      border-radius: 12px;
+      font-size: 14px;
+      border: 1px solid transparent;
+    }
+
+    #message.success {
+      display: block;
+      color: #b8ffd9;
+      background: rgba(54, 217, 139, 0.10);
+      border-color: rgba(54, 217, 139, 0.25);
+    }
+
+    #message.error {
+      display: block;
+      color: #ffb8c2;
+      background: rgba(255, 77, 103, 0.10);
+      border-color: rgba(255, 77, 103, 0.25);
+    }
+
+    /* =========================
+       GRID
+    ========================= */
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.45fr;
+      gap: 22px;
+      align-items: start;
+    }
 
     .card {
       background:
         linear-gradient(
           145deg,
-          rgba(255,255,255,.065),
-          rgba(255,255,255,.02)
-        );
+          rgba(255, 63, 143, 0.07),
+          rgba(255, 63, 143, 0.015) 45%,
+          rgba(0, 0, 0, 0.3)
+        ),
+        var(--card);
       border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 25px;
-      margin-bottom: 20px;
-      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow:
+        0 15px 45px rgba(0, 0, 0, 0.35),
+        inset 0 1px 0 rgba(255, 255, 255, 0.025);
+    }
+
+    .card + .card {
+      margin-top: 20px;
     }
 
     .card-title {
-      font-size: 20px;
+      font-size: 19px;
       font-weight: 800;
-      margin-bottom: 20px;
-    }
-
-    /* ACTIVATION */
-
-    .activation-card {
-      border-color: var(--pink-border);
-      background:
-        linear-gradient(
-          145deg,
-          rgba(255,63,143,.075),
-          rgba(255,255,255,.02)
-        );
-    }
-
-    .activation-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      margin-bottom: 18px;
-    }
-
-    .activation-price {
-      text-align: right;
-    }
-
-    .activation-price strong {
-      display: block;
-      color: var(--pink);
-      font-size: 28px;
-    }
-
-    .activation-price span {
-      color: #888;
-      font-size: 12px;
-    }
-
-    .activation-text {
-      color: #aaa;
-      font-size: 14px;
-      line-height: 1.65;
-    }
-
-    .activation-button {
-      width: 100%;
-      margin-top: 20px;
-      height: 52px;
-      border: none;
-      border-radius: 13px;
-      background: linear-gradient(
-        135deg,
-        #ff3f8f,
-        #ff5ca0
-      );
-      color: white;
-      font-weight: 800;
-      font-size: 15px;
-      box-shadow:
-        0 10px 30px rgba(255,63,143,.20);
-      opacity: .55;
-      cursor: not-allowed;
-    }
-
-    .activation-button.ready {
-      opacity: 1;
-      cursor: pointer;
-    }
-
-    .activation-note {
-      margin-top: 12px;
-      color: #777;
-      font-size: 12px;
-      line-height: 1.5;
-      text-align: center;
-    }
-
-    /* PHOTO */
-
-    .photo-section {
-      display: flex;
-      align-items: center;
-      gap: 22px;
-      flex-wrap: wrap;
-    }
-
-    .photo-preview {
-      width: 130px;
-      height: 130px;
-      border-radius: 50%;
-      object-fit: cover;
-      border: 3px solid var(--pink);
-      background: #171313;
-    }
-
-    .photo-info {
-      flex: 1;
-      min-width: 200px;
-    }
-
-    .photo-info h3 {
-      font-size: 17px;
       margin-bottom: 7px;
     }
 
-    .photo-info p {
+    .card-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    /* =========================
+       ACTIVATION CARD
+    ========================= */
+
+    .activation-card {
+      background:
+        linear-gradient(
+          135deg,
+          rgba(255, 63, 143, 0.16),
+          rgba(255, 63, 143, 0.04) 50%,
+          rgba(0, 0, 0, 0.35)
+        ),
+        var(--card);
+      border-color: rgba(255, 63, 143, 0.38);
+    }
+
+    .activation-price {
+      font-size: 38px;
+      font-weight: 900;
+      color: var(--pink);
+      margin: 10px 0 5px;
+    }
+
+    .activation-small {
       color: #999;
-      font-size: 13px;
-      line-height: 1.5;
-      margin-bottom: 13px;
+      font-size: 12px;
+      margin-bottom: 18px;
     }
 
-    .file-input {
-      width: 100%;
-      max-width: 350px;
-      color: #bbb;
-      font-size: 13px;
-    }
-
-    /* FORM */
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 18px;
-    }
-
-    .field {
+    .status-row {
       display: flex;
-      flex-direction: column;
-      gap: 8px;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
     }
 
-    .field.full {
-      grid-column: 1 / -1;
+    .status-row:first-of-type {
+      border-top: 0;
+    }
+
+    .status-label {
+      color: #aaa;
+      font-size: 13px;
+    }
+
+    .status-value {
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .status-pending {
+      color: var(--pink);
+    }
+
+    .status-paid,
+    .status-active {
+      color: var(--success);
+    }
+
+    .status-failed,
+    .status-suspended {
+      color: var(--danger);
+    }
+
+    .status-inactive {
+      color: #bbb;
+    }
+
+    #activationButton {
+      width: 100%;
+      margin-top: 18px;
+      padding: 14px 18px;
+      border: 0;
+      border-radius: 12px;
+      background: #292929;
+      color: #777;
+      font-weight: 800;
+      cursor: not-allowed;
+      transition: 0.2s ease;
+    }
+
+    #activationButton.ready {
+      background: var(--pink);
+      color: #050505;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(255, 63, 143, 0.22);
+    }
+
+    #activationButton.ready:hover {
+      background: #ff5aa0;
+      transform: translateY(-1px);
+    }
+
+    #activationButton:disabled {
+      opacity: 0.75;
+    }
+
+    .secure-note {
+      margin-top: 12px;
+      text-align: center;
+      color: #777;
+      font-size: 11px;
+    }
+
+    /* =========================
+       FORM
+    ========================= */
+
+    .form-group {
+      margin-bottom: 17px;
     }
 
     label {
-      font-size: 14px;
-      font-weight: 700;
+      display: block;
       color: #ddd;
-    }
-
-    .required {
-      color: var(--pink);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
     }
 
     input,
     textarea,
     select {
       width: 100%;
-      border: 1px solid var(--border);
-      background: rgba(0,0,0,.35);
-      color: white;
-      border-radius: 13px;
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      background: #090909;
+      color: #fff;
+      border-radius: 11px;
       padding: 13px 14px;
       outline: none;
-      transition: .2s;
+      transition: 0.2s ease;
     }
 
     input:focus,
     textarea:focus,
     select:focus {
       border-color: var(--pink);
-      box-shadow:
-        0 0 0 3px rgba(255,63,143,.08);
+      box-shadow: 0 0 0 3px rgba(255, 63, 143, 0.08);
+    }
+
+    input:disabled,
+    select:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
     }
 
     textarea {
@@ -363,126 +394,150 @@
       line-height: 1.5;
     }
 
-    select option {
-      background: #111;
-      color: white;
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
     }
 
-    .locked {
-      opacity: .65;
-      cursor: not-allowed;
-    }
-
-    .field-note {
-      font-size: 12px;
+    .gender-note {
       color: #777;
-      line-height: 1.4;
-    }
-
-    /* SAVE */
-
-    .save-area {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 22px;
+      font-size: 11px;
+      margin-top: 7px;
     }
 
     .save-btn {
-      border: none;
-      background:
-        linear-gradient(
-          135deg,
-          #ff3f8f,
-          #ff5ca0
-        );
-      color: #fff;
-      padding: 14px 25px;
-      border-radius: 14px;
-      font-weight: 800;
+      width: 100%;
+      border: 0;
+      background: var(--pink);
+      color: #050505;
+      padding: 14px 18px;
+      border-radius: 12px;
+      font-weight: 900;
       cursor: pointer;
-      min-width: 180px;
-      transition: .2s;
-      box-shadow:
-        0 8px 30px rgba(255,63,143,.20);
+      transition: 0.2s ease;
+      margin-top: 4px;
     }
 
     .save-btn:hover {
+      background: #ff5aa0;
       transform: translateY(-1px);
-      box-shadow:
-        0 12px 35px rgba(255,63,143,.30);
     }
 
     .save-btn:disabled {
-      opacity: .6;
-      cursor: not-allowed;
+      opacity: 0.6;
+      cursor: wait;
       transform: none;
     }
 
-    /* INFO */
+    /* =========================
+       PHOTO
+    ========================= */
 
-    .info-box {
-      background: var(--pink-soft);
-      border: 1px solid var(--pink-border);
-      border-radius: 15px;
-      padding: 16px;
-      color: #aaa;
-      font-size: 13px;
-      line-height: 1.65;
+    .photo-section {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 22px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
     }
 
-    .info-box strong {
-      color: white;
-    }
-
-    .info-box .pink {
-      color: var(--pink-light);
-      font-weight: 700;
-    }
-
-    /* MESSAGE */
-
-    .message {
-      display: none;
-      padding: 13px 15px;
-      border-radius: 12px;
-      margin-bottom: 18px;
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    .message.success {
-      display: block;
-      background: rgba(65,220,125,.10);
-      border: 1px solid rgba(65,220,125,.20);
-      color: #69e89d;
-    }
-
-    .message.error {
-      display: block;
-      background: rgba(255,75,100,.10);
-      border: 1px solid rgba(255,75,100,.20);
-      color: #ff8799;
-    }
-
-    /* LOADING */
-
-    .loading {
-      min-height: 60vh;
+    .photo-preview {
+      width: 105px;
+      height: 105px;
+      border-radius: 18px;
+      overflow: hidden;
+      background:
+        linear-gradient(
+          145deg,
+          rgba(255, 63, 143, 0.18),
+          rgba(255, 63, 143, 0.04)
+        ),
+        #090909;
+      border: 1px solid rgba(255, 63, 143, 0.3);
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
-      gap: 15px;
+      color: #777;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .photo-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-info {
+      flex: 1;
+    }
+
+    .photo-info h3 {
+      font-size: 15px;
+      margin-bottom: 6px;
+    }
+
+    .photo-info p {
+      color: #777;
+      font-size: 12px;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .file-input {
+      font-size: 12px;
+      padding: 9px;
+    }
+
+    /* =========================
+       INFO
+    ========================= */
+
+    .info-list {
+      list-style: none;
+      display: grid;
+      gap: 11px;
+    }
+
+    .info-list li {
+      color: #aaa;
+      font-size: 13px;
+      line-height: 1.5;
+      padding-left: 18px;
+      position: relative;
+    }
+
+    .info-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--pink);
+      font-size: 18px;
+      line-height: 12px;
+    }
+
+    /* =========================
+       LOADING
+    ========================= */
+
+    #loading {
+      text-align: center;
+      padding: 80px 20px;
       color: #aaa;
     }
 
     .loader {
-      width: 40px;
-      height: 40px;
-      border: 3px solid rgba(255,255,255,.10);
+      width: 38px;
+      height: 38px;
+      border: 3px solid rgba(255, 63, 143, 0.15);
       border-top-color: var(--pink);
       border-radius: 50%;
-      animation: spin .8s linear infinite;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 15px;
     }
 
     @keyframes spin {
@@ -491,82 +546,75 @@
       }
     }
 
-    /* FOOTER */
+    #dashboardContent {
+      display: none;
+    }
 
-    .footer {
+    /* =========================
+       FOOTER
+    ========================= */
+
+    footer {
+      border-top: 1px solid var(--border);
+      background: #080808;
+      padding: 25px 20px;
       text-align: center;
       color: #666;
       font-size: 12px;
-      margin-top: 25px;
     }
 
-    /* MOBILE */
+    footer span {
+      color: var(--pink);
+    }
 
-    @media (max-width: 700px) {
+    /* =========================
+       RESPONSIVE
+    ========================= */
 
-      .page {
-        padding: 15px 12px 40px;
+    @media (max-width: 850px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
       }
 
-      .topbar {
-        align-items: flex-start;
+      .nav {
+        min-height: 64px;
       }
 
-      .brand {
-        font-size: 24px;
+      .nav-link {
+        display: none;
       }
+    }
 
-      .back-btn {
-        padding: 9px 12px;
-        font-size: 12px;
-      }
-
-      .hero {
-        padding: 20px;
-        border-radius: 20px;
-      }
-
-      .hero h1 {
-        font-size: 25px;
+    @media (max-width: 520px) {
+      .container {
+        padding: 25px 14px 50px;
       }
 
       .card {
         padding: 19px;
-        border-radius: 20px;
+        border-radius: 16px;
       }
 
-      .form-grid {
+      .two-col {
         grid-template-columns: 1fr;
-      }
-
-      .field.full {
-        grid-column: auto;
+        gap: 0;
       }
 
       .photo-section {
-        flex-direction: column;
         align-items: flex-start;
       }
 
       .photo-preview {
-        width: 115px;
-        height: 115px;
+        width: 85px;
+        height: 85px;
       }
 
-      .save-area {
-        display: block;
-      }
-
-      .save-btn {
-        width: 100%;
-      }
-
-      .activation-top {
-        align-items: flex-start;
-      }
-
-      .activation-price strong {
+      .brand {
         font-size: 23px;
+      }
+
+      .page-heading h1 {
+        font-size: 32px;
       }
     }
   </style>
@@ -574,462 +622,324 @@
 
 <body>
 
-  <div id="loadingScreen" class="loading">
-    <div class="loader"></div>
-    <div>Loading your creator profile...</div>
-  </div>
+  <!-- =========================
+       HEADER
+  ========================= -->
 
+  <header>
+    <div class="nav">
 
-  <main id="mainPage" class="page" style="display:none;">
+      <a href="index.html" class="brand">
+        ELY<span>RA</span>
+      </a>
 
-    <div class="container">
-
-      <!-- HEADER -->
-
-      <div class="topbar">
-
-        <div class="brand">
-          EL<span>Y</span>RA
-        </div>
-
-        <button
-          class="back-btn"
-          onclick="goBack()"
-        >
-          ← Back
-        </button>
-
+      <div class="nav-right">
+        <a href="creators.html" class="nav-link">Browse Creators</a>
+        <button id="logoutButton" class="logout-btn">Logout</button>
       </div>
 
+    </div>
+  </header>
 
-      <!-- HERO -->
+  <!-- =========================
+       MAIN
+  ========================= -->
 
-      <section class="hero">
+  <main class="container">
 
-        <h1>Creator Dashboard</h1>
+    <div id="loading">
+      <div class="loader"></div>
+      Loading your creator dashboard...
+    </div>
 
-        <p>
-          Manage your ELYRA creator profile, update your information,
-          change your hourly rate and keep your availability updated.
-        </p>
+    <div id="dashboardContent">
 
-        <div class="status-box">
+      <div class="page-heading">
+        <h1>Creator <span>Dashboard</span></h1>
+        <p>Manage your ELYRA creator profile and activation.</p>
+      </div>
 
-          <div
-            id="activationStatus"
-            class="status pending"
-          >
-            Checking status...
-          </div>
+      <div id="message"></div>
 
-          <div
-            id="profileStatus"
-            class="status inactive"
-          >
-            Checking profile...
-          </div>
+      <div class="dashboard-grid">
 
-        </div>
+        <!-- =========================
+             LEFT COLUMN
+        ========================= -->
 
-      </section>
+        <div>
 
+          <!-- ACTIVATION -->
 
-      <!-- MESSAGE -->
+          <section class="card activation-card">
 
-      <div
-        id="messageBox"
-        class="message"
-      ></div>
-
-
-      <!-- ACTIVATION -->
-
-      <section class="card activation-card">
-
-        <div class="activation-top">
-
-          <div>
-
-            <div class="card-title" style="margin-bottom:7px;">
-              Activate your creator profile
+            <div class="card-title">
+              Creator Activation
             </div>
 
-            <div class="activation-text">
-              A one-time activation payment is required
-              before your profile can appear publicly on ELYRA.
+            <div class="card-subtitle">
+              Activate your creator profile to make it visible to customers.
+            </div>
+
+            <div class="activation-price">
+              ₹20
+            </div>
+
+            <div class="activation-small">
+              One-time creator activation fee
+            </div>
+
+            <div class="status-row">
+              <span class="status-label">
+                Payment
+              </span>
+
+              <span id="activationStatus" class="status-value status-pending">
+                Pending
+              </span>
+            </div>
+
+            <div class="status-row">
+              <span class="status-label">
+                Profile
+              </span>
+
+              <span id="profileStatus" class="status-value status-inactive">
+                Inactive
+              </span>
+            </div>
+
+            <button id="activationButton" disabled>
+              Pay ₹20 & Activate
+            </button>
+
+            <div class="secure-note">
+              🔒 Secure payment powered by Razorpay
+            </div>
+
+          </section>
+
+          <!-- INFO -->
+
+          <section class="card">
+
+            <div class="card-title">
+              Important
+            </div>
+
+            <div class="card-subtitle">
+              Please keep your profile information accurate.
+            </div>
+
+            <ul class="info-list">
+              <li>Your profile becomes visible after successful activation.</li>
+              <li>You must be 18 or older to use ELYRA as a creator.</li>
+              <li>Your exact home address or GPS location is never shown publicly.</li>
+              <li>Only lawful social companionship is allowed.</li>
+              <li>Sexual services, exploitation and illegal activity are prohibited.</li>
+            </ul>
+
+          </section>
+
+        </div>
+
+        <!-- =========================
+             RIGHT COLUMN
+        ========================= -->
+
+        <section class="card">
+
+          <div class="card-title">
+            Your Profile
+          </div>
+
+          <div class="card-subtitle">
+            Keep your public creator information updated.
+          </div>
+
+          <!-- PHOTO -->
+
+          <div class="photo-section">
+
+            <div id="photoPreview" class="photo-preview">
+              No Photo
+            </div>
+
+            <div class="photo-info">
+
+              <h3>Profile Photo</h3>
+
+              <p>
+                Use a clear and genuine photo. JPG, PNG or WEBP up to 5MB.
+              </p>
+
+              <input
+                id="photoInput"
+                class="file-input"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+              />
+
             </div>
 
           </div>
 
-          <div class="activation-price">
+          <!-- FORM -->
 
-            <strong>₹20</strong>
+          <form id="profileForm">
 
-            <span>one-time</span>
-
-          </div>
-
-        </div>
-
-
-        <div class="info-box">
-
-          <strong>Current status:</strong>
-          <span id="activationText">
-            Checking...
-          </span>
-
-          <br><br>
-
-          Your profile will become visible to customers
-          only after the payment is successfully verified
-          by ELYRA's backend.
-
-        </div>
-
-
-        <button
-          id="activationButton"
-          class="activation-button"
-          disabled
-        >
-          Payment Setup Coming Next
-        </button>
-
-
-        <div class="activation-note">
-          Payment processing will be connected securely.
-          Do not send ₹20 manually to anyone claiming to be ELYRA staff.
-        </div>
-
-      </section>
-
-
-      <!-- PHOTO -->
-
-      <section class="card">
-
-        <div class="card-title">
-          Profile Photo
-        </div>
-
-        <div class="photo-section">
-
-          <img
-            id="photoPreview"
-            class="photo-preview"
-            src=""
-            alt="Creator profile photo"
-          />
-
-          <div class="photo-info">
-
-            <h3>
-              Update your profile picture
-            </h3>
-
-            <p>
-              Use a clear and genuine photo.
-              JPG, PNG or WEBP. Maximum size: 5 MB.
-            </p>
-
-            <input
-              id="photoInput"
-              class="file-input"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-            />
-
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <!-- PROFILE INFORMATION -->
-
-      <section class="card">
-
-        <div class="card-title">
-          Profile Information
-        </div>
-
-        <form id="profileForm">
-
-          <div class="form-grid">
-
-            <div class="field">
-
-              <label>
+            <div class="form-group">
+              <label for="displayName">
                 Display Name
-                <span class="required">*</span>
               </label>
 
               <input
                 id="displayName"
                 type="text"
-                maxlength="60"
-                placeholder="Your display name"
-                required
-              />
-
-            </div>
-
-
-            <div class="field">
-
-              <label>
-                Age
-                <span class="required">*</span>
-              </label>
-
-              <input
-                id="age"
-                type="number"
-                min="18"
-                max="100"
-                required
-              />
-
-              <div class="field-note">
-                ELYRA is strictly 18+.
-              </div>
-
-            </div>
-
-
-            <div class="field">
-
-              <label>
-                Gender
-                <span class="required">*</span>
-              </label>
-
-              <select
-                id="gender"
-                required
-              >
-                <option value="male">
-                  Male
-                </option>
-
-                <option value="female">
-                  Female
-                </option>
-              </select>
-
-              <div class="field-note">
-                Gender is locked after profile creation.
-              </div>
-
-            </div>
-
-
-            <div class="field">
-
-              <label>
-                City
-                <span class="required">*</span>
-              </label>
-
-              <input
-                id="city"
-                type="text"
                 maxlength="80"
-                placeholder="Patna"
+                placeholder="Your public name"
                 required
               />
+            </div>
+
+            <div class="two-col">
+
+              <div class="form-group">
+                <label for="age">
+                  Age
+                </label>
+
+                <input
+                  id="age"
+                  type="number"
+                  min="18"
+                  max="100"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label for="gender">
+                  Gender
+                </label>
+
+                <select id="gender" disabled>
+                  <option value="">Select</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+
+                <div class="gender-note">
+                  Gender cannot be changed after creator registration.
+                </div>
+              </div>
 
             </div>
 
+            <div class="two-col">
 
-            <div class="field">
+              <div class="form-group">
+                <label for="city">
+                  City
+                </label>
 
-              <label>
-                Area / Locality
-              </label>
+                <input
+                  id="city"
+                  type="text"
+                  maxlength="80"
+                  placeholder="Your city"
+                  required
+                />
+              </div>
 
-              <input
-                id="area"
-                type="text"
-                maxlength="100"
-                placeholder="Your area"
-              />
+              <div class="form-group">
+                <label for="area">
+                  Area
+                </label>
+
+                <input
+                  id="area"
+                  type="text"
+                  maxlength="100"
+                  placeholder="Your area"
+                />
+              </div>
 
             </div>
 
-
-            <div class="field">
-
-              <label>
-                Hourly Charge
-                <span class="required">*</span>
+            <div class="form-group">
+              <label for="hourlyRate">
+                Hourly Rate (₹)
               </label>
 
               <input
                 id="hourlyRate"
                 type="number"
                 min="1"
-                max="100000"
                 step="1"
-                placeholder="500"
+                placeholder="Example: 500"
                 required
               />
-
-              <div class="field-note">
-                This is the amount customers will see per hour.
-              </div>
-
             </div>
 
+            <div class="form-group">
+              <label for="availability">
+                Availability
+              </label>
 
-            <div class="field full">
+              <input
+                id="availability"
+                type="text"
+                maxlength="150"
+                placeholder="Example: Mon-Sat, 5 PM - 10 PM"
+              />
+            </div>
 
-              <label>
-                About You
+            <div class="form-group">
+              <label for="bio">
+                Bio
               </label>
 
               <textarea
                 id="bio"
-                maxlength="500"
+                maxlength="600"
                 placeholder="Tell customers a little about yourself..."
               ></textarea>
-
-              <div class="field-note">
-                Maximum 500 characters.
-              </div>
-
             </div>
-
-
-            <div class="field full">
-
-              <label>
-                Availability
-              </label>
-
-              <textarea
-                id="availability"
-                maxlength="500"
-                placeholder="Example: Available Monday to Saturday, 5 PM - 10 PM"
-              ></textarea>
-
-              <div class="field-note">
-                Tell customers when you are generally available.
-              </div>
-
-            </div>
-
-          </div>
-
-
-          <div class="save-area">
 
             <button
-              id="saveBtn"
+              id="saveButton"
               class="save-btn"
               type="submit"
             >
-              Save Changes
+              Save Profile
             </button>
 
-          </div>
+          </form>
 
-        </form>
+        </section>
 
-      </section>
-
-
-      <!-- PROFILE STATUS -->
-
-      <section class="card">
-
-        <div class="card-title">
-          ELYRA Profile Status
-        </div>
-
-        <div class="info-box">
-
-          <strong>Activation:</strong>
-          <span id="activationInfo">
-            Checking...
-          </span>
-
-          <br><br>
-
-          <strong>Profile:</strong>
-          <span id="profileInfo">
-            Checking...
-          </span>
-
-          <br><br>
-
-          Your profile can only become public after
-          successful activation verification.
-
-          You cannot manually change your activation
-          or profile status from this dashboard.
-
-        </div>
-
-      </section>
-
-
-      <!-- SAFETY -->
-
-      <section class="card">
-
-        <div class="card-title">
-          Safety & Privacy
-        </div>
-
-        <div class="info-box">
-
-          <strong>18+ only.</strong>
-
-          <br><br>
-
-          ELYRA is intended for lawful social companionship
-          and activities only.
-
-          <br><br>
-
-          Sexual services, prostitution, exploitation,
-          harassment, illegal activity and non-consensual
-          activity are prohibited.
-
-          <br><br>
-
-          Your exact home address or GPS location should
-          never be displayed publicly on your creator profile.
-
-        </div>
-
-      </section>
-
-
-      <div class="footer">
-        © 2026 ELYRA. All rights reserved.
       </div>
 
     </div>
 
   </main>
 
+  <footer>
+    © 2026 <span>ELYRA</span>. All rights reserved.
+  </footer>
+
 
   <script>
-
-    /* ============================================
+    /* =====================================================
        SUPABASE
-    ============================================ */
+    ===================================================== */
 
     const SUPABASE_URL =
       "https://frvvacirnfvlxifvopcm.supabase.co";
 
     const SUPABASE_ANON_KEY =
       "sb_publishable_l7fygMVXGAkbskkiBom8uw_-86tU6L0";
-
 
     const supabaseClient =
       window.supabase.createClient(
@@ -1038,63 +948,22 @@
       );
 
 
-    /* ============================================
-       GLOBALS
-    ============================================ */
-
-    let currentUser = null;
-    let currentProfile = null;
-    let newPhotoFile = null;
-
-
-    /* ============================================
+    /* =====================================================
        ELEMENTS
-    ============================================ */
+    ===================================================== */
 
-    const loadingScreen =
-      document.getElementById("loadingScreen");
+    const loading = document.getElementById("loading");
+    const dashboardContent =
+      document.getElementById("dashboardContent");
 
-    const mainPage =
-      document.getElementById("mainPage");
+    const message =
+      document.getElementById("message");
 
-    const messageBox =
-      document.getElementById("messageBox");
+    const logoutButton =
+      document.getElementById("logoutButton");
 
-    const profileForm =
-      document.getElementById("profileForm");
-
-    const photoInput =
-      document.getElementById("photoInput");
-
-    const photoPreview =
-      document.getElementById("photoPreview");
-
-    const displayNameInput =
-      document.getElementById("displayName");
-
-    const ageInput =
-      document.getElementById("age");
-
-    const genderInput =
-      document.getElementById("gender");
-
-    const cityInput =
-      document.getElementById("city");
-
-    const areaInput =
-      document.getElementById("area");
-
-    const bioInput =
-      document.getElementById("bio");
-
-    const hourlyRateInput =
-      document.getElementById("hourlyRate");
-
-    const availabilityInput =
-      document.getElementById("availability");
-
-    const saveBtn =
-      document.getElementById("saveBtn");
+    const activationButton =
+      document.getElementById("activationButton");
 
     const activationStatus =
       document.getElementById("activationStatus");
@@ -1102,101 +971,245 @@
     const profileStatus =
       document.getElementById("profileStatus");
 
-    const activationText =
-      document.getElementById("activationText");
+    const profileForm =
+      document.getElementById("profileForm");
 
-    const activationInfo =
-      document.getElementById("activationInfo");
+    const saveButton =
+      document.getElementById("saveButton");
 
-    const profileInfo =
-      document.getElementById("profileInfo");
+    const photoInput =
+      document.getElementById("photoInput");
 
+    const photoPreview =
+      document.getElementById("photoPreview");
 
-    /* ============================================
-       INIT
-    ============================================ */
+    const displayName =
+      document.getElementById("displayName");
 
-    document.addEventListener(
-      "DOMContentLoaded",
-      initializeDashboard
-    );
+    const age =
+      document.getElementById("age");
 
+    const gender =
+      document.getElementById("gender");
 
-    async function initializeDashboard() {
+    const city =
+      document.getElementById("city");
 
-      try {
+    const area =
+      document.getElementById("area");
 
-        const {
-          data,
-          error
-        } =
-          await supabaseClient.auth.getUser();
+    const hourlyRate =
+      document.getElementById("hourlyRate");
 
+    const availability =
+      document.getElementById("availability");
 
-        if (error) {
-          throw error;
-        }
-
-
-        if (!data || !data.user) {
-
-          window.location.href =
-            "login.html?redirect=creator-dashboard.html";
-
-          return;
-        }
+    const bio =
+      document.getElementById("bio");
 
 
-        currentUser =
-          data.user;
+    /* =====================================================
+       GLOBAL STATE
+    ===================================================== */
+
+    let currentUser = null;
+    let currentProfile = null;
 
 
-        await loadCreatorProfile();
+    /* =====================================================
+       MESSAGE
+    ===================================================== */
+
+    function showMessage(text, type = "success") {
+
+      message.textContent = text;
+      message.className = type;
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
 
 
-        loadingScreen.style.display =
-          "none";
+    function clearMessage() {
 
-        mainPage.style.display =
-          "block";
+      message.textContent = "";
+      message.className = "";
 
-
-      } catch (error) {
-
-        console.error(error);
+    }
 
 
-        loadingScreen.style.display =
-          "none";
+    /* =====================================================
+       ACTIVATION BUTTON
+    ===================================================== */
 
-        mainPage.style.display =
-          "block";
+    function updateActivationButton() {
+
+      if (!currentProfile) {
+        activationButton.disabled = true;
+        activationButton.classList.remove("ready");
+        activationButton.textContent =
+          "Pay ₹20 & Activate";
+        return;
+      }
+
+      if (
+        currentProfile.activation_payment_status === "paid"
+      ) {
+
+        activationButton.disabled = true;
+        activationButton.classList.remove("ready");
+
+        activationButton.textContent =
+          "✓ Activated";
+
+        return;
+      }
+
+      activationButton.disabled = false;
+      activationButton.classList.add("ready");
+
+      activationButton.textContent =
+        "Pay ₹20 & Activate";
+    }
 
 
-        showMessage(
-          "Unable to load your creator profile. Please login again.",
-          "error"
+    /* =====================================================
+       STATUS UI
+    ===================================================== */
+
+    function updateStatusUI() {
+
+      if (!currentProfile) return;
+
+
+      /* Payment */
+
+      const paymentStatus =
+        currentProfile.activation_payment_status || "pending";
+
+
+      activationStatus.className =
+        "status-value";
+
+
+      if (paymentStatus === "paid") {
+
+        activationStatus.textContent =
+          "Activation Paid";
+
+        activationStatus.classList.add(
+          "status-paid"
         );
 
+      } else if (paymentStatus === "failed") {
+
+        activationStatus.textContent =
+          "Activation Failed";
+
+        activationStatus.classList.add(
+          "status-failed"
+        );
+
+      } else if (paymentStatus === "refunded") {
+
+        activationStatus.textContent =
+          "Activation Refunded";
+
+        activationStatus.classList.add(
+          "status-failed"
+        );
+
+      } else {
+
+        activationStatus.textContent =
+          "₹20 Activation Pending";
+
+        activationStatus.classList.add(
+          "status-pending"
+        );
+      }
+
+
+      /* Profile */
+
+      const status =
+        currentProfile.profile_status || "inactive";
+
+
+      profileStatus.className =
+        "status-value";
+
+
+      if (status === "active") {
+
+        profileStatus.textContent =
+          "Profile Live";
+
+        profileStatus.classList.add(
+          "status-active"
+        );
+
+      } else if (status === "suspended") {
+
+        profileStatus.textContent =
+          "Profile Suspended";
+
+        profileStatus.classList.add(
+          "status-suspended"
+        );
+
+      } else {
+
+        profileStatus.textContent =
+          "Profile Inactive";
+
+        profileStatus.classList.add(
+          "status-inactive"
+        );
       }
 
     }
 
 
-    /* ============================================
-       LOAD PROFILE
-    ============================================ */
+    /* =====================================================
+       LOAD CREATOR PROFILE
+    ===================================================== */
 
     async function loadCreatorProfile() {
+
+      const {
+        data: {
+          session
+        },
+        error: sessionError
+      } =
+        await supabaseClient.auth.getSession();
+
+
+      if (
+        sessionError ||
+        !session
+      ) {
+
+        window.location.href =
+          "login.html?redirect=creator-dashboard.html";
+
+        return;
+      }
+
+
+      currentUser =
+        session.user;
+
 
       const {
         data,
         error
       } =
         await supabaseClient
-
           .from("creator_profiles")
-
           .select(`
             id,
             user_id,
@@ -1214,12 +1227,7 @@
             created_at,
             updated_at
           `)
-
-          .eq(
-            "user_id",
-            currentUser.id
-          )
-
+          .eq("user_id", currentUser.id)
           .maybeSingle();
 
 
@@ -1227,245 +1235,116 @@
 
         console.error(error);
 
-        throw new Error(
-          "Could not load creator profile."
+        showMessage(
+          "Could not load your creator profile.",
+          "error"
         );
 
+        loading.style.display = "none";
+        dashboardContent.style.display = "block";
+
+        return;
       }
 
 
       if (!data) {
 
         showMessage(
-          "You don't have a creator profile yet. Please create one first.",
+          "Creator profile not found. Please complete creator registration first.",
           "error"
         );
-
 
         setTimeout(() => {
 
           window.location.href =
             "creator-register.html";
 
-        }, 2500);
-
+        }, 1500);
 
         return;
       }
 
 
-      currentProfile =
-        data;
+      currentProfile = data;
 
 
-      populateForm(data);
+      /* Fill form */
 
-    }
+      displayName.value =
+        data.display_name || "";
 
+      age.value =
+        data.age || "";
 
-    /* ============================================
-       POPULATE
-    ============================================ */
+      gender.value =
+        data.gender || "";
 
-    function populateForm(profile) {
+      city.value =
+        data.city || "";
 
-      displayNameInput.value =
-        profile.display_name || "";
+      area.value =
+        data.area || "";
 
-      ageInput.value =
-        profile.age || "";
+      hourlyRate.value =
+        data.hourly_rate || "";
 
-      genderInput.value =
-        profile.gender || "male";
+      availability.value =
+        data.availability || "";
 
-      cityInput.value =
-        profile.city || "";
-
-      areaInput.value =
-        profile.area || "";
-
-      bioInput.value =
-        profile.bio || "";
-
-      hourlyRateInput.value =
-        profile.hourly_rate || "";
-
-      availabilityInput.value =
-        profile.availability || "";
-
-
-      /* Gender locked */
-
-      genderInput.disabled =
-        true;
-
-      genderInput.classList.add(
-        "locked"
-      );
+      bio.value =
+        data.bio || "";
 
 
       /* Photo */
 
-      if (profile.photo_url) {
+      if (data.photo_url) {
 
-        photoPreview.src =
-          profile.photo_url;
+        photoPreview.innerHTML =
+          `<img src="${escapeHtml(data.photo_url)}" alt="Creator photo">`;
 
       } else {
 
-        photoPreview.src =
-          createPlaceholderImage();
-
+        photoPreview.textContent =
+          "No Photo";
       }
 
 
-      updateStatusUI(profile);
+      updateStatusUI();
+      updateActivationButton();
 
+
+      loading.style.display = "none";
+      dashboardContent.style.display = "block";
     }
 
 
-    /* ============================================
-       STATUS
-    ============================================ */
+    /* =====================================================
+       ESCAPE HTML
+    ===================================================== */
 
-    function updateStatusUI(profile) {
+    function escapeHtml(value) {
 
-      const activation =
-        profile.activation_payment_status;
-
-      const status =
-        profile.profile_status;
-
-
-      /* Activation */
-
-      if (activation === "paid") {
-
-        activationStatus.className =
-          "status active";
-
-        activationStatus.textContent =
-          "✓ Activation Paid";
-
-        activationText.innerHTML =
-          '<span class="pink">Paid</span>';
-
-        activationInfo.innerHTML =
-          '<span class="pink">Paid</span>';
-
-      }
-
-      else if (activation === "failed") {
-
-        activationStatus.className =
-          "status inactive";
-
-        activationStatus.textContent =
-          "Activation Failed";
-
-        activationText.textContent =
-          "Failed";
-
-        activationInfo.textContent =
-          "Failed";
-
-      }
-
-      else if (activation === "refunded") {
-
-        activationStatus.className =
-          "status inactive";
-
-        activationStatus.textContent =
-          "Activation Refunded";
-
-        activationText.textContent =
-          "Refunded";
-
-        activationInfo.textContent =
-          "Refunded";
-
-      }
-
-      else {
-
-        activationStatus.className =
-          "status pending";
-
-        activationStatus.textContent =
-          "₹20 Activation Pending";
-
-        activationText.textContent =
-          "Pending";
-
-        activationInfo.textContent =
-          "₹20 payment pending";
-
-      }
-
-
-      /* Profile */
-
-      if (status === "active") {
-
-        profileStatus.className =
-          "status active";
-
-        profileStatus.textContent =
-          "● Profile Live";
-
-        profileInfo.innerHTML =
-          '<span class="pink">Live</span>';
-
-      }
-
-      else if (status === "suspended") {
-
-        profileStatus.className =
-          "status inactive";
-
-        profileStatus.textContent =
-          "Profile Suspended";
-
-        profileInfo.textContent =
-          "Suspended";
-
-      }
-
-      else {
-
-        profileStatus.className =
-          "status inactive";
-
-        profileStatus.textContent =
-          "Profile Inactive";
-
-        profileInfo.textContent =
-          "Inactive";
-
-      }
-
+      return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
     }
 
 
-    /* ============================================
-       PHOTO
-    ============================================ */
+    /* =====================================================
+       PHOTO PREVIEW
+    ===================================================== */
 
     photoInput.addEventListener(
       "change",
       function () {
 
         const file =
-          this.files[0];
+          photoInput.files[0];
 
-
-        if (!file) {
-
-          newPhotoFile = null;
-
-          return;
-        }
+        if (!file) return;
 
 
         const allowedTypes = [
@@ -1475,366 +1354,255 @@
         ];
 
 
-        if (
-          !allowedTypes.includes(
-            file.type
-          )
-        ) {
+        if (!allowedTypes.includes(file.type)) {
+
+          photoInput.value = "";
 
           showMessage(
-            "Please select JPG, PNG or WEBP image.",
+            "Only JPG, PNG or WEBP images are allowed.",
             "error"
           );
-
-          this.value = "";
-
-          newPhotoFile = null;
 
           return;
         }
 
 
-        const maxSize =
-          5 * 1024 * 1024;
+        if (file.size > 5 * 1024 * 1024) {
 
-
-        if (file.size > maxSize) {
+          photoInput.value = "";
 
           showMessage(
-            "Photo must be smaller than 5 MB.",
+            "Image must be smaller than 5MB.",
             "error"
           );
-
-          this.value = "";
-
-          newPhotoFile = null;
 
           return;
         }
 
 
-        newPhotoFile =
-          file;
+        const objectUrl =
+          URL.createObjectURL(file);
 
 
-        const reader =
-          new FileReader();
-
-
-        reader.onload =
-          function(event) {
-
-            photoPreview.src =
-              event.target.result;
-
-          };
-
-
-        reader.readAsDataURL(file);
-
+        photoPreview.innerHTML =
+          `<img src="${objectUrl}" alt="Preview">`;
       }
     );
 
 
-    /* ============================================
+    /* =====================================================
+       UPLOAD PHOTO
+    ===================================================== */
+
+    async function uploadCreatorPhoto(file) {
+
+      if (!file) {
+        return currentProfile.photo_url || null;
+      }
+
+
+      const extension =
+        file.name
+          .split(".")
+          .pop()
+          .toLowerCase();
+
+
+      const filePath =
+        `${currentUser.id}/${crypto.randomUUID()}.${extension}`;
+
+
+      const {
+        error: uploadError
+      } =
+        await supabaseClient
+          .storage
+          .from("creator-photos")
+          .upload(
+            filePath,
+            file,
+            {
+              cacheControl: "3600",
+              upsert: false,
+              contentType: file.type
+            }
+          );
+
+
+      if (uploadError) {
+
+        throw new Error(
+          "Photo upload failed: " +
+          uploadError.message
+        );
+      }
+
+
+      const {
+        data
+      } =
+        supabaseClient
+          .storage
+          .from("creator-photos")
+          .getPublicUrl(filePath);
+
+
+      return data.publicUrl;
+    }
+
+
+    /* =====================================================
        SAVE PROFILE
-    ============================================ */
+    ===================================================== */
 
     profileForm.addEventListener(
       "submit",
-      async function(event) {
+      async function (event) {
 
         event.preventDefault();
 
+        clearMessage();
 
-        if (!currentUser) {
-
-          showMessage(
-            "Please login first.",
-            "error"
-          );
-
-          return;
-        }
-
-
-        const displayName =
-          displayNameInput.value.trim();
-
-        const age =
-          Number(ageInput.value);
-
-        const city =
-          cityInput.value.trim();
-
-        const area =
-          areaInput.value.trim();
-
-        const bio =
-          bioInput.value.trim();
-
-        const hourlyRate =
-          Number(hourlyRateInput.value);
-
-        const availability =
-          availabilityInput.value.trim();
-
-
-        /* Validation */
-
-        if (!displayName) {
-
-          showMessage(
-            "Please enter your display name.",
-            "error"
-          );
-
-          return;
-        }
-
-
-        if (
-          !Number.isInteger(age) ||
-          age < 18 ||
-          age > 100
-        ) {
-
-          showMessage(
-            "Age must be between 18 and 100.",
-            "error"
-          );
-
-          return;
-        }
-
-
-        if (!city) {
-
-          showMessage(
-            "Please enter your city.",
-            "error"
-          );
-
-          return;
-        }
-
-
-        if (
-          !hourlyRate ||
-          hourlyRate <= 0
-        ) {
-
-          showMessage(
-            "Please enter a valid hourly charge.",
-            "error"
-          );
-
-          return;
-        }
-
-
-        saveBtn.disabled =
-          true;
-
-        saveBtn.textContent =
+        saveButton.disabled = true;
+        saveButton.textContent =
           "Saving...";
 
 
         try {
 
+          const nameValue =
+            displayName.value.trim();
+
+          const ageValue =
+            Number(age.value);
+
+          const cityValue =
+            city.value.trim();
+
+          const areaValue =
+            area.value.trim();
+
+          const rateValue =
+            Number(hourlyRate.value);
+
+          const availabilityValue =
+            availability.value.trim();
+
+          const bioValue =
+            bio.value.trim();
+
+
+          if (!nameValue) {
+            throw new Error(
+              "Please enter your display name."
+            );
+          }
+
+
+          if (
+            !Number.isInteger(ageValue) ||
+            ageValue < 18 ||
+            ageValue > 100
+          ) {
+            throw new Error(
+              "Age must be between 18 and 100."
+            );
+          }
+
+
+          if (!cityValue) {
+            throw new Error(
+              "Please enter your city."
+            );
+          }
+
+
+          if (
+            !Number.isFinite(rateValue) ||
+            rateValue <= 0
+          ) {
+            throw new Error(
+              "Please enter a valid hourly rate."
+            );
+          }
+
+
           let photoUrl =
             currentProfile.photo_url || null;
 
 
-          /* PHOTO UPLOAD */
-
-          if (newPhotoFile) {
-
-            const extension =
-              getFileExtension(
-                newPhotoFile.name
-              );
-
-
-            const randomName =
-              crypto.randomUUID();
-
-
-            const filePath =
-              currentUser.id +
-              "/" +
-              randomName +
-              "." +
-              extension;
-
-
-            const {
-              error: uploadError
-            } =
-              await supabaseClient
-
-                .storage
-
-                .from("creator-photos")
-
-                .upload(
-                  filePath,
-                  newPhotoFile,
-                  {
-                    cacheControl: "3600",
-                    upsert: false
-                  }
-                );
-
-
-            if (uploadError) {
-
-              console.error(
-                uploadError
-              );
-
-              throw new Error(
-                "Photo upload failed: " +
-                uploadError.message
-              );
-
-            }
-
-
-            const {
-              data: publicData
-            } =
-              supabaseClient
-
-                .storage
-
-                .from("creator-photos")
-
-                .getPublicUrl(
-                  filePath
-                );
-
+          if (photoInput.files[0]) {
 
             photoUrl =
-              publicData.publicUrl;
-
-
-            await deleteOldPhotoIfPossible(
-              currentProfile.photo_url
-            );
-
+              await uploadCreatorPhoto(
+                photoInput.files[0]
+              );
           }
 
 
-          /* DATABASE UPDATE */
-
-          const updateData = {
-
-            display_name:
-              displayName,
-
-            age:
-              age,
-
-            city:
-              city,
-
-            area:
-              area || null,
-
-            bio:
-              bio || null,
-
-            hourly_rate:
-              hourlyRate,
-
-            availability:
-              availability || null,
-
-            photo_url:
-              photoUrl,
-
-            updated_at:
-              new Date().toISOString()
-
-          };
-
-
           const {
-            data: updatedProfile,
-            error: updateError
+            error
           } =
             await supabaseClient
-
               .from("creator_profiles")
-
-              .update(updateData)
-
+              .update({
+                display_name: nameValue,
+                age: ageValue,
+                city: cityValue,
+                area: areaValue || null,
+                bio: bioValue || null,
+                hourly_rate: rateValue,
+                availability:
+                  availabilityValue || null,
+                photo_url: photoUrl,
+                updated_at: new Date().toISOString()
+              })
               .eq(
                 "id",
                 currentProfile.id
               )
-
               .eq(
                 "user_id",
                 currentUser.id
-              )
-
-              .select(`
-                id,
-                user_id,
-                display_name,
-                age,
-                gender,
-                photo_url,
-                city,
-                area,
-                bio,
-                hourly_rate,
-                availability,
-                activation_payment_status,
-                profile_status,
-                created_at,
-                updated_at
-              `)
-
-              .single();
+              );
 
 
-          if (updateError) {
+          if (error) {
 
-            console.error(
-              updateError
-            );
+            console.error(error);
 
             throw new Error(
-              "Profile update failed: " +
-              updateError.message
+              "Could not save profile: " +
+              error.message
             );
-
           }
 
 
-          currentProfile =
-            updatedProfile;
-
-
-          newPhotoFile =
-            null;
-
-          photoInput.value =
-            "";
-
-
-          updateStatusUI(
-            updatedProfile
-          );
+          currentProfile = {
+            ...currentProfile,
+            display_name: nameValue,
+            age: ageValue,
+            city: cityValue,
+            area: areaValue || null,
+            bio: bioValue || null,
+            hourly_rate: rateValue,
+            availability:
+              availabilityValue || null,
+            photo_url: photoUrl
+          };
 
 
           showMessage(
-            "✓ Profile updated successfully.",
+            "✓ Profile saved successfully.",
             "success"
           );
+
+
+          if (photoUrl) {
+
+            photoPreview.innerHTML =
+              `<img src="${escapeHtml(photoUrl)}" alt="Creator photo">`;
+          }
 
 
         } catch (error) {
@@ -1849,255 +1617,445 @@
 
         } finally {
 
-          saveBtn.disabled =
-            false;
-
-          saveBtn.textContent =
-            "Save Changes";
-
+          saveButton.disabled = false;
+          saveButton.textContent =
+            "Save Profile";
         }
-
       }
     );
 
 
-    /* ============================================
-       OLD PHOTO CLEANUP
-    ============================================ */
+    /* =====================================================
+       RAZORPAY ACTIVATION
+    ===================================================== */
 
-    async function deleteOldPhotoIfPossible(
-      oldPhotoUrl
+    activationButton.addEventListener(
+      "click",
+      async function () {
+
+        if (!currentUser) {
+
+          window.location.href =
+            "login.html?redirect=creator-dashboard.html";
+
+          return;
+        }
+
+
+        if (!currentProfile) {
+
+          showMessage(
+            "Creator profile is not loaded yet.",
+            "error"
+          );
+
+          return;
+        }
+
+
+        if (
+          currentProfile.activation_payment_status ===
+          "paid"
+        ) {
+
+          showMessage(
+            "Your creator profile is already activated.",
+            "success"
+          );
+
+          return;
+        }
+
+
+        activationButton.disabled = true;
+        activationButton.classList.remove("ready");
+
+        activationButton.textContent =
+          "Creating secure payment...";
+
+
+        try {
+
+          /*
+             STEP 1
+             Ask Supabase Edge Function
+             to create Razorpay order.
+          */
+
+          const {
+            data,
+            error
+          } =
+            await supabaseClient
+              .functions
+              .invoke(
+                "creator-activation",
+                {
+                  body: {
+                    creator_profile_id:
+                      currentProfile.id
+                  }
+                }
+              );
+
+
+          if (error) {
+
+            console.error(
+              "Creator activation error:",
+              error
+            );
+
+            throw new Error(
+              error.message ||
+              "Could not create payment."
+            );
+          }
+
+
+          if (
+            !data ||
+            !data.ok ||
+            !data.order_id ||
+            !data.key_id
+          ) {
+
+            console.error(
+              "Invalid payment response:",
+              data
+            );
+
+            throw new Error(
+              data?.error ||
+              "Invalid payment response from server."
+            );
+          }
+
+
+          /*
+             STEP 2
+             Open Razorpay Checkout.
+          */
+
+          const options = {
+
+            key: data.key_id,
+
+            amount:
+              data.amount_paise ||
+              2000,
+
+            currency:
+              data.currency ||
+              "INR",
+
+            name:
+              "ELYRA",
+
+            description:
+              "Creator Profile Activation",
+
+            order_id:
+              data.order_id,
+
+            handler:
+              async function (
+                response
+              ) {
+
+                await verifyActivationPayment(
+                  response
+                );
+              },
+
+            modal: {
+
+              ondismiss:
+                function () {
+
+                  activationButton.disabled =
+                    false;
+
+                  activationButton.classList.add(
+                    "ready"
+                  );
+
+                  activationButton.textContent =
+                    "Pay ₹20 & Activate";
+
+                  showMessage(
+                    "Payment window closed. You can try again.",
+                    "error"
+                  );
+                }
+            },
+
+            theme: {
+              color: "#ff3f8f"
+            }
+          };
+
+
+          const razorpay =
+            new Razorpay(options);
+
+
+          razorpay.on(
+            "payment.failed",
+            function (response) {
+
+              console.error(
+                "Razorpay payment failed:",
+                response
+              );
+
+
+              activationButton.disabled =
+                false;
+
+              activationButton.classList.add(
+                "ready"
+              );
+
+              activationButton.textContent =
+                "Pay ₹20 & Activate";
+
+
+              const reason =
+                response?.error?.description ||
+                "Payment failed.";
+
+              showMessage(
+                reason,
+                "error"
+              );
+            }
+          );
+
+
+          razorpay.open();
+
+
+        } catch (error) {
+
+          console.error(error);
+
+          activationButton.disabled =
+            false;
+
+          activationButton.classList.add(
+            "ready"
+          );
+
+          activationButton.textContent =
+            "Pay ₹20 & Activate";
+
+
+          showMessage(
+            error.message ||
+            "Could not start payment.",
+            "error"
+          );
+        }
+      }
+    );
+
+
+    /* =====================================================
+       VERIFY RAZORPAY PAYMENT
+    ===================================================== */
+
+    async function verifyActivationPayment(
+      response
     ) {
 
-      if (!oldPhotoUrl) {
-        return;
-      }
+      activationButton.disabled = true;
+      activationButton.classList.remove(
+        "ready"
+      );
+
+      activationButton.textContent =
+        "Verifying payment...";
 
 
       try {
 
-        const marker =
-          "/storage/v1/object/public/creator-photos/";
+        const {
+          data,
+          error
+        } =
+          await supabaseClient
+            .functions
+            .invoke(
+              "creator-activation",
+              {
+                body: {
+
+                  action:
+                    "verify_payment",
+
+                  creator_profile_id:
+                    currentProfile.id,
+
+                  razorpay_order_id:
+                    response.razorpay_order_id,
+
+                  razorpay_payment_id:
+                    response.razorpay_payment_id,
+
+                  razorpay_signature:
+                    response.razorpay_signature
+                }
+              }
+            );
 
 
-        if (
-          !oldPhotoUrl.includes(marker)
-        ) {
-          return;
-        }
+        if (error) {
 
-
-        const index =
-          oldPhotoUrl.indexOf(marker);
-
-
-        if (index === -1) {
-          return;
-        }
-
-
-        const oldPath =
-          oldPhotoUrl.substring(
-            index + marker.length
+          console.error(
+            "Verification error:",
+            error
           );
 
-
-        if (!oldPath) {
-          return;
+          throw new Error(
+            error.message ||
+            "Payment verification failed."
+          );
         }
 
 
         if (
-          !oldPath.startsWith(
-            currentUser.id + "/"
-          )
+          !data ||
+          data.ok !== true
         ) {
-          return;
+
+          console.error(
+            "Invalid verification response:",
+            data
+          );
+
+          throw new Error(
+            data?.error ||
+            "Payment could not be verified."
+          );
         }
 
 
-        await supabaseClient
+        /*
+           SUCCESS
+        */
 
-          .storage
+        currentProfile.activation_payment_status =
+          "paid";
 
-          .from("creator-photos")
+        currentProfile.profile_status =
+          "active";
 
-          .remove([
-            oldPath
-          ]);
+
+        updateStatusUI();
+        updateActivationButton();
+
+
+        showMessage(
+          "✓ ₹20 activation verified. Your creator profile is now live.",
+          "success"
+        );
+
 
       } catch (error) {
 
-        console.warn(
-          "Old photo cleanup failed:",
-          error
+        console.error(error);
+
+        activationButton.disabled =
+          false;
+
+        activationButton.classList.add(
+          "ready"
         );
 
-      }
+        activationButton.textContent =
+          "Pay ₹20 & Activate";
 
+
+        showMessage(
+          error.message ||
+          "Payment was received but verification failed. Please contact support before paying again.",
+          "error"
+        );
+      }
     }
 
 
-    /* ============================================
-       FILE EXTENSION
-    ============================================ */
+    /* =====================================================
+       LOGOUT
+    ===================================================== */
 
-    function getFileExtension(
-      filename
-    ) {
+    logoutButton.addEventListener(
+      "click",
+      async function () {
 
-      const parts =
-        filename.split(".");
-
-      const extension =
-        parts[
-          parts.length - 1
-        ].toLowerCase();
+        logoutButton.disabled = true;
+        logoutButton.textContent =
+          "Logging out...";
 
 
-      if (
-        ["jpg", "jpeg", "png", "webp"]
-          .includes(extension)
-      ) {
+        const {
+          error
+        } =
+          await supabaseClient.auth.signOut();
 
-        if (
-          extension === "jpeg"
-        ) {
-          return "jpg";
+
+        if (error) {
+
+          console.error(error);
+
+          logoutButton.disabled = false;
+          logoutButton.textContent =
+            "Logout";
+
+          showMessage(
+            "Could not log out. Please try again.",
+            "error"
+          );
+
+          return;
         }
 
-        return extension;
-
-      }
-
-
-      return "jpg";
-
-    }
-
-
-    /* ============================================
-       PLACEHOLDER
-    ============================================ */
-
-    function createPlaceholderImage() {
-
-      return (
-        "data:image/svg+xml;charset=UTF-8," +
-        encodeURIComponent(`
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="300"
-            height="300"
-            viewBox="0 0 300 300"
-          >
-
-            <rect
-              width="300"
-              height="300"
-              fill="#111111"
-            />
-
-            <circle
-              cx="150"
-              cy="115"
-              r="55"
-              fill="#222222"
-            />
-
-            <path
-              d="
-                M70 270
-                C70 205 105 175 150 175
-                C195 175 230 205 230 270
-                Z
-              "
-              fill="#222222"
-            />
-
-            <text
-              x="150"
-              y="290"
-              text-anchor="middle"
-              fill="#ff3f8f"
-              font-size="16"
-              font-family="Arial"
-            >
-              ELYRA
-            </text>
-
-          </svg>
-        `)
-      );
-
-    }
-
-
-    /* ============================================
-       MESSAGE
-    ============================================ */
-
-    function showMessage(
-      message,
-      type
-    ) {
-
-      messageBox.className =
-        "message " + type;
-
-      messageBox.textContent =
-        message;
-
-
-      messageBox.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
-
-
-      if (type === "success") {
-
-        setTimeout(() => {
-
-          messageBox.className =
-            "message";
-
-          messageBox.textContent =
-            "";
-
-        }, 4000);
-
-      }
-
-    }
-
-
-    /* ============================================
-       BACK
-    ============================================ */
-
-    function goBack() {
-
-      if (
-        document.referrer &&
-        document.referrer.includes(
-          window.location.hostname
-        )
-      ) {
-
-        history.back();
-
-      } else {
 
         window.location.href =
           "index.html";
-
       }
+    );
 
-    }
+
+    /* =====================================================
+       AUTH STATE
+    ===================================================== */
+
+    supabaseClient.auth.onAuthStateChange(
+      function (
+        event,
+        session
+      ) {
+
+        if (
+          event === "SIGNED_OUT"
+        ) {
+
+          window.location.href =
+            "login.html?redirect=creator-dashboard.html";
+        }
+      }
+    );
+
+
+    /* =====================================================
+       START
+    ===================================================== */
+
+    loadCreatorProfile();
 
   </script>
 
 </body>
 </html>
-```
