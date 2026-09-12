@@ -1,133 +1,2079 @@
+```html
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>ELYRA — Creator Studio</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-*{box-sizing:border-box}body{margin:0;background:#050505;color:#fff;font-family:Arial,Helvetica,sans-serif}.top{height:70px;border-bottom:1px solid #262126;display:flex;align-items:center;justify-content:space-between;padding:0 5%;position:sticky;top:0;background:#080608ee;backdrop-filter:blur(12px);z-index:5}.logo{border:0;background:none;color:#fff;font-size:23px;font-weight:900;letter-spacing:3px;cursor:pointer}.logo span{color:#ff3f8f}.nav{display:flex;gap:9px}.btn,.tab{background:#111;color:#ddd;border:1px solid #292329;border-radius:10px;padding:10px 14px;cursor:pointer}.btn:hover,.tab:hover{border-color:#ff3f8f}.primary{background:linear-gradient(135deg,#ff3f8f,#d92f73);border:0;color:#fff;font-weight:800}.btn:disabled{opacity:.55;cursor:wait}.wrap{max-width:1180px;margin:28px auto;padding:0 18px 60px}.head{display:grid;grid-template-columns:160px 1fr auto;gap:24px;align-items:center;background:linear-gradient(145deg,#111,#090909);border:1px solid #252025;border-radius:22px;padding:25px}.avatar{width:145px;height:145px;border-radius:50%;object-fit:cover;border:3px solid #ff3f8f;background:#151215;display:block}.avatar.empty{display:flex;align-items:center;justify-content:center;color:#777;font-size:42px}.avatar-wrap{position:relative;width:145px;height:145px}.avatar-wrap .avatar{width:145px;height:145px}.change-dp{position:absolute;bottom:6px;right:4px;border:1px solid #444;background:#050505;color:#fff;border-radius:50%;width:38px;height:38px;cursor:pointer;z-index:2}.user{color:#ff3f8f;font-weight:800}.name{font-size:30px;font-weight:900;margin:7px 0}.meta{color:#999;font-size:14px}.bio{color:#aaa;font-size:14px;line-height:1.5;margin-top:9px}.head-actions{display:flex;gap:9px;flex-wrap:wrap}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:18px 0}.stat{background:#0d0d0d;border:1px solid #252025;border-radius:15px;padding:17px}.num{font-size:25px;font-weight:900}.lab{color:#888;font-size:12px;margin-top:5px}.tabs{display:flex;gap:8px;overflow:auto;margin:20px 0}.tab.active{border-color:#ff3f8f;color:#fff;background:#180d13}.panel{background:#0d0d0d;border:1px solid #252025;border-radius:17px;padding:22px;margin-bottom:18px}.panel h2{font-size:19px;margin:0 0 6px}.sub{color:#888;font-size:13px;margin-bottom:18px}.hidden{display:none}.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}.full{grid-column:1/-1}label{display:block;font-size:12px;font-weight:700;color:#ddd;margin-bottom:7px}input,textarea{width:100%;background:#111;color:#fff;border:1px solid #292329;border-radius:10px;padding:12px;outline:0}input:focus,textarea:focus{border-color:#ff3f8f}textarea{min-height:110px;resize:vertical}.save{margin-top:16px}.status{font-size:12px;margin-top:6px;min-height:15px}.ok{color:#35d07f}.bad{color:#ff4d6d}.photos{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.photo{aspect-ratio:1;border:1px dashed #343034;border-radius:13px;overflow:hidden;position:relative;background:#101010}.photo img{width:100%;height:100%;object-fit:cover;display:block}.upload{display:flex;align-items:center;justify-content:center;flex-direction:column;color:#777;cursor:pointer}.upload b{font-size:32px;color:#ff3f8f}.remove{position:absolute;right:7px;top:7px;border:0;border-radius:50%;width:30px;height:30px;background:#000c;color:#fff;cursor:pointer}.empty-state{text-align:center;color:#777;padding:45px 15px}.toast{position:fixed;right:20px;bottom:20px;background:#171217;border:1px solid #333;padding:13px 16px;border-radius:11px;display:none;z-index:20;max-width:360px}.toast.show{display:block}.hint{color:#777;font-size:11px;margin-top:6px}.photo-click{cursor:pointer}@media(max-width:800px){.head{grid-template-columns:90px 1fr}.avatar,.avatar-wrap,.avatar-wrap .avatar{width:85px;height:85px}.head-actions{grid-column:1/-1}.stats{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.full{grid-column:auto}.photos{grid-template-columns:1fr 1fr}.name{font-size:22px}}
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  background:#050505;
+  color:#fff;
+  font-family:Arial,Helvetica,sans-serif;
+}
+
+button,input,textarea{font:inherit}
+
+.top{
+  height:70px;
+  border-bottom:1px solid #262126;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 5%;
+  position:sticky;
+  top:0;
+  background:#080608ee;
+  backdrop-filter:blur(12px);
+  z-index:10;
+}
+
+.logo{
+  border:0;
+  background:none;
+  color:#fff;
+  font-size:23px;
+  font-weight:900;
+  letter-spacing:3px;
+  cursor:pointer;
+}
+
+.logo span{color:#ff3f8f}
+
+.nav{
+  display:flex;
+  gap:9px;
+}
+
+.btn,.tab{
+  background:#111;
+  color:#ddd;
+  border:1px solid #292329;
+  border-radius:10px;
+  padding:10px 14px;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.btn:hover,.tab:hover{
+  border-color:#ff3f8f;
+  color:#fff;
+}
+
+.primary{
+  background:linear-gradient(135deg,#ff3f8f,#d92f73);
+  border:0;
+  color:#fff;
+  font-weight:800;
+}
+
+.btn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
+
+.wrap{
+  max-width:1180px;
+  margin:28px auto;
+  padding:0 18px 60px;
+}
+
+.head{
+  display:grid;
+  grid-template-columns:160px 1fr auto;
+  gap:24px;
+  align-items:center;
+  background:linear-gradient(145deg,#111,#090909);
+  border:1px solid #252025;
+  border-radius:22px;
+  padding:25px;
+}
+
+.avatar{
+  width:145px;
+  height:145px;
+  border-radius:50%;
+  object-fit:cover;
+  border:3px solid #ff3f8f;
+  background:#151215;
+  display:block;
+}
+
+.avatar.empty{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:#777;
+  font-size:42px;
+}
+
+.avatar-wrap{
+  position:relative;
+  width:145px;
+  height:145px;
+}
+
+.avatar-wrap .avatar{
+  width:145px;
+  height:145px;
+}
+
+.change-dp{
+  position:absolute;
+  bottom:6px;
+  right:4px;
+  border:1px solid #444;
+  background:#050505;
+  color:#fff;
+  border-radius:50%;
+  width:38px;
+  height:38px;
+  cursor:pointer;
+  z-index:2;
+}
+
+.user{
+  color:#ff3f8f;
+  font-weight:800;
+}
+
+.name{
+  font-size:30px;
+  font-weight:900;
+  margin:7px 0;
+}
+
+.meta{
+  color:#999;
+  font-size:14px;
+}
+
+.bio{
+  color:#aaa;
+  font-size:14px;
+  line-height:1.5;
+  margin-top:9px;
+}
+
+.head-actions{
+  display:flex;
+  gap:9px;
+  flex-wrap:wrap;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin:18px 0;
+}
+
+.stat{
+  background:#0d0d0d;
+  border:1px solid #252025;
+  border-radius:15px;
+  padding:17px;
+}
+
+.num{
+  font-size:25px;
+  font-weight:900;
+}
+
+.lab{
+  color:#888;
+  font-size:12px;
+  margin-top:5px;
+}
+
+.tabs{
+  display:flex;
+  gap:8px;
+  overflow:auto;
+  margin:20px 0;
+  padding-bottom:3px;
+}
+
+.tab.active{
+  border-color:#ff3f8f;
+  color:#fff;
+  background:#180d13;
+}
+
+.panel{
+  background:#0d0d0d;
+  border:1px solid #252025;
+  border-radius:17px;
+  padding:22px;
+  margin-bottom:18px;
+}
+
+.panel h2{
+  font-size:19px;
+  margin:0 0 6px;
+}
+
+.sub{
+  color:#888;
+  font-size:13px;
+  margin-bottom:18px;
+}
+
+.hidden{
+  display:none!important;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+}
+
+.full{
+  grid-column:1/-1;
+}
+
+label{
+  display:block;
+  font-size:12px;
+  font-weight:700;
+  color:#ddd;
+  margin-bottom:7px;
+}
+
+input,textarea{
+  width:100%;
+  background:#111;
+  color:#fff;
+  border:1px solid #292329;
+  border-radius:10px;
+  padding:12px;
+  outline:0;
+}
+
+input:focus,textarea:focus{
+  border-color:#ff3f8f;
+}
+
+textarea{
+  min-height:110px;
+  resize:vertical;
+}
+
+.save{
+  margin-top:16px;
+}
+
+.status{
+  font-size:12px;
+  margin-top:6px;
+  min-height:15px;
+}
+
+.ok{color:#35d07f}
+.bad{color:#ff4d6d}
+
+.photos{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.photo{
+  aspect-ratio:1;
+  border:1px dashed #343034;
+  border-radius:13px;
+  overflow:hidden;
+  position:relative;
+  background:#101010;
+}
+
+.photo img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+
+.upload{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  color:#777;
+  cursor:pointer;
+}
+
+.upload b{
+  font-size:32px;
+  color:#ff3f8f;
+}
+
+.remove{
+  position:absolute;
+  right:7px;
+  top:7px;
+  border:0;
+  border-radius:50%;
+  width:30px;
+  height:30px;
+  background:#000c;
+  color:#fff;
+  cursor:pointer;
+  z-index:2;
+}
+
+.empty-state{
+  text-align:center;
+  color:#777;
+  padding:45px 15px;
+}
+
+.toast{
+  position:fixed;
+  right:20px;
+  bottom:20px;
+  background:#171217;
+  border:1px solid #333;
+  padding:13px 16px;
+  border-radius:11px;
+  display:none;
+  z-index:50;
+  max-width:360px;
+}
+
+.toast.show{
+  display:block;
+}
+
+.hint{
+  color:#777;
+  font-size:11px;
+  margin-top:6px;
+}
+
+.photo-click{
+  cursor:pointer;
+}
+
+.loading-box{
+  text-align:center;
+  padding:30px;
+  color:#888;
+}
+
+@media(max-width:800px){
+
+  .top{
+    padding:0 16px;
+  }
+
+  .head{
+    grid-template-columns:90px 1fr;
+  }
+
+  .avatar,
+  .avatar-wrap,
+  .avatar-wrap .avatar{
+    width:85px;
+    height:85px;
+  }
+
+  .head-actions{
+    grid-column:1/-1;
+  }
+
+  .stats{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .full{
+    grid-column:auto;
+  }
+
+  .photos{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .name{
+    font-size:22px;
+  }
+
+  .nav .btn{
+    padding:9px 10px;
+  }
+}
 </style>
 </head>
+
 <body>
-<header class="top"><button class="logo" id="home">EL<span>Y</span>RA</button><div class="nav"><button class="btn" id="browse">Browse</button><button class="btn" id="logout">Log out</button></div></header>
+
+<header class="top">
+
+  <button class="logo" id="home" type="button">
+    EL<span>Y</span>RA
+  </button>
+
+  <div class="nav">
+    <button class="btn" id="browse" type="button">Browse</button>
+    <button class="btn" id="logout" type="button">Log out</button>
+  </div>
+
+</header>
+
+
 <main class="wrap">
+
 <section class="head">
-<div class="avatar-wrap"><div id="avatar" class="avatar empty photo-click">+</div><button id="dpBtn" class="change-dp" title="Change profile photo" type="button">✎</button><input id="dpInput" type="file" accept="image/jpeg,image/png,image/webp" hidden></div>
-<div><div id="user" class="user">@set-your-id</div><div id="name" class="name">Creator</div><div id="meta" class="meta">Loading...</div><div id="bio" class="bio"></div></div>
-<div class="head-actions"><button id="edit" class="btn primary" type="button">Edit Profile</button><button id="share" class="btn" type="button">Share Profile</button></div>
+
+  <div class="avatar-wrap">
+
+    <div id="avatar" class="avatar empty photo-click">+</div>
+
+    <button
+      id="dpBtn"
+      class="change-dp"
+      title="Change profile photo"
+      type="button"
+    >✎</button>
+
+    <input
+      id="dpInput"
+      type="file"
+      accept="image/jpeg,image/png,image/webp"
+      hidden
+    >
+
+  </div>
+
+
+  <div>
+
+    <div id="user" class="user">@set-your-id</div>
+
+    <div id="name" class="name">Creator</div>
+
+    <div id="meta" class="meta">Loading...</div>
+
+    <div id="bio" class="bio"></div>
+
+  </div>
+
+
+  <div class="head-actions">
+
+    <button
+      id="edit"
+      class="btn primary"
+      type="button"
+    >Edit Profile</button>
+
+    <button
+      id="share"
+      class="btn"
+      type="button"
+    >Share Profile</button>
+
+  </div>
+
 </section>
-<section class="stats"><div class="stat"><div id="total" class="num">0</div><div class="lab">Total Bookings</div></div><div class="stat"><div id="pending" class="num">0</div><div class="lab">Pending</div></div><div class="stat"><div id="accepted" class="num">0</div><div class="lab">Accepted</div></div><div class="stat"><div id="completed" class="num">0</div><div class="lab">Completed</div></div></section>
-<div class="tabs"><button class="tab active" data-tab="overview" type="button">Overview</button><button class="tab" data-tab="profile" type="button">Profile</button><button class="tab" data-tab="bookings" type="button">Bookings</button><button class="tab" data-tab="messages" type="button">Messages</button><button class="tab" data-tab="notifications" type="button">Notifications</button><button class="tab" data-tab="settings" type="button">Settings</button></div>
-<section id="overview" class="page"><div class="panel"><h2>Your Photos</h2><div class="sub">Main profile photo plus up to two additional photos.</div><div id="gallery" class="photos"></div></div><div class="panel"><div class="sub">Your phone and email stay private until a booking is accepted.</div></div></section>
-<section id="profile" class="page hidden"><div class="panel"><h2>Edit Profile</h2><div class="sub">Set your unique Creator ID and profile details.</div><div class="grid"><div><label>Creator ID</label><input id="usernameInput" placeholder="e.g. shanu" maxlength="24" autocomplete="off"><div id="usernameStatus" class="status"></div><div class="hint">3–24 characters: letters, numbers, dot or underscore.</div></div><div><label>Display Name</label><input id="nameInput" maxlength="60"></div><div><label>Contact Email</label><input id="emailInput" type="email"></div><div><label>Contact Phone</label><input id="phoneInput" type="tel"></div><div><label>City</label><input id="cityInput"></div><div><label>Area</label><input id="areaInput"></div><div><label>Hourly Rate (₹)</label><input id="rateInput" type="number" min="0"></div><div><label>Availability</label><input id="availabilityInput" placeholder="6 PM - 10 PM"></div><div class="full"><label>Bio</label><textarea id="bioInput" maxlength="500"></textarea></div></div><div class="save"><button id="save" class="btn primary" type="button">Save Changes</button></div></div><div class="panel"><h2>Additional Photos</h2><div class="sub">Upload up to two more photos. Click a photo to remove it.</div><div id="manage" class="photos"></div></div></section>
-<section id="bookings" class="page hidden"><div class="panel"><h2>Bookings</h2><div id="bookingList" class="empty-state">No booking requests yet.</div></div></section>
-<section id="messages" class="page hidden"><div class="panel"><h2>Messages</h2><div class="empty-state">Customer chats will appear here after a booking is accepted.</div></div></section>
-<section id="notifications" class="page hidden"><div class="panel"><h2>Notifications</h2><div class="empty-state">No notifications yet.</div></div></section>
-<section id="settings" class="page hidden"><div class="panel"><h2>Settings</h2><div class="empty-state">Account and security settings will be connected next.</div></div></section>
-</main><div id="toast" class="toast"></div>
+
+
+<section class="stats">
+
+  <div class="stat">
+    <div id="total" class="num">0</div>
+    <div class="lab">Total Bookings</div>
+  </div>
+
+  <div class="stat">
+    <div id="pending" class="num">0</div>
+    <div class="lab">Pending</div>
+  </div>
+
+  <div class="stat">
+    <div id="accepted" class="num">0</div>
+    <div class="lab">Accepted</div>
+  </div>
+
+  <div class="stat">
+    <div id="completed" class="num">0</div>
+    <div class="lab">Completed</div>
+  </div>
+
+</section>
+
+
+<div class="tabs">
+
+  <button class="tab active" data-tab="overview" type="button">
+    Overview
+  </button>
+
+  <button class="tab" data-tab="profile" type="button">
+    Profile
+  </button>
+
+  <button class="tab" data-tab="bookings" type="button">
+    Bookings
+  </button>
+
+  <button class="tab" data-tab="messages" type="button">
+    Messages
+  </button>
+
+  <button class="tab" data-tab="notifications" type="button">
+    Notifications
+  </button>
+
+  <button class="tab" data-tab="settings" type="button">
+    Settings
+  </button>
+
+</div>
+
+
+<section id="overview" class="page">
+
+  <div class="panel">
+
+    <h2>Your Photos</h2>
+
+    <div class="sub">
+      Main profile photo plus up to two additional photos.
+    </div>
+
+    <div id="gallery" class="photos">
+      <div class="loading-box">Loading photos...</div>
+    </div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <div class="sub">
+      Your phone and email stay private until a booking is accepted.
+    </div>
+
+  </div>
+
+</section>
+
+
+<section id="profile" class="page hidden">
+
+  <div class="panel">
+
+    <h2>Edit Profile</h2>
+
+    <div class="sub">
+      Set your unique Creator ID and profile details.
+    </div>
+
+
+    <div class="grid">
+
+      <div>
+
+        <label>Creator ID</label>
+
+        <input
+          id="usernameInput"
+          placeholder="e.g. shanu"
+          maxlength="24"
+          autocomplete="off"
+        >
+
+        <div id="usernameStatus" class="status"></div>
+
+        <div class="hint">
+          3–24 characters: letters, numbers, dot or underscore.
+        </div>
+
+      </div>
+
+
+      <div>
+
+        <label>Display Name</label>
+
+        <input id="nameInput" maxlength="60">
+
+      </div>
+
+
+      <div>
+
+        <label>Contact Email</label>
+
+        <input id="emailInput" type="email">
+
+      </div>
+
+
+      <div>
+
+        <label>Contact Phone</label>
+
+        <input id="phoneInput" type="tel">
+
+      </div>
+
+
+      <div>
+
+        <label>City</label>
+
+        <input id="cityInput">
+
+      </div>
+
+
+      <div>
+
+        <label>Area</label>
+
+        <input id="areaInput">
+
+      </div>
+
+
+      <div>
+
+        <label>Hourly Rate (₹)</label>
+
+        <input id="rateInput" type="number" min="0">
+
+      </div>
+
+
+      <div>
+
+        <label>Availability</label>
+
+        <input
+          id="availabilityInput"
+          placeholder="6 PM - 10 PM"
+        >
+
+      </div>
+
+
+      <div class="full">
+
+        <label>Bio</label>
+
+        <textarea id="bioInput" maxlength="500"></textarea>
+
+      </div>
+
+    </div>
+
+
+    <div class="save">
+
+      <button
+        id="save"
+        class="btn primary"
+        type="button"
+      >
+        Save Changes
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <div class="panel">
+
+    <h2>Additional Photos</h2>
+
+    <div class="sub">
+      Upload up to two more photos. Click × to remove a photo.
+    </div>
+
+    <div id="manage" class="photos"></div>
+
+  </div>
+
+</section>
+
+
+<section id="bookings" class="page hidden">
+
+  <div class="panel">
+
+    <h2>Bookings</h2>
+
+    <div id="bookingList" class="empty-state">
+      No booking requests yet.
+    </div>
+
+  </div>
+
+</section>
+
+
+<section id="messages" class="page hidden">
+
+  <div class="panel">
+
+    <h2>Messages</h2>
+
+    <div class="empty-state">
+      Customer chats will appear here after a booking is accepted.
+    </div>
+
+  </div>
+
+</section>
+
+
+<section id="notifications" class="page hidden">
+
+  <div class="panel">
+
+    <h2>Notifications</h2>
+
+    <div class="empty-state">
+      No notifications yet.
+    </div>
+
+  </div>
+
+</section>
+
+
+<section id="settings" class="page hidden">
+
+  <div class="panel">
+
+    <h2>Settings</h2>
+
+    <div class="empty-state">
+      Account and security settings will be connected next.
+    </div>
+
+  </div>
+
+</section>
+
+</main>
+
+
+<div id="toast" class="toast"></div>
+
+
 <script>
-const SUPABASE_URL='https://frvvacirnfvlxifvopcm.supabase.co';
-const SUPABASE_KEY='sb_publishable_l7fygMVXGAkbskkiBom8uw_-86tU6L0';
-const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-let user=null,profile=null,toastTimer=null;
-const $=id=>document.getElementById(id);
-function toast(message){const t=$('toast');t.textContent=message;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3500)}
-function esc(value){return String(value??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#039;'}[c]))}
-function tab(id){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('hidden',x.id!==id));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));window.scrollTo({top:0,behavior:'smooth'})}
+
+/* =========================================================
+   ELYRA CREATOR STUDIO
+   ========================================================= */
+
+const SUPABASE_URL =
+  'https://frvvacirnfvlxifvopcm.supabase.co';
+
+const SUPABASE_KEY =
+  'sb_publishable_l7fygMVXGAkbskkiBom8uw_-86tU6L0';
+
+let sb = null;
+let user = null;
+let profile = null;
+let toastTimer = null;
+
+
+/* =========================================================
+   SHORTCUT
+   ========================================================= */
+
+function $(id){
+  return document.getElementById(id);
+}
+
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+
+function toast(message){
+
+  const t = $('toast');
+
+  if(!t) return;
+
+  t.textContent = message;
+  t.classList.add('show');
+
+  clearTimeout(toastTimer);
+
+  toastTimer = setTimeout(()=>{
+    t.classList.remove('show');
+  },3500);
+}
+
+
+/* =========================================================
+   TAB SYSTEM
+   IMPORTANT:
+   This works even if Supabase fails.
+   ========================================================= */
+
+function openTab(id){
+
+  document.querySelectorAll('.page').forEach(page=>{
+    page.classList.toggle(
+      'hidden',
+      page.id !== id
+    );
+  });
+
+  document.querySelectorAll('.tab').forEach(button=>{
+    button.classList.toggle(
+      'active',
+      button.dataset.tab === id
+    );
+  });
+
+  window.scrollTo({
+    top:0,
+    behavior:'smooth'
+  });
+}
+
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+
+function setupNavigation(){
+
+  $('home').addEventListener('click',()=>{
+    window.location.href='index.html';
+  });
+
+  $('browse').addEventListener('click',()=>{
+    window.location.href='creators.html';
+  });
+
+  $('edit').addEventListener('click',()=>{
+    openTab('profile');
+  });
+
+  document.querySelectorAll('.tab').forEach(button=>{
+
+    button.addEventListener('click',()=>{
+
+      const target = button.dataset.tab;
+
+      if(target){
+        openTab(target);
+      }
+
+    });
+
+  });
+
+}
+
+
+/* =========================================================
+   SUPABASE
+   ========================================================= */
+
+function setupSupabase(){
+
+  if(!window.supabase){
+
+    console.error('Supabase library did not load.');
+
+    toast(
+      'Supabase could not load. Check your internet connection.'
+    );
+
+    return false;
+  }
+
+  try{
+
+    sb = window.supabase.createClient(
+      SUPABASE_URL,
+      SUPABASE_KEY
+    );
+
+    return true;
+
+  }catch(error){
+
+    console.error(
+      'Supabase initialization error:',
+      error
+    );
+
+    toast(
+      'Supabase connection could not start.'
+    );
+
+    return false;
+  }
+
+}
+
+
+/* =========================================================
+   RENDER PROFILE
+   ========================================================= */
+
 function render(){
- const p=profile||{};
- $('user').textContent='@'+(p.creator_username||'set-your-id');
- $('name').textContent=p.display_name||'Creator';
- $('meta').textContent=[p.age?p.age+' yrs':null,p.city,p.area,p.hourly_rate?'₹'+p.hourly_rate+'/hr':null].filter(Boolean).join(' • ')||'Complete your profile';
- $('bio').textContent=p.bio||'';
- $('usernameInput').value=p.creator_username||'';
- $('nameInput').value=p.display_name||'';
- $('emailInput').value=p.contact_email||user?.email||'';
- $('phoneInput').value=p.phone||'';
- $('cityInput').value=p.city||'';
- $('areaInput').value=p.area||'';
- $('rateInput').value=p.hourly_rate??'';
- $('availabilityInput').value=p.availability||'';
- $('bioInput').value=p.bio||'';
- renderPhotos();
+
+  const p = profile || {};
+
+  $('user').textContent =
+    '@' + (p.creator_username || 'set-your-id');
+
+  $('name').textContent =
+    p.display_name || 'Creator';
+
+  $('meta').textContent =
+    [
+      p.age ? p.age + ' yrs' : null,
+      p.city,
+      p.area,
+      p.hourly_rate
+        ? '₹' + p.hourly_rate + '/hr'
+        : null
+    ]
+    .filter(Boolean)
+    .join(' • ')
+    ||
+    'Complete your profile';
+
+  $('bio').textContent =
+    p.bio || '';
+
+  $('usernameInput').value =
+    p.creator_username || '';
+
+  $('nameInput').value =
+    p.display_name || '';
+
+  $('emailInput').value =
+    p.contact_email ||
+    user?.email ||
+    '';
+
+  $('phoneInput').value =
+    p.phone || '';
+
+  $('cityInput').value =
+    p.city || '';
+
+  $('areaInput').value =
+    p.area || '';
+
+  $('rateInput').value =
+    p.hourly_rate ?? '';
+
+  $('availabilityInput').value =
+    p.availability || '';
+
+  $('bioInput').value =
+    p.bio || '';
+
+  renderPhotos();
+
 }
-function imageElement(url,alt='Creator photo'){const img=document.createElement('img');img.src=url;img.alt=alt;img.loading='lazy';img.onerror=()=>{img.style.display='none'};return img}
+
+
+/* =========================================================
+   PHOTO ELEMENT
+   ========================================================= */
+
+function imageElement(url,alt='Creator photo'){
+
+  const img =
+    document.createElement('img');
+
+  img.src = url;
+  img.alt = alt;
+  img.loading = 'lazy';
+
+  img.onerror = ()=>{
+    img.style.display='none';
+  };
+
+  return img;
+
+}
+
+
+/* =========================================================
+   RENDER PHOTOS
+   ========================================================= */
+
 function renderPhotos(){
- const wrap=$('avatar');
- if(profile?.photo_url){
-   const img=imageElement(profile.photo_url,'Profile photo');img.id='avatar';img.className='avatar photo-click';img.onclick=()=>$('dpInput').click();wrap.replaceWith(img);
- }else{
-   if(wrap.tagName==='IMG'){const d=document.createElement('div');d.id='avatar';d.className='avatar empty photo-click';d.textContent='+';d.onclick=()=>$('dpInput').click();wrap.replaceWith(d)}else{wrap.className='avatar empty photo-click';wrap.textContent='+';wrap.onclick=()=>$('dpInput').click()}
- }
- const urls=[profile?.photo_url,profile?.photo_2_url,profile?.photo_3_url].filter(Boolean);
- $('gallery').innerHTML='';
- if(!urls.length)$('gallery').innerHTML='<div class="empty-state">No photos yet.</div>';
- urls.forEach(u=>{const d=document.createElement('div');d.className='photo';d.appendChild(imageElement(u));$('gallery').appendChild(d)});
- const m=$('manage');m.innerHTML='';
- [2,3].forEach(n=>{const u=profile?.['photo_'+n+'_url'];if(u){const d=document.createElement('div');d.className='photo';d.appendChild(imageElement(u));const b=document.createElement('button');b.className='remove';b.type='button';b.textContent='×';b.title='Remove photo';b.onclick=()=>removeMore(n);d.appendChild(b);m.appendChild(d)}});
- if(!profile?.photo_2_url||!profile?.photo_3_url){const l=document.createElement('label');l.className='photo upload';l.innerHTML='<b>+</b><span>Add photo</span><input id="moreInput" type="file" accept="image/jpeg,image/png,image/webp" hidden multiple>';m.appendChild(l);$('moreInput').addEventListener('change',e=>uploadMore([...e.target.files]));}
+
+  const avatar = $('avatar');
+
+  if(profile?.photo_url){
+
+    if(avatar.tagName === 'IMG'){
+
+      avatar.src = profile.photo_url;
+
+    }else{
+
+      const img =
+        imageElement(
+          profile.photo_url,
+          'Profile photo'
+        );
+
+      img.id='avatar';
+      img.className='avatar photo-click';
+
+      img.addEventListener(
+        'click',
+        ()=>$('dpInput').click()
+      );
+
+      avatar.replaceWith(img);
+    }
+
+  }else{
+
+    if(avatar.tagName === 'IMG'){
+
+      const d =
+        document.createElement('div');
+
+      d.id='avatar';
+      d.className=
+        'avatar empty photo-click';
+
+      d.textContent='+';
+
+      d.addEventListener(
+        'click',
+        ()=>$('dpInput').click()
+      );
+
+      avatar.replaceWith(d);
+
+    }else{
+
+      avatar.className=
+        'avatar empty photo-click';
+
+      avatar.textContent='+';
+
+      avatar.onclick=
+        ()=>$('dpInput').click();
+    }
+
+  }
+
+
+  const urls = [
+    profile?.photo_url,
+    profile?.photo_2_url,
+    profile?.photo_3_url
+  ].filter(Boolean);
+
+
+  $('gallery').innerHTML='';
+
+
+  if(!urls.length){
+
+    $('gallery').innerHTML=
+      '<div class="empty-state">No photos yet.</div>';
+
+  }else{
+
+    urls.forEach(url=>{
+
+      const d =
+        document.createElement('div');
+
+      d.className='photo';
+
+      d.appendChild(
+        imageElement(url)
+      );
+
+      $('gallery').appendChild(d);
+
+    });
+
+  }
+
+
+  const manage =
+    $('manage');
+
+  manage.innerHTML='';
+
+
+  [2,3].forEach(number=>{
+
+    const url =
+      profile?.['photo_'+number+'_url'];
+
+    if(!url) return;
+
+
+    const d =
+      document.createElement('div');
+
+    d.className='photo';
+
+
+    d.appendChild(
+      imageElement(url)
+    );
+
+
+    const remove =
+      document.createElement('button');
+
+    remove.className='remove';
+    remove.type='button';
+    remove.textContent='×';
+    remove.title='Remove photo';
+
+
+    remove.addEventListener(
+      'click',
+      ()=>removeMore(number)
+    );
+
+
+    d.appendChild(remove);
+
+    manage.appendChild(d);
+
+  });
+
+
+  if(
+    !profile?.photo_2_url ||
+    !profile?.photo_3_url
+  ){
+
+    const label =
+      document.createElement('label');
+
+    label.className=
+      'photo upload';
+
+
+    label.innerHTML=
+      `
+      <b>+</b>
+      <span>Add photo</span>
+      <input
+        id="moreInput"
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        hidden
+        multiple
+      >
+      `;
+
+
+    manage.appendChild(label);
+
+
+    $('moreInput').addEventListener(
+      'change',
+      event=>{
+        uploadMore(
+          Array.from(
+            event.target.files || []
+          )
+        );
+      }
+    );
+
+  }
+
 }
-async function updateProfile(updates){
- const {data,error}=await sb.from('creator_profiles').update(updates).eq('user_id',user.id).select('*').single();
- if(error)throw error;
- profile=data;render();return data;
+
+
+/* =========================================================
+   LOAD PROFILE
+   ========================================================= */
+
+async function loadProfile(){
+
+  if(!sb || !user) return false;
+
+
+  try{
+
+    const result =
+      await sb
+        .from('creator_profiles')
+        .select('*')
+        .eq('user_id',user.id)
+        .maybeSingle();
+
+
+    if(result.error){
+
+      console.error(
+        'Profile load error:',
+        result.error
+      );
+
+      toast(
+        'Could not load creator profile: ' +
+        result.error.message
+      );
+
+      return false;
+    }
+
+
+    if(!result.data){
+
+      toast(
+        'Creator profile not found.'
+      );
+
+      setTimeout(()=>{
+        window.location.href=
+          'creator-register.html';
+      },1200);
+
+      return false;
+    }
+
+
+    profile=result.data;
+
+    render();
+
+    return true;
+
+  }catch(error){
+
+    console.error(error);
+
+    toast(
+      error?.message ||
+      'Could not load profile.'
+    );
+
+    return false;
+  }
+
 }
+
+
+/* =========================================================
+   UPDATE / CREATE PROFILE
+   ========================================================= */
+
+async function saveDatabaseProfile(updates){
+
+  if(!sb || !user){
+
+    throw new Error(
+      'You are not connected to Supabase.'
+    );
+
+  }
+
+
+  const updated =
+    await sb
+      .from('creator_profiles')
+      .update(updates)
+      .eq('user_id',user.id)
+      .select('*')
+      .maybeSingle();
+
+
+  if(updated.error){
+
+    throw updated.error;
+  }
+
+
+  if(updated.data){
+
+    profile=updated.data;
+
+    render();
+
+    return updated.data;
+  }
+
+
+  /*
+    If no profile exists, create one.
+  */
+
+  const inserted =
+    await sb
+      .from('creator_profiles')
+      .insert({
+        ...updates,
+        user_id:user.id
+      })
+      .select('*')
+      .single();
+
+
+  if(inserted.error){
+
+    throw inserted.error;
+  }
+
+
+  profile=inserted.data;
+
+  render();
+
+  return inserted.data;
+
+}
+
+
+/* =========================================================
+   SAVE PROFILE
+   ========================================================= */
+
 async function saveProfile(){
- let username=$('usernameInput').value.trim().replace(/^@/,'').toLowerCase();
- if(!/^[a-z0-9._]{3,24}$/.test(username)){ $('usernameStatus').textContent='Invalid Creator ID';$('usernameStatus').className='status bad';toast('Creator ID must be 3–24 letters, numbers, . or _');return; }
- const btn=$('save');btn.disabled=true;btn.textContent='Saving...';$('usernameStatus').textContent='';
- try{
-   const updates={creator_username:username,display_name:$('nameInput').value.trim(),contact_email:$('emailInput').value.trim(),phone:$('phoneInput').value.trim(),city:$('cityInput').value.trim(),area:$('areaInput').value.trim(),hourly_rate:Number($('rateInput').value)||0,availability:$('availabilityInput').value.trim(),bio:$('bioInput').value.trim()};
-   await updateProfile(updates);
-   $('usernameStatus').textContent='Creator ID saved ✓';$('usernameStatus').className='status ok';toast('Profile saved successfully');
- }catch(e){
-   const msg=e?.message||'Could not save profile';
-   $('usernameStatus').textContent=/duplicate|unique/i.test(msg)?'Creator ID already taken':msg;$('usernameStatus').className='status bad';toast(msg);
- }finally{btn.disabled=false;btn.textContent='Save Changes'}
+
+  const username =
+    $('usernameInput')
+      .value
+      .trim()
+      .replace(/^@/,'')
+      .toLowerCase();
+
+
+  if(
+    !/^[a-z0-9._]{3,24}$/.test(username)
+  ){
+
+    $('usernameStatus').textContent=
+      'Invalid Creator ID';
+
+    $('usernameStatus').className=
+      'status bad';
+
+    toast(
+      'Creator ID must be 3–24 letters, numbers, . or _'
+    );
+
+    return;
+  }
+
+
+  const button =
+    $('save');
+
+  button.disabled=true;
+  button.textContent='Saving...';
+
+  $('usernameStatus').textContent='';
+
+
+  try{
+
+    const updates={
+
+      creator_username:username,
+
+      display_name:
+        $('nameInput').value.trim(),
+
+      contact_email:
+        $('emailInput').value.trim(),
+
+      phone:
+        $('phoneInput').value.trim(),
+
+      city:
+        $('cityInput').value.trim(),
+
+      area:
+        $('areaInput').value.trim(),
+
+      hourly_rate:
+        Number(
+          $('rateInput').value
+        ) || 0,
+
+      availability:
+        $('availabilityInput')
+          .value
+          .trim(),
+
+      bio:
+        $('bioInput')
+          .value
+          .trim()
+
+    };
+
+
+    await saveDatabaseProfile(
+      updates
+    );
+
+
+    $('usernameStatus').textContent=
+      'Creator ID saved ✓';
+
+    $('usernameStatus').className=
+      'status ok';
+
+    toast(
+      'Profile saved successfully'
+    );
+
+
+    await loadStats();
+
+
+  }catch(error){
+
+    console.error(
+      'Save profile error:',
+      error
+    );
+
+
+    const message =
+      error?.message ||
+      'Could not save profile';
+
+
+    $('usernameStatus').textContent =
+      /duplicate|unique/i.test(message)
+        ? 'Creator ID already taken'
+        : message;
+
+    $('usernameStatus').className=
+      'status bad';
+
+    toast(message);
+
+  }finally{
+
+    button.disabled=false;
+    button.textContent='Save Changes';
+
+  }
+
 }
-function compressImage(file,maxSize=900,quality=.82){return new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=()=>reject(new Error('Could not read image'));r.onload=()=>{const img=new Image();img.onerror=()=>reject(new Error('Invalid image'));img.onload=()=>{const scale=Math.min(1,maxSize/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.width*scale));c.height=Math.max(1,Math.round(img.height*scale));const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',quality))};img.src=r.result}};r.readAsDataURL(file)})}
+
+
+/* =========================================================
+   UPLOAD PHOTO
+   ========================================================= */
+
 async function upload(file,column){
- if(!file)return;
- if(!['image/jpeg','image/png','image/webp'].includes(file.type)||file.size>5*1024*1024){toast('Use JPG, PNG or WEBP under 5MB');return}
- toast('Uploading photo...');
- let publicUrl=null;
- try{
-   const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
-   const path=user.id+'/'+crypto.randomUUID()+'.'+ext;
-   const result=await sb.storage.from('creator-photos').upload(path,file,{upsert:false,contentType:file.type,cacheControl:'3600'});
-   if(!result.error)publicUrl=sb.storage.from('creator-photos').getPublicUrl(path).data.publicUrl;
- }catch(e){publicUrl=null}
- try{
-   if(!publicUrl)publicUrl=await compressImage(file);
-   await updateProfile({[column]:publicUrl});
-   toast(column==='photo_url'?'Profile photo updated':'Photo added');
- }catch(e){toast(e?.message||'Could not update photo')}
+
+  if(!file) return;
+
+
+  if(
+    ![
+      'image/jpeg',
+      'image/png',
+      'image/webp'
+    ].includes(file.type)
+    ||
+    file.size > 5 * 1024 * 1024
+  ){
+
+    toast(
+      'Use JPG, PNG or WEBP under 5MB.'
+    );
+
+    return;
+  }
+
+
+  if(!sb || !user){
+
+    toast(
+      'Please login again.'
+    );
+
+    return;
+  }
+
+
+  toast('Uploading photo...');
+
+
+  try{
+
+    const extension =
+      (
+        file.name
+          .split('.')
+          .pop() ||
+        'jpg'
+      ).toLowerCase();
+
+
+    const path =
+      user.id +
+      '/' +
+      crypto.randomUUID() +
+      '.' +
+      extension;
+
+
+    const uploadResult =
+      await sb
+        .storage
+        .from('creator-photos')
+        .upload(
+          path,
+          file,
+          {
+            upsert:false,
+            contentType:file.type,
+            cacheControl:'3600'
+          }
+        );
+
+
+    if(uploadResult.error){
+
+      throw uploadResult.error;
+    }
+
+
+    const publicResult =
+      sb
+        .storage
+        .from('creator-photos')
+        .getPublicUrl(path);
+
+
+    const publicUrl =
+      publicResult?.data?.publicUrl;
+
+
+    if(!publicUrl){
+
+      throw new Error(
+        'Could not create photo URL.'
+      );
+    }
+
+
+    await saveDatabaseProfile({
+
+      [column]:publicUrl
+
+    });
+
+
+    toast(
+      column === 'photo_url'
+        ? 'Profile photo updated'
+        : 'Photo added'
+    );
+
+
+  }catch(error){
+
+    console.error(
+      'Photo upload error:',
+      error
+    );
+
+    toast(
+      error?.message ||
+      'Could not upload photo.'
+    );
+
+  }
+
 }
-async function uploadMore(files){for(const f of files){const slot=!profile.photo_2_url?'photo_2_url':!profile.photo_3_url?'photo_3_url':null;if(!slot)break;await upload(f,slot)}render()}
-async function removeMore(n){try{await updateProfile({['photo_'+n+'_url']:null});toast('Photo removed')}catch(e){toast(e?.message||'Could not remove photo')}}
-async function stats(){try{const {data,error}=await sb.from('bookings').select('status').eq('creator_id',user.id);if(error)throw error;const a=data||[];$('total').textContent=a.length;$('pending').textContent=a.filter(x=>x.status==='pending').length;$('accepted').textContent=a.filter(x=>x.status==='accepted').length;$('completed').textContent=a.filter(x=>x.status==='completed').length}catch(e){console.warn('Booking stats:',e.message)}}
-async function init(){
- try{
-   const {data:{session}}=await sb.auth.getSession();
-   if(!session?.user){location.href='login.html?redirect=creator-studio.html';return}
-   user=session.user;
-   const r=await sb.from('creator_profiles').select('*').eq('user_id',user.id).maybeSingle();
-   if(r.error)throw r.error;
-   if(!r.data){toast('Creator profile not found');setTimeout(()=>location.href='creator-register.html',1000);return}
-   profile=r.data;render();await stats();
- }catch(e){console.error(e);toast(e?.message||'Could not load Creator Studio')}
+
+
+/* =========================================================
+   MORE PHOTOS
+   ========================================================= */
+
+async function uploadMore(files){
+
+  for(const file of files){
+
+    const slot =
+      !profile?.photo_2_url
+        ? 'photo_2_url'
+        : !profile?.photo_3_url
+          ? 'photo_3_url'
+          : null;
+
+
+    if(!slot) break;
+
+
+    await upload(
+      file,
+      slot
+    );
+
+  }
+
+
+  renderPhotos();
+
 }
-$('home').onclick=()=>location.href='index.html';
-$('browse').onclick=()=>location.href='creators.html';
-$('logout').onclick=async()=>{await sb.auth.signOut();location.href='index.html'};
-$('edit').onclick=()=>tab('profile');
-$('save').onclick=saveProfile;
-$('dpBtn').onclick=()=>$('dpInput').click();
-$('dpInput').addEventListener('change',e=>upload(e.target.files?.[0],'photo_url'));
-$('share').onclick=async()=>{const u=new URL('creator.html',location.href);u.searchParams.set('id',profile.id);try{await navigator.clipboard.writeText(u.href);toast('Profile link copied')}catch(e){prompt('Copy your profile link:',u.href)}};
-document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>tab(b.dataset.tab)));
-init();
+
+
+/* =========================================================
+   REMOVE PHOTO
+   ========================================================= */
+
+async function removeMore(number){
+
+  try{
+
+    await saveDatabaseProfile({
+
+      ['photo_'+number+'_url']:null
+
+    });
+
+    toast(
+      'Photo removed'
+    );
+
+  }catch(error){
+
+    console.error(error);
+
+    toast(
+      error?.message ||
+      'Could not remove photo.'
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   BOOKING STATS
+   ========================================================= */
+
+async function loadStats(){
+
+  if(!sb || !user) return;
+
+
+  try{
+
+    const result =
+      await sb
+        .from('bookings')
+        .select('status')
+        .eq('creator_id',user.id);
+
+
+    if(result.error){
+
+      console.warn(
+        'Booking stats:',
+        result.error.message
+      );
+
+      return;
+    }
+
+
+    const bookings =
+      result.data || [];
+
+
+    $('total').textContent =
+      bookings.length;
+
+
+    $('pending').textContent =
+      bookings.filter(
+        x=>x.status === 'pending'
+      ).length;
+
+
+    $('accepted').textContent =
+      bookings.filter(
+        x=>x.status === 'accepted'
+      ).length;
+
+
+    $('completed').textContent =
+      bookings.filter(
+        x=>x.status === 'completed'
+      ).length;
+
+
+    renderBookingList(bookings);
+
+
+  }catch(error){
+
+    console.warn(
+      'Booking stats error:',
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   BOOKING LIST
+   ========================================================= */
+
+function renderBookingList(bookings){
+
+  const box =
+    $('bookingList');
+
+
+  if(!bookings.length){
+
+    box.className='empty-state';
+
+    box.textContent=
+      'No booking requests yet.';
+
+    return;
+  }
+
+
+  box.className='';
+
+
+  box.innerHTML =
+    bookings
+      .map(
+        booking=>`
+          <div style="
+            padding:15px;
+            border:1px solid #292329;
+            border-radius:12px;
+            margin-bottom:10px;
+            background:#111;
+          ">
+            <strong>
+              ${booking.status || 'pending'}
+            </strong>
+          </div>
+        `
+      )
+      .join('');
+
+}
+
+
+/* =========================================================
+   SHARE
+   ========================================================= */
+
+async function shareProfile(){
+
+  if(!profile?.id){
+
+    toast(
+      'Profile is not loaded yet.'
+    );
+
+    return;
+  }
+
+
+  const url =
+    new URL(
+      'creator.html',
+      window.location.href
+    );
+
+
+  url.searchParams.set(
+    'id',
+    profile.id
+  );
+
+
+  try{
+
+    if(
+      navigator.share
+    ){
+
+      await navigator.share({
+
+        title:
+          profile.display_name ||
+          'ELYRA Creator',
+
+        url:url.href
+
+      });
+
+      return;
+    }
+
+
+    await navigator.clipboard.writeText(
+      url.href
+    );
+
+
+    toast(
+      'Profile link copied'
+    );
+
+
+  }catch(error){
+
+    prompt(
+      'Copy your profile link:',
+      url.href
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   LOGOUT
+   ========================================================= */
+
+async function logout(){
+
+  try{
+
+    if(sb){
+
+      const result =
+        await sb.auth.signOut();
+
+      if(result.error){
+
+        console.error(
+          result.error
+        );
+
+      }
+
+    }
+
+  }catch(error){
+
+    console.error(
+      'Logout error:',
+      error
+    );
+
+  }
+
+
+  window.location.href=
+    'index.html';
+
+}
+
+
+/* =========================================================
+   PROFILE PHOTO BUTTON
+   ========================================================= */
+
+function setupPhotoButtons(){
+
+  $('dpBtn').addEventListener(
+    'click',
+    ()=>{
+      $('dpInput').click();
+    }
+  );
+
+
+  $('dpInput').addEventListener(
+    'change',
+    event=>{
+
+      const file =
+        event.target.files?.[0];
+
+      if(file){
+
+        upload(
+          file,
+          'photo_url'
+        );
+
+      }
+
+      event.target.value='';
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   AUTH + INITIALIZATION
+   ========================================================= */
+
+async function initialize(){
+
+  const supabaseReady =
+    setupSupabase();
+
+
+  if(!supabaseReady){
+
+    /*
+      Tabs/navigation still work.
+      Supabase-dependent features will
+      show an error instead of killing JS.
+    */
+
+    return;
+  }
+
+
+  try{
+
+    const sessionResult =
+      await sb.auth.getSession();
+
+
+    if(sessionResult.error){
+
+      throw sessionResult.error;
+    }
+
+
+    const session =
+      sessionResult.data?.session;
+
+
+    if(!session?.user){
+
+      toast(
+        'Please login first.'
+      );
+
+
+      setTimeout(()=>{
+
+        window.location.href =
+          'login.html?redirect=creator-studio.html';
+
+      },700);
+
+
+      return;
+    }
+
+
+    user =
+      session.user;
+
+
+    const loaded =
+      await loadProfile();
+
+
+    if(loaded){
+
+      await loadStats();
+
+    }
+
+
+  }catch(error){
+
+    console.error(
+      'ELYRA initialization error:',
+      error
+    );
+
+
+    toast(
+      error?.message ||
+      'Could not load Creator Studio.'
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   START
+   ========================================================= */
+
+document.addEventListener(
+  'DOMContentLoaded',
+  ()=>{
+
+    /*
+      IMPORTANT:
+      Navigation is initialized FIRST.
+      So one Supabase error cannot make
+      every button dead.
+    */
+
+    setupNavigation();
+
+    setupPhotoButtons();
+
+    $('save').addEventListener(
+      'click',
+      saveProfile
+    );
+
+    $('share').addEventListener(
+      'click',
+      shareProfile
+    );
+
+    $('logout').addEventListener(
+      'click',
+      logout
+    );
+
+    initialize();
+
+  }
+);
+
 </script>
+
 </body>
 </html>
+```
