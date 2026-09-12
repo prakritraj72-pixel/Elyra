@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,6 +8,7 @@
   <title>Elyra Subscription</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
   <style>
     * {
@@ -267,7 +269,6 @@
     }
 
     @media (max-width: 700px) {
-
       .page {
         padding: 15px 12px 40px;
       }
@@ -297,426 +298,707 @@
 
 <body>
 
-  <main class="page">
+<main class="page">
+  <div class="container">
 
-    <div class="container">
+    <div class="topbar">
+      <div class="brand">
+        EL<span>Y</span>RA
+      </div>
 
-      <div class="topbar">
+      <button class="back-btn" onclick="goBack()">
+        ← Back
+      </button>
+    </div>
 
-        <div class="brand">
-          EL<span>Y</span>RA
+    <section class="hero">
+      <h1>
+        Choose Your <span>Plan</span>
+      </h1>
+
+      <p>
+        Unlock Elyra bookings and connect with creators
+        for lawful social companionship.
+      </p>
+    </section>
+
+    <div id="messageBox" class="message"></div>
+
+    <div id="currentPlan" class="current-plan">
+      <h3 id="currentPlanTitle">
+        Subscription Active
+      </h3>
+
+      <p id="currentPlanText">
+        Your Elyra subscription is currently active.
+      </p>
+    </div>
+
+    <section class="plans">
+
+      <!-- MONTHLY -->
+      <div class="plan">
+
+        <div class="plan-name">
+          Monthly
         </div>
 
+        <div class="price">
+          ₹199
+          <span>/ month</span>
+        </div>
+
+        <div class="description">
+          Flexible monthly access for Elyra bookings.
+        </div>
+
+        <ul class="features">
+          <li>Browse creator profiles</li>
+          <li>Book Elyra creators</li>
+          <li>Nearby-first discovery</li>
+          <li>Safety & reporting features</li>
+          <li>Cancel anytime</li>
+        </ul>
+
         <button
-          class="back-btn"
-          onclick="goBack()"
+          id="monthlyBtn"
+          class="subscribe-btn"
+          onclick="selectPlan('monthly')"
         >
-          ← Back
+          Choose Monthly
         </button>
 
       </div>
 
+      <!-- YEARLY -->
+      <div class="plan popular">
 
-      <section class="hero">
-
-        <h1>
-          Choose Your <span>Plan</span>
-        </h1>
-
-        <p>
-          Unlock Elyra bookings and connect with creators
-          for lawful social companionship.
-        </p>
-
-      </section>
-
-
-      <div id="messageBox" class="message"></div>
-
-
-      <div id="currentPlan" class="current-plan">
-
-        <h3 id="currentPlanTitle">
-          Subscription Active
-        </h3>
-
-        <p id="currentPlanText">
-          Your Elyra subscription is currently active.
-        </p>
-
-      </div>
-
-
-      <section class="plans">
-
-
-        <!-- MONTHLY -->
-
-        <div class="plan">
-
-          <div class="plan-name">
-            Monthly
-          </div>
-
-          <div class="price">
-            ₹199
-            <span>/ month</span>
-          </div>
-
-          <div class="description">
-            Flexible monthly access for Elyra bookings.
-          </div>
-
-          <ul class="features">
-
-            <li>
-              Browse creator profiles
-            </li>
-
-            <li>
-              Book Elyra creators
-            </li>
-
-            <li>
-              Nearby-first discovery
-            </li>
-
-            <li>
-              Safety & reporting features
-            </li>
-
-            <li>
-              Cancel anytime
-            </li>
-
-          </ul>
-
-          <button
-            class="subscribe-btn"
-            onclick="selectPlan('monthly')"
-          >
-            Choose Monthly
-          </button>
-
+        <div class="badge">
+          BEST VALUE
         </div>
 
-
-        <!-- YEARLY -->
-
-        <div class="plan popular">
-
-          <div class="badge">
-            BEST VALUE
-          </div>
-
-          <div class="plan-name">
-            Yearly
-          </div>
-
-          <div class="price">
-            ₹699
-            <span>/ year</span>
-          </div>
-
-          <div class="description">
-            Long-term access at a much lower effective monthly cost.
-          </div>
-
-          <ul class="features">
-
-            <li>
-              Everything in Monthly
-            </li>
-
-            <li>
-              Full-year booking access
-            </li>
-
-            <li>
-              Better overall value
-            </li>
-
-            <li>
-              Nearby-first discovery
-            </li>
-
-            <li>
-              Safety & reporting features
-            </li>
-
-          </ul>
-
-          <button
-            class="subscribe-btn"
-            onclick="selectPlan('yearly')"
-          >
-            Choose Yearly
-          </button>
-
+        <div class="plan-name">
+          Yearly
         </div>
 
-      </section>
+        <div class="price">
+          ₹699
+          <span>/ year</span>
+        </div>
 
+        <div class="description">
+          Long-term access at a much lower effective monthly cost.
+        </div>
 
-      <div class="info">
+        <ul class="features">
+          <li>Everything in Monthly</li>
+          <li>Full-year booking access</li>
+          <li>Better overall value</li>
+          <li>Nearby-first discovery</li>
+          <li>Safety & reporting features</li>
+        </ul>
 
-        <strong>Important:</strong>
-
-        <br><br>
-
-        Subscription payment is not connected yet.
-        Your plan selection will be saved for the next
-        payment integration step.
-
-        <br><br>
-
-        Elyra is 18+ only and is intended for lawful
-        social companionship. Sexual services,
-        prostitution, exploitation, harassment and
-        illegal activity are prohibited.
+        <button
+          id="yearlyBtn"
+          class="subscribe-btn"
+          onclick="selectPlan('yearly')"
+        >
+          Choose Yearly
+        </button>
 
       </div>
 
+    </section>
 
-      <div class="footer">
-        © 2026 Elyra. All rights reserved.
-      </div>
+    <div class="info">
+
+      <strong>Subscription:</strong>
+
+      <br><br>
+
+      Payment is securely processed through Razorpay.
+      Your subscription becomes active only after
+      successful server-side payment verification.
+
+      <br><br>
+
+      Elyra is 18+ only and is intended for lawful
+      social companionship. Sexual services,
+      prostitution, exploitation, harassment and
+      illegal activity are prohibited.
 
     </div>
 
-  </main>
+    <div class="footer">
+      © 2026 Elyra. All rights reserved.
+    </div>
+
+  </div>
+</main>
 
 
-  <script>
+<script>
 
-    /* ============================================
-       SUPABASE
-    ============================================ */
+const SUPABASE_URL =
+  "https://frvvacirnfvlxifvopcm.supabase.co";
 
-    const SUPABASE_URL =
-      "https://frvvacirnfvlxifvopcm.supabase.co";
+const SUPABASE_ANON_KEY =
+  "sb_publishable_l7fygMVXGAkbskkiBom8uw_-86tU6L0";
 
-    const SUPABASE_ANON_KEY =
-      "sb_publishable_l7fygMVXGAkbskkiBom8uw_-86tU6L0";
+const supabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
 
-    const supabaseClient =
-      window.supabase.createClient(
-        SUPABASE_URL,
-        SUPABASE_ANON_KEY
+
+const messageBox =
+  document.getElementById("messageBox");
+
+const currentPlanBox =
+  document.getElementById("currentPlan");
+
+const currentPlanTitle =
+  document.getElementById("currentPlanTitle");
+
+const currentPlanText =
+  document.getElementById("currentPlanText");
+
+const monthlyBtn =
+  document.getElementById("monthlyBtn");
+
+const yearlyBtn =
+  document.getElementById("yearlyBtn");
+
+
+document.addEventListener(
+  "DOMContentLoaded",
+  initializeSubscription
+);
+
+
+async function initializeSubscription() {
+
+  const {
+    data,
+    error
+  } = await supabaseClient.auth.getUser();
+
+  if (error || !data.user) {
+
+    window.location.href =
+      "login.html?redirect=subscription.html";
+
+    return;
+  }
+
+  await loadSubscription(data.user.id);
+}
+
+
+/* ============================================
+   LOAD SUBSCRIPTION
+============================================ */
+
+async function loadSubscription(userId) {
+
+  const {
+    data,
+    error
+  } = await supabaseClient
+    .from("subscriptions")
+    .select(`
+      id,
+      plan,
+      amount,
+      status,
+      started_at,
+      expires_at
+    `)
+    .eq("user_id", userId)
+    .order("created_at", {
+      ascending: false
+    })
+    .limit(1)
+    .maybeSingle();
+
+
+  if (error) {
+
+    console.error(
+      "Subscription load error:",
+      error
+    );
+
+    return;
+  }
+
+
+  if (
+    data &&
+    data.status === "active" &&
+    data.expires_at &&
+    new Date(data.expires_at) > new Date()
+  ) {
+
+    currentPlanBox.classList.add("show");
+
+    const planName =
+      data.plan === "yearly"
+        ? "Yearly"
+        : "Monthly";
+
+    currentPlanTitle.textContent =
+      "✓ " + planName + " Subscription Active";
+
+
+    const expiry =
+      new Date(
+        data.expires_at
+      ).toLocaleDateString(
+        "en-IN",
+        {
+          day: "numeric",
+          month: "short",
+          year: "numeric"
+        }
       );
 
 
-    /* ============================================
-       ELEMENTS
-    ============================================ */
+    currentPlanText.textContent =
+      "Your subscription is active until " +
+      expiry +
+      ".";
 
-    const messageBox =
-      document.getElementById("messageBox");
+  }
 
-    const currentPlanBox =
-      document.getElementById("currentPlan");
-
-    const currentPlanTitle =
-      document.getElementById("currentPlanTitle");
-
-    const currentPlanText =
-      document.getElementById("currentPlanText");
+}
 
 
-    /* ============================================
-       INIT
-    ============================================ */
+/* ============================================
+   SELECT PLAN
+============================================ */
 
-    document.addEventListener(
-      "DOMContentLoaded",
-      initializeSubscription
+async function selectPlan(plan) {
+
+  setButtonsDisabled(true);
+
+  clearMessage();
+
+
+  try {
+
+    const {
+      data: sessionData,
+      error: sessionError
+    } = await supabaseClient.auth.getSession();
+
+
+    if (
+      sessionError ||
+      !sessionData ||
+      !sessionData.session
+    ) {
+
+      window.location.href =
+        "login.html?redirect=subscription.html";
+
+      return;
+    }
+
+
+    const accessToken =
+      sessionData.session.access_token;
+
+
+    showMessage(
+      "Creating secure payment...",
+      "success"
     );
 
 
-    async function initializeSubscription() {
+    const response =
+      await fetch(
+        SUPABASE_URL +
+        "/functions/v1/subscription-payment",
+        {
+          method: "POST",
 
-      const {
-        data,
-        error
-      } = await supabaseClient.auth.getUser();
+          headers: {
+            "Authorization":
+              "Bearer " + accessToken,
+
+            "apikey":
+              SUPABASE_ANON_KEY,
+
+            "Content-Type":
+              "application/json"
+          },
+
+          body: JSON.stringify({
+            action: "create-order",
+            plan: plan
+          })
+        }
+      );
 
 
-      if (error || !data.user) {
-
-        window.location.href =
-          "login.html?redirect=subscription.html";
-
-        return;
-      }
+    const result =
+      await response.json();
 
 
-      await loadSubscription(data.user.id);
+    if (
+      !response.ok ||
+      !result.success
+    ) {
 
+      throw new Error(
+        result.error ||
+        "Unable to create payment."
+      );
     }
 
 
-    /* ============================================
-       LOAD CURRENT SUBSCRIPTION
-    ============================================ */
+    const razorpayOptions = {
 
-    async function loadSubscription(userId) {
+      key: result.key_id,
 
-      const {
-        data,
-        error
-      } = await supabaseClient
+      amount: result.amount,
 
-        .from("subscriptions")
+      currency: "INR",
 
-        .select(`
-          id,
-          plan,
-          amount,
-          status,
-          started_at,
-          expires_at
-        `)
+      name: "Elyra",
 
-        .eq(
-          "user_id",
-          userId
-        )
+      description:
+        plan === "yearly"
+          ? "Elyra Yearly Subscription"
+          : "Elyra Monthly Subscription",
 
-        .order(
-          "created_at",
-          {
-            ascending: false
-          }
-        )
-
-        .limit(1)
-        .maybeSingle();
+      order_id:
+        result.order_id,
 
 
-      if (error) {
+      handler:
+        async function(paymentResponse) {
 
-        console.error(
-          "Subscription load error:",
-          error
-        );
+          await verifyPayment(
+            paymentResponse,
+            plan
+          );
 
-        return;
-
-      }
+        },
 
 
-      if (
-        data &&
-        data.status === "active"
-      ) {
+      modal: {
 
-        currentPlanBox.classList.add("show");
+        ondismiss:
+          function() {
 
-        const planName =
-          data.plan === "yearly"
-            ? "Yearly"
-            : "Monthly";
+            setButtonsDisabled(false);
 
-        currentPlanTitle.textContent =
-          "✓ " + planName + " Subscription Active";
-
-        if (data.expires_at) {
-
-          const expiry =
-            new Date(
-              data.expires_at
-            ).toLocaleDateString(
-              "en-IN",
-              {
-                day: "numeric",
-                month: "short",
-                year: "numeric"
-              }
+            showMessage(
+              "Payment cancelled.",
+              "error"
             );
 
-          currentPlanText.textContent =
-            "Your subscription is active until " +
-            expiry +
-            ".";
+          }
 
-        } else {
+      },
 
-          currentPlanText.textContent =
-            "Your subscription is currently active.";
 
-        }
-
+      theme: {
+        color: "#d88cff"
       }
 
-    }
+    };
 
 
-    /* ============================================
-       PLAN SELECTION
-    ============================================ */
+    const razorpay =
+      new Razorpay(
+        razorpayOptions
+      );
 
-    function selectPlan(plan) {
 
-      showMessage(
-        "Payment integration is coming next. " +
-        "Your selected plan: " +
-        (plan === "yearly"
-          ? "₹699/year"
-          : "₹199/month"),
-        "success"
+    razorpay.on(
+      "payment.failed",
+      function(response) {
+
+        console.error(
+          "Razorpay payment failed:",
+          response
+        );
+
+        setButtonsDisabled(false);
+
+        showMessage(
+          "Payment failed. Please try again.",
+          "error"
+        );
+
+      }
+    );
+
+
+    razorpay.open();
+
+
+  } catch (error) {
+
+    console.error(
+      "Subscription payment error:",
+      error
+    );
+
+    setButtonsDisabled(false);
+
+    showMessage(
+      error.message ||
+      "Something went wrong.",
+      "error"
+    );
+
+  }
+
+}
+
+
+/* ============================================
+   VERIFY PAYMENT
+============================================ */
+
+async function verifyPayment(
+  paymentResponse,
+  plan
+) {
+
+  try {
+
+    showMessage(
+      "Verifying your payment securely...",
+      "success"
+    );
+
+
+    const {
+      data: sessionData
+    } = await supabaseClient.auth.getSession();
+
+
+    if (
+      !sessionData ||
+      !sessionData.session
+    ) {
+
+      throw new Error(
+        "Your login session expired."
       );
 
     }
 
 
-    /* ============================================
-       MESSAGE
-    ============================================ */
+    const accessToken =
+      sessionData.session.access_token;
 
-    function showMessage(
-      message,
-      type
+
+    const response =
+      await fetch(
+        SUPABASE_URL +
+        "/functions/v1/subscription-payment",
+        {
+
+          method: "POST",
+
+          headers: {
+
+            "Authorization":
+              "Bearer " + accessToken,
+
+            "apikey":
+              SUPABASE_ANON_KEY,
+
+            "Content-Type":
+              "application/json"
+
+          },
+
+          body: JSON.stringify({
+
+            action:
+              "verify-payment",
+
+            plan:
+              plan,
+
+            razorpay_payment_id:
+              paymentResponse.razorpay_payment_id,
+
+            razorpay_order_id:
+              paymentResponse.razorpay_order_id,
+
+            razorpay_signature:
+              paymentResponse.razorpay_signature
+
+          })
+
+        }
+      );
+
+
+    const result =
+      await response.json();
+
+
+    if (
+      !response.ok ||
+      !result.success
     ) {
 
-      messageBox.className =
-        "message " + type;
-
-      messageBox.textContent =
-        message;
-
-      messageBox.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
+      throw new Error(
+        result.error ||
+        "Payment verification failed."
+      );
 
     }
 
 
-    /* ============================================
-       BACK
-    ============================================ */
+    showMessage(
+      "🎉 Payment successful! Your " +
+      (plan === "yearly"
+        ? "₹699 yearly"
+        : "₹199 monthly") +
+      " subscription is now active.",
+      "success"
+    );
 
-    function goBack() {
 
-      if (
-        document.referrer &&
-        document.referrer.includes(
-          window.location.hostname
-        )
-      ) {
+    await loadSubscription(
+      sessionData.session.user.id
+    );
 
-        history.back();
 
-      } else {
+    setButtonsDisabled(false);
+
+
+    setTimeout(
+      function() {
 
         window.location.href =
-          "index.html";
+          "creators.html";
 
-      }
+      },
+      1800
+    );
 
-    }
 
-  </script>
+  } catch (error) {
+
+    console.error(
+      "Payment verification error:",
+      error
+    );
+
+
+    setButtonsDisabled(false);
+
+
+    showMessage(
+      error.message ||
+      "Payment verification failed. Please contact support if money was deducted.",
+      "error"
+    );
+
+  }
+
+}
+
+
+/* ============================================
+   BUTTON STATE
+============================================ */
+
+function setButtonsDisabled(
+  disabled
+) {
+
+  monthlyBtn.disabled =
+    disabled;
+
+  yearlyBtn.disabled =
+    disabled;
+
+  monthlyBtn.textContent =
+    disabled
+      ? "Processing..."
+      : "Choose Monthly";
+
+  yearlyBtn.textContent =
+    disabled
+      ? "Processing..."
+      : "Choose Yearly";
+
+}
+
+
+/* ============================================
+   MESSAGE
+============================================ */
+
+function showMessage(
+  message,
+  type
+) {
+
+  messageBox.className =
+    "message " + type;
+
+  messageBox.textContent =
+    message;
+
+  messageBox.scrollIntoView({
+    behavior: "smooth",
+    block: "center"
+  });
+
+}
+
+
+function clearMessage() {
+
+  messageBox.className =
+    "message";
+
+  messageBox.textContent =
+    "";
+
+}
+
+
+/* ============================================
+   BACK
+============================================ */
+
+function goBack() {
+
+  if (
+    document.referrer &&
+    document.referrer.includes(
+      window.location.hostname
+    )
+  ) {
+
+    history.back();
+
+  } else {
+
+    window.location.href =
+      "index.html";
+
+  }
+
+}
+
+</script>
 
 </body>
 </html>
+
