@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ELYRA — KYC Verification</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#050505;--card:#0d0d0d;--pink:#ff3f8f;--muted:#9b9b9b;--border:rgba(255,255,255,.09);--green:#55db93;--red:#ff7777}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,Helvetica,sans-serif;background:radial-gradient(circle at 50% -10%,rgba(255,63,143,.14),transparent 42%),var(--bg);color:#fff;min-height:100vh}header{height:70px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 7%;position:sticky;top:0;background:rgba(5,5,5,.92);backdrop-filter:blur(16px)}.logo{font-size:24px;font-weight:900;letter-spacing:5px}.logo span{color:var(--pink)}.back{color:#aaa;text-decoration:none;font-size:14px}.back:hover{color:var(--pink)}main{width:min(620px,92%);margin:45px auto 80px}.hero{text-align:center;margin-bottom:25px}.hero h1{font-size:34px;margin-bottom:10px}.hero h1 span{color:var(--pink)}.hero p{color:var(--muted);font-size:14px;line-height:1.6}.card{background:linear-gradient(145deg,#111,#090909);border:1px solid var(--border);border-radius:22px;padding:25px;box-shadow:0 20px 70px rgba(0,0,0,.45);margin-bottom:18px}.status{padding:18px;border-radius:15px;background:rgba(255,63,143,.06);border:1px solid rgba(255,63,143,.18);margin-bottom:20px}.status strong{display:block;font-size:18px;margin-bottom:7px}.status p{color:#aaa;font-size:13px;line-height:1.55}.pill{display:inline-block;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:800;margin-bottom:12px;background:#222;color:#ddd}.pill.verified{background:rgba(85,219,147,.1);color:var(--green)}.pill.pending{background:rgba(255,63,143,.1);color:#ff9bc4}.pill.rejected{background:rgba(255,119,119,.1);color:var(--red)}.steps{display:grid;gap:12px;margin:20px 0}.step{display:flex;gap:12px;align-items:flex-start;padding:14px;border:1px solid var(--border);border-radius:13px;background:#080808}.num{width:27px;height:27px;border-radius:50%;background:rgba(255,63,143,.12);color:var(--pink);display:flex;align-items:center;justify-content:center;font-weight:900;flex-shrink:0}.step b{display:block;margin-bottom:4px;font-size:14px}.step span{color:#888;font-size:12px;line-height:1.5}.btn{width:100%;border:0;border-radius:13px;padding:15px;background:var(--pink);color:#050505;font-weight:900;font-size:15px;cursor:pointer}.btn:disabled{opacity:.55;cursor:not-allowed}.note{margin-top:16px;color:#777;font-size:11px;line-height:1.6;text-align:center}.message{display:none;padding:13px;border-radius:12px;font-size:13px;line-height:1.5;margin-bottom:18px}.message.show{display:block}.message.error{color:#ffb0bc;background:rgba(255,77,103,.08);border:1px solid rgba(255,77,103,.2)}.message.success{color:#8ff0b7;background:rgba(60,220,120,.07);border:1px solid rgba(60,220,120,.18)}.hidden{display:none!important}@media(max-width:600px){header{padding:0 5%}main{margin-top:30px}.hero h1{font-size:28px}.card{padding:19px}}
+</style>
+</head>
+<body>
+<header><a href="index.html" class="logo">EL<span>Y</span>RA</a><a href="javascript:history.back()" class="back">← Back</a></header>
+<main>
+<section class="hero"><h1>Identity <span>Verification</span></h1><p>Complete Elyra verification before you can request or receive bookings.</p></section>
+<div id="message" class="message"></div>
+<div class="card">
+  <div class="status"><span id="pill" class="pill">CHECKING</span><strong id="statusTitle">Checking verification status...</strong><p id="statusText">Please wait while we check your Elyra account.</p></div>
+  <div class="steps">
+    <div class="step"><div class="num">1</div><div><b>Subscription first</b><span>Your Elyra subscription is checked before the customer booking flow continues.</span></div></div>
+    <div class="step"><div class="num">2</div><div><b>Secure KYC verification</b><span>Your identity must be verified by an approved KYC provider. Elyra should retain only the minimum verification result/reference needed for the platform.</span></div></div>
+    <div class="step"><div class="num">3</div><div><b>Booking unlocked</b><span>Only verified customers and verified creators can participate in new bookings.</span></div></div>
+  </div>
+  <button id="requestBtn" class="btn">Start KYC Verification</button>
+  <div class="note">18+ only. Elyra does not ask you to send Aadhaar, PAN, OTPs or payment-card details through chat or support. The actual identity check must be completed through Elyra's approved KYC provider.</div>
+</div>
+</main>
+<script>
+const SUPABASE_URL="https://frvvacirnfvlxifvopcm.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_l7fygMVXGAkbskkiBom8uw_-86tU6L0";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const $=id=>document.getElementById(id);
+function msg(text,type="error"){$("message").textContent=text;$('message').className="message show "+type}
+function setStatus(status){
+  const labels={not_started:["NOT STARTED","KYC not started","Start verification when the approved KYC flow is connected."],pending:["PENDING","KYC verification pending","Your verification is waiting for completion/review."],verified:["VERIFIED","KYC verified ✓","Your Elyra identity verification is complete. Booking access can be enabled."],rejected:["REJECTED","KYC verification rejected","Please correct the issue and start verification again."],expired:["EXPIRED","KYC verification expired","A fresh verification is required." ]};
+  const x=labels[status]||labels.not_started;$('pill').textContent=x[0];$('pill').className="pill "+(status==="verified"?"verified":status==="pending"?"pending":status==="rejected"||status==="expired"?"rejected":"");$('statusTitle').textContent=x[1];$('statusText').textContent=x[2];
+  $('requestBtn').disabled=status==="verified"||status==="pending";
+  $('requestBtn').textContent=status==="verified"?"✓ KYC Verified":status==="pending"?"Verification Pending":"Start KYC Verification";
+}
+async function load(){
+ const {data:{session}}=await supabaseClient.auth.getSession();
+ if(!session){location.href="login.html?redirect=kyc.html";return}
+ const {data:sub}=await supabaseClient.from("subscriptions").select("id,status,expires_at").eq("user_id",session.user.id).eq("status","active").order("created_at",{ascending:false}).limit(1).maybeSingle();
+ if(!sub|| (sub.expires_at&&new Date(sub.expires_at)<=new Date())){
+   setStatus("not_started");$('requestBtn').disabled=true;$('requestBtn').textContent="Subscription Required";msg("Complete your Elyra subscription first. KYC comes after subscription.");setTimeout(()=>location.href="subscription.html",1500);return;
+ }
+ const {data,error}=await supabaseClient.rpc("get_my_kyc_status");
+ if(error){console.error(error);msg("KYC status is not configured yet. Run KYC_SETUP.sql in Supabase first.");setStatus("not_started");return}
+ setStatus(data?.status||"not_started");
+}
+$('requestBtn').addEventListener('click',async()=>{
+ $('requestBtn').disabled=true;$('requestBtn').textContent="Submitting...";
+ const {error}=await supabaseClient.rpc("submit_kyc_request");
+ if(error){console.error(error);msg(error.message||"Unable to start KYC verification.");$('requestBtn').disabled=false;$('requestBtn').textContent="Start KYC Verification";return}
+ setStatus("pending");msg("KYC request created. The approved KYC provider/admin verification step must now complete before booking access is enabled.","success");
+});
+load();
+</script>
+</body>
+</html>
