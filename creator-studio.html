@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>ELYRA — Creator Studio</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --bg: #050505;
+      --card: #0d0d0d;
+      --card2: #111111;
+      --border: #252525;
+      --text: #ffffff;
+      --muted: #999999;
+      --pink: #ff3f8f;
+      --pink-dark: #d92f73;
+      --purple: #8b5cf6;
+      --green: #35d07f;
+      --red: #ff4d6d;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(
+          circle at 80% 0%,
+          rgba(255, 63, 143, 0.10),
+          transparent 30%
+        ),
+        var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    /* NAVBAR */
+
+    .topbar {
+      height: 68px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 5%;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(5, 5, 5, 0.94);
+      backdrop-filter: blur(15px);
+    }
+
+    .logo {
+      font-size: 23px;
+      font-weight: 900;
+      letter-spacing: 3px;
+    }
+
+    .logo span {
+      color: var(--pink);
+    }
+
+    .nav-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      font-family: inherit;
+    }
+
+    .nav-btn,
+    .secondary-btn {
+      background: #111;
+      color: #ddd;
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .nav-btn:hover,
+    .secondary-btn:hover {
+      border-color: var(--pink);
+    }
+
+    /* MAIN */
+
+    .container {
+      max-width: 1180px;
+      margin: 30px auto;
+      padding: 0 18px 60px;
+    }
+
+    /* PROFILE HEADER */
+
+    .profile-card {
+      background: linear-gradient(145deg, #101010, #090909);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 28px;
+      display: grid;
+      grid-template-columns: 160px 1fr auto;
+      gap: 25px;
+      align-items: center;
+    }
+
+    .avatar {
+      width: 145px;
+      height: 145px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--pink);
+      background: #151515;
+    }
+
+    .avatar-empty {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+      font-size: 45px;
+    }
+
+    .username {
+      color: var(--pink);
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .creator-name {
+      font-size: 29px;
+      font-weight: 900;
+    }
+
+    .profile-meta {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    .profile-bio {
+      color: #aaa;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-top: 9px;
+      max-width: 650px;
+    }
+
+    .profile-actions {
+      display: flex;
+      gap: 9px;
+      flex-wrap: wrap;
+    }
+
+    .primary-btn {
+      background: linear-gradient(
+        135deg,
+        var(--pink),
+        var(--pink-dark)
+      );
+      color: white;
+      border: none;
+      padding: 11px 16px;
+      border-radius: 10px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
+    /* STATS */
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 18px 0;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px;
+    }
+
+    .stat-number {
+      font-size: 25px;
+      font-weight: 900;
+    }
+
+    .stat-label {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    /* TABS */
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      margin: 22px 0;
+      padding-bottom: 2px;
+    }
+
+    .tab {
+      white-space: nowrap;
+      background: #0c0c0c;
+      color: #999;
+      border: 1px solid var(--border);
+      padding: 11px 17px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      color: white;
+      border-color: var(--pink);
+      background: rgba(255, 63, 143, .08);
+    }
+
+    /* PANELS */
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 17px;
+      padding: 22px;
+      margin-bottom: 18px;
+    }
+
+    .panel h2 {
+      font-size: 19px;
+      margin-bottom: 6px;
+    }
+
+    .panel-subtitle {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 18px;
+    }
+
+    /* GALLERY */
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .photo-box {
+      aspect-ratio: 1 / 1;
+      background: #101010;
+      border: 1px dashed #333;
+      border-radius: 14px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .photo-box img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .remove-photo {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 30px;
+      height: 30px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(0,0,0,.75);
+      color: white;
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    .upload-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      color: #777;
+      cursor: pointer;
+      min-height: 180px;
+    }
+
+    .upload-box strong {
+      font-size: 30px;
+      color: var(--pink);
+      margin-bottom: 5px;
+    }
+
+    /* FORM */
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      color: #ddd;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    input,
+    textarea,
+    select {
+      width: 100%;
+      background: var(--card2);
+      color: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 13px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    input:focus,
+    textarea:focus,
+    select:focus {
+      border-color: var(--pink);
+    }
+
+    textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .username-status {
+      display: block;
+      margin-top: 6px;
+      font-size: 12px;
+    }
+
+    .available {
+      color: var(--green);
+    }
+
+    .taken {
+      color: var(--red);
+    }
+
+    /* NOTICE */
+
+    .notice {
+      padding: 14px;
+      border-radius: 11px;
+      background: rgba(139, 92, 246, .08);
+      border: 1px solid rgba(139, 92, 246, .25);
+      color: #cfc3ff;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 45px 20px;
+      color: #777;
+      font-size: 14px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* TOAST */
+
+    .toast {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      background: #171717;
+      border: 1px solid var(--border);
+      padding: 13px 17px;
+      border-radius: 12px;
+      display: none;
+      z-index: 50;
+    }
+
+    .toast.show {
+      display: block;
+    }
+
+    /* MOBILE */
+
+    @media(max-width:800px) {
+
+      .profile-card {
+        grid-template-columns: 90px 1fr;
+        padding: 20px;
+      }
+
+      .avatar {
+        width: 85px;
+        height: 85px;
+      }
+
+      .profile-actions {
+        grid-column: 1 / -1;
+      }
+
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .field.full {
+        grid-column: auto;
+      }
+
+      .gallery {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .creator-name {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="topbar">
+
+  <div class="logo">
+    EL<span>Y</span>RA
+  </div>
+
+  <div class="nav-actions">
+    <button
+      class="nav-btn"
+      onclick="location.href='creators.html'">
+      Browse
+    </button>
+
+    <button
+      class="nav-btn"
+      onclick="logout()">
+      Logout
+    </button>
+  </div>
+
+</header>
+
+
+<main class="container">
+
+  <!-- PROFILE HEADER -->
+
+  <section class="profile-card">
+
+    <div
+      id="avatar"
+      class="avatar avatar-empty">
+      +
+    </div>
+
+    <div>
+
+      <div
+        id="usernameDisplay"
+        class="username">
+        @creator
+      </div>
+
+      <div
+        id="nameDisplay"
+        class="creator-name">
+        Creator
+      </div>
+
+      <div
+        id="metaDisplay"
+        class="profile-meta">
+        Loading profile...
+      </div>
+
+      <div
+        id="bioDisplay"
+        class="profile-bio">
+      </div>
+
+    </div>
+
+    <div class="profile-actions">
+
+      <button
+        class="primary-btn"
+        onclick="showTab('profile')">
+        Edit Profile
+      </button>
+
+      <button
+        class="secondary-btn"
+        onclick="copyProfile()">
+        Share Profile
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- STATS -->
+
+  <section class="stats">
+
+    <div class="stat-card">
+      <div
+        id="totalBookings"
+        class="stat-number">
+        0
+      </div>
+      <span class="stat-label">
+        Total Bookings
+      </span>
+    </div>
+
+    <div class="stat-card">
+      <div
+        id="pendingBookings"
+        class="stat-number">
+        0
+      </div>
+      <span class="stat-label">
+        Pending
+      </span>
+    </div>
+
+    <div class="stat-card">
+      <div
+        id="acceptedBookings"
+        class="stat-number">
+        0
+      </div>
+      <span class="stat-label">
+        Accepted
+      </span>
+    </div>
+
+    <div class="stat-card">
+      <div
+        id="completedBookings"
+        class="stat-number">
+        0
+      </div>
+      <span class="stat-label">
+        Completed
+      </span>
+    </div>
+
+  </section>
+
+
+  <!-- TABS -->
+
+  <div class="tabs">
+
+    <button
+      class="tab active"
+      data-tab="overview"
+      onclick="showTab('overview')">
+      Overview
+    </button>
+
+    <button
+      class="tab"
+      data-tab="profile"
+      onclick="showTab('profile')">
+      Profile
+    </button>
+
+    <button
+      class="tab"
+      data-tab="bookings"
+      onclick="showTab('bookings')">
+      Bookings
+    </button>
+
+    <button
+      class="tab"
+      data-tab="messages"
+      onclick="showTab('messages')">
+      Messages
+    </button>
+
+    <button
+      class="tab"
+      data-tab="notifications"
+      onclick="showTab('notifications')">
+      Notifications
+    </button>
+
+    <button
+      class="tab"
+      data-tab="settings"
+      onclick="showTab('settings')">
+      Settings
+    </button>
+
+  </div>
+
+
+  <!-- OVERVIEW -->
+
+  <section
+    id="overview"
+    class="tab-page">
+
+    <div class="panel">
+
+      <h2>
+        Your Photos
+      </h2>
+
+      <div class="panel-subtitle">
+        Your profile picture and additional photos.
+      </div>
+
+      <div
+        id="gallery"
+        class="gallery">
+      </div>
+
+    </div>
+
+
+    <div class="panel">
+
+      <h2>
+        Creator Studio
+      </h2>
+
+      <div class="notice">
+
+        Your phone number and email remain private.
+        Customers will only receive your contact details
+        after you accept their booking request.
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- PROFILE -->
+
+  <section
+    id="profile"
+    class="tab-page hidden">
+
+    <div class="panel">
+
+      <h2>
+        Edit Profile
+      </h2>
+
+      <div class="panel-subtitle">
+        Manage your public Creator profile.
+      </div>
+
+
+      <div class="form-grid">
+
+        <div class="field">
+
+          <label>
+            Creator ID
+          </label>
+
+          <input
+            id="usernameInput"
+            type="text"
+            placeholder="e.g. Aryan"
+            maxlength="24">
+
+          <span
+            id="usernameStatus"
+            class="username-status">
+          </span>
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            Display Name
+          </label>
+
+          <input
+            id="nameInput"
+            type="text">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            Contact Email
+          </label>
+
+          <input
+            id="emailInput"
+            type="email">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            Contact Phone
+          </label>
+
+          <input
+            id="phoneInput"
+            type="tel">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            City
+          </label>
+
+          <input
+            id="cityInput"
+            type="text">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            Area
+          </label>
+
+          <input
+            id="areaInput"
+            type="text">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            Hourly Rate (₹)
+          </label>
+
+          <input
+            id="rateInput"
+            type="number"
+            min="0">
+
+        </div>
+
+
+        <div class="field">
+
+          <label>
+            Availability
+          </label>
+
+          <input
+            id="availabilityInput"
+            type="text"
+            placeholder="e.g. 6 PM - 10 PM">
+
+        </div>
+
+
+        <div class="field full">
+
+          <label>
+            Bio
+          </label>
+
+          <textarea
+            id="bioInput"
+            maxlength="500">
+          </textarea>
+
+        </div>
+
+      </div>
+
+
+      <button
+        class="primary-btn"
+        style="margin-top:18px"
+        onclick="saveProfile()">
+
+        Save Changes
+
+      </button>
+
+    </div>
+
+
+    <!-- PHOTO MANAGEMENT -->
+
+    <div class="panel">
+
+      <h2>
+        Manage Photos
+      </h2>
+
+      <div class="panel-subtitle">
+        Upload up to 2 additional photos.
+      </div>
+
+      <div
+        id="manageGallery"
+        class="gallery">
+
+        <label
+          class="photo-box upload-box">
+
+          <strong>+</strong>
+
+          Add Photo
+
+          <input
+            id="photoInput"
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            multiple
+            hidden>
+
+        </label>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- BOOKINGS -->
+
+  <section
+    id="bookings"
+    class="tab-page hidden">
+
+    <div class="panel">
+
+      <h2>
+        Bookings
+      </h2>
+
+      <div class="panel-subtitle">
+        Manage your incoming booking requests.
+      </div>
+
+      <div class="empty">
+
+        Booking requests will appear here.
+
+        <br><br>
+
+        You will be able to
+        <b>Accept</b> or
+        <b>Reject</b>
+        requests.
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- MESSAGES -->
+
+  <section
+    id="messages"
+    class="tab-page hidden">
+
+    <div class="panel">
+
+      <h2>
+        Messages
+      </h2>
+
+      <div class="panel-subtitle">
+        Chat with customers after accepting a booking.
+      </div>
+
+      <div class="empty">
+
+        Your conversations will appear here.
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- NOTIFICATIONS -->
+
+  <section
+    id="notifications"
+    class="tab-page hidden">
+
+    <div class="panel">
+
+      <h2>
+        Notifications
+      </h2>
+
+      <div class="empty">
+
+        No notifications yet.
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- SETTINGS -->
+
+  <section
+    id="settings"
+    class="tab-page hidden">
+
+    <div class="panel">
+
+      <h2>
+        Settings
+      </h2>
+
+      <div class="notice">
+
+        Account and security settings will be connected
+        in the next Creator Studio update.
+
+      </div>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<div
+  id="toast"
+  class="toast">
+</div>
+
+
+<script>
+
+const SUPABASE_URL =
+  "https://frvvacirnfvlxifvopcm.supabase.co";
+
+const SUPABASE_ANON_KEY =
+  "sb_publishable_l7fygMVXGAkbskkiBom8uw_-86tU6L0";
+
+const supabaseClient =
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_ANON_KEY
+  );
+
+
+let currentUser = null;
+let creatorProfile = null;
+
+
+/* TOAST */
+
+function showToast(message) {
+
+  const toast =
+    document.getElementById("toast");
+
+  toast.textContent = message;
+
+  toast.classList.add("show");
+
+  setTimeout(() => {
+    toast.classList.remove("show");
+  }, 2800);
+}
+
+
+/* INITIAL LOAD */
+
+async function init() {
+
+  const {
+    data,
+    error
+  } = await supabaseClient.auth.getUser();
+
+  if (error || !data.user) {
+
+    location.href =
+      "login.html?redirect=creator-studio.html";
+
+    return;
+  }
+
+  currentUser = data.user;
+
+
+  const {
+    data: profile,
+    error: profileError
+  } =
+    await supabaseClient
+      .from("creator_profiles")
+      .select("*")
+      .eq("user_id", currentUser.id)
+      .maybeSingle();
+
+
+  if (profileError || !profile) {
+
+    showToast("Creator profile not found");
+
+    setTimeout(() => {
+      location.href = "creator-register.html";
+    }, 1000);
+
+    return;
+  }
+
+
+  creatorProfile = profile;
+
+  renderProfile();
+
+}
+
+
+/* RENDER PROFILE */
+
+function renderProfile() {
+
+  const p = creatorProfile;
+
+
+  document.getElementById(
+    "usernameDisplay"
+  ).textContent =
+    "@" +
+    (p.creator_username || "set-your-id");
+
+
+  document.getElementById(
+    "nameDisplay"
+  ).textContent =
+    p.display_name || "Creator";
+
+
+  const meta = [
+
+    p.age
+      ? p.age + " yrs"
+      : null,
+
+    p.city,
+
+    p.area,
+
+    p.hourly_rate
+      ? "₹" + p.hourly_rate + "/hr"
+      : null
+
+  ].filter(Boolean).join(" • ");
+
+
+  document.getElementById(
+    "metaDisplay"
+  ).textContent = meta;
+
+
+  document.getElementById(
+    "bioDisplay"
+  ).textContent =
+    p.bio || "";
+
+
+  document.getElementById(
+    "usernameInput"
+  ).value =
+    p.creator_username || "";
+
+
+  document.getElementById(
+    "nameInput"
+  ).value =
+    p.display_name || "";
+
+
+  document.getElementById(
+    "emailInput"
+  ).value =
+    p.contact_email ||
+    currentUser.email ||
+    "";
+
+
+  document.getElementById(
+    "phoneInput"
+  ).value =
+    p.phone || "";
+
+
+  document.getElementById(
+    "cityInput"
+  ).value =
+    p.city || "";
+
+
+  document.getElementById(
+    "areaInput"
+  ).value =
+    p.area || "";
+
+
+  document.getElementById(
+    "rateInput"
+  ).value =
+    p.hourly_rate || "";
+
+
+  document.getElementById(
+    "availabilityInput"
+  ).value =
+    p.availability || "";
+
+
+  document.getElementById(
+    "bioInput"
+  ).value =
+    p.bio || "";
+
+
+  const avatar =
+    document.getElementById("avatar");
+
+
+  if (p.photo_url) {
+
+    avatar.className = "avatar";
+
+    avatar.src = p.photo_url;
+
+  } else {
+
+    avatar.className =
+      "avatar avatar-empty";
+
+    avatar.textContent = "+";
+
+  }
+
+
+  renderGallery();
+
+}
+
+
+/* GALLERY */
+
+function renderGallery() {
+
+  const gallery =
+    document.getElementById("gallery");
+
+  const manageGallery =
+    document.getElementById("manageGallery");
+
+
+  const photos = [
+
+    creatorProfile.photo_url,
+
+    creatorProfile.photo_2_url,
+
+    creatorProfile.photo_3_url
+
+  ].filter(Boolean);
+
+
+  gallery.innerHTML = "";
+
+
+  if (photos.length === 0) {
+
+    gallery.innerHTML =
+      '<div class="empty">No photos uploaded yet.</div>';
+
+  } else {
+
+    photos.forEach(photo => {
+
+      const box =
+        document.createElement("div");
+
+      box.className = "photo-box";
+
+      const img =
+        document.createElement("img");
+
+      img.src = photo;
+
+      box.appendChild(img);
+
+      gallery.appendChild(box);
+
+    });
+
+  }
+
+
+  manageGallery.innerHTML = `
+
+    <label class="photo-box upload-box">
+
+      <strong>+</strong>
+
+      Add Photo
+
+      <input
+        id="photoInput"
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        multiple
+        hidden>
+
+    </label>
+
+  `;
+
+
+  const additionalPhotos = [
+
+    {
+      url: creatorProfile.photo_2_url,
+      slot: 2
+    },
+
+    {
+      url: creatorProfile.photo_3_url,
+      slot: 3
+    }
+
+  ];
+
+
+  additionalPhotos.forEach(item => {
+
+    if (!item.url) return;
+
+
+    const box =
+      document.createElement("div");
+
+    box.className = "photo-box";
+
+
+    box.innerHTML = `
+
+      <img src="${escapeHtml(item.url)}">
+
+      <button
+        class="remove-photo"
+        onclick="removePhoto(${item.slot})">
+        ×
+      </button>
+
+    `;
+
+
+    manageGallery.appendChild(box);
+
+  });
+
+
+  document
+    .getElementById("photoInput")
+    .addEventListener(
+      "change",
+      event => {
+
+        uploadPhotos(
+          Array.from(event.target.files)
+        );
+
+      }
+    );
+
+}
+
+
+/* SAVE PROFILE */
+
+async function saveProfile() {
+
+  let username =
+    document
+      .getElementById("usernameInput")
+      .value
+      .trim()
+      .replace(/^@/, "");
+
+
+  if (
+    !/^[A-Za-z0-9._]{3,24}$/.test(username)
+  ) {
+
+    showToast(
+      "Creator ID must be 3-24 characters"
+    );
+
+    return;
+  }
+
+
+  const {
+    data: duplicate
+  } =
+    await supabaseClient
+      .from("creator_profiles")
+      .select("id")
+      .ilike(
+        "creator_username",
+        username
+      )
+      .neq(
+        "id",
+        creatorProfile.id
+      )
+      .maybeSingle();
+
+
+  if (duplicate) {
+
+    document.getElementById(
+      "usernameStatus"
+    ).textContent =
+      "Creator ID already taken";
+
+    document.getElementById(
+      "usernameStatus"
+    ).className =
+      "username-status taken";
+
+    return;
+  }
+
+
+  const updates = {
+
+    creator_username: username,
+
+    display_name:
+      document
+        .getElementById("nameInput")
+        .value
+        .trim(),
+
+    contact_email:
+      document
+        .getElementById("emailInput")
+        .value
+        .trim(),
+
+    phone:
+      document
+        .getElementById("phoneInput")
+        .value
+        .trim(),
+
+    city:
+      document
+        .getElementById("cityInput")
+        .value
+        .trim(),
+
+    area:
+      document
+        .getElementById("areaInput")
+        .value
+        .trim(),
+
+    hourly_rate:
+      Number(
+        document
+          .getElementById("rateInput")
+          .value
+      ) || 0,
+
+    availability:
+      document
+        .getElementById("availabilityInput")
+        .value
+        .trim(),
+
+    bio:
+      document
+        .getElementById("bioInput")
+        .value
+        .trim()
+
+  };
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("creator_profiles")
+      .update(updates)
+      .eq("id", creatorProfile.id)
+      .select()
+      .single();
+
+
+  if (error) {
+
+    showToast(error.message);
+
+    return;
+  }
+
+
+  creatorProfile = data;
+
+  renderProfile();
+
+  document.getElementById(
+    "usernameStatus"
+  ).textContent =
+    "Creator ID saved ✓";
+
+  document.getElementById(
+    "usernameStatus"
+  ).className =
+    "username-status available";
+
+
+  showToast("Profile saved successfully");
+
+}
+
+
+/* UPLOAD PHOTOS */
+
+async function uploadPhotos(files) {
+
+  if (!files.length) return;
+
+
+  for (const file of files) {
+
+    if (
+      ![
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+      ].includes(file.type)
+    ) {
+
+      showToast(
+        "Only JPG, PNG or WEBP allowed"
+      );
+
+      continue;
+    }
+
+
+    if (file.size > 5 * 1024 * 1024) {
+
+      showToast(
+        "Photo must be under 5MB"
+      );
+
+      continue;
+    }
+
+
+    const usedSlots = [
+
+      creatorProfile.photo_2_url,
+
+      creatorProfile.photo_3_url
+
+    ].filter(Boolean).length;
+
+
+    if (usedSlots >= 2) {
+
+      showToast(
+        "Only 2 additional photos allowed"
+      );
+
+      break;
+    }
+
+
+    const slot =
+      creatorProfile.photo_2_url
+        ? "photo_3_url"
+        : "photo_2_url";
+
+
+    const extension =
+      file.name
+        .split(".")
+        .pop()
+        .toLowerCase();
+
+
+    const path =
+      currentUser.id +
+      "/" +
+      crypto.randomUUID() +
+      "." +
+      extension;
+
+
+    const {
+      error: uploadError
+    } =
+      await supabaseClient
+        .storage
+        .from("creator-photos")
+        .upload(
+          path,
+          file,
+          {
+            upsert: false
+          }
+        );
+
+
+    if (uploadError) {
+
+      showToast(uploadError.message);
+
+      continue;
+    }
+
+
+    const publicUrl =
+      supabaseClient
+        .storage
+        .from("creator-photos")
+        .getPublicUrl(path)
+        .data
+        .publicUrl;
+
+
+    const update = {};
+
+    update[slot] = publicUrl;
+
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("creator_profiles")
+        .update(update)
+        .eq("id", creatorProfile.id)
+        .select()
+        .single();
+
+
+    if (error) {
+
+      showToast(error.message);
+
+      continue;
+    }
+
+
+    creatorProfile = data;
+
+  }
+
+
+  renderProfile();
+
+  showToast("Photo uploaded");
+
+}
+
+
+/* REMOVE PHOTO */
+
+async function removePhoto(slot) {
+
+  const column =
+    slot === 2
+      ? "photo_2_url"
+      : "photo_3_url";
+
+
+  const {
+    data,
+    error
+  } =
+    await supabaseClient
+      .from("creator_profiles")
+      .update({
+        [column]: null
+      })
+      .eq("id", creatorProfile.id)
+      .select()
+      .single();
+
+
+  if (error) {
+
+    showToast(error.message);
+
+    return;
+  }
+
+
+  creatorProfile = data;
+
+  renderProfile();
+
+  showToast("Photo removed");
+
+}
+
+
+/* TABS */
+
+function showTab(id) {
+
+  document
+    .querySelectorAll(".tab-page")
+    .forEach(page => {
+
+      page.classList.add("hidden");
+
+    });
+
+
+  document
+    .getElementById(id)
+    .classList.remove("hidden");
+
+
+  document
+    .querySelectorAll(".tab")
+    .forEach(tab => {
+
+      tab.classList.toggle(
+        "active",
+        tab.dataset.tab === id
+      );
+
+    });
+
+}
+
+
+/* SHARE */
+
+function copyProfile() {
+
+  if (!creatorProfile) return;
+
+
+  const profileUrl =
+    location.origin +
+    location.pathname
+      .replace(
+        "creator-studio.html",
+        "creator.html"
+      ) +
+    "?id=" +
+    creatorProfile.id;
+
+
+  if (navigator.clipboard) {
+
+    navigator.clipboard.writeText(
+      profileUrl
+    );
+
+    showToast(
+      "Profile link copied"
+    );
+
+  } else {
+
+    showToast(
+      "Copy not supported"
+    );
+
+  }
+
+}
+
+
+/* LOGOUT */
+
+async function logout() {
+
+  await supabaseClient.auth.signOut();
+
+  location.href = "index.html";
+
+}
+
+
+/* SECURITY */
+
+function escapeHtml(value) {
+
+  return String(value)
+
+    .replaceAll("&", "&amp;")
+
+    .replaceAll("<", "&lt;")
+
+    .replaceAll(">", "&gt;")
+
+    .replaceAll('"', "&quot;")
+
+    .replaceAll("'", "&#039;");
+
+}
+
+
+/* START */
+
+init();
+
+</script>
+
+</body>
+</html>
