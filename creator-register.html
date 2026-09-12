@@ -1,15 +1,30 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  />
 
-  <title>Elyra — Become a Creator</title>
+  <title>Become a Creator — ELYRA</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
+    :root {
+      --bg: #050505;
+      --card: #0d0d0d;
+      --card2: #111111;
+      --border: #252525;
+      --text: #ffffff;
+      --muted: #999999;
+      --pink: #ff3f8f;
+      --pink-dark: #d92f73;
+      --danger: #ff4d6d;
+      --success: #35d07f;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -17,333 +32,278 @@
     }
 
     body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
       font-family: Arial, Helvetica, sans-serif;
-      background:
-        radial-gradient(circle at top, #24102f 0%, #0c0810 40%, #050507 100%);
-      color: #fff;
-      min-height: 100vh;
-    }
-
-    button,
-    input,
-    textarea,
-    select {
-      font: inherit;
-    }
-
-    .page {
-      width: 100%;
-      min-height: 100vh;
-      padding: 20px 15px 50px;
+      padding: 30px 16px 60px;
     }
 
     .container {
       width: 100%;
-      max-width: 850px;
+      max-width: 720px;
       margin: auto;
     }
 
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 15px;
-      margin-bottom: 25px;
-    }
-
     .brand {
-      font-size: 28px;
+      text-align: center;
+      font-size: 34px;
       font-weight: 900;
-      letter-spacing: 2px;
+      letter-spacing: 3px;
+      margin-bottom: 8px;
     }
 
     .brand span {
-      color: #d88cff;
+      color: var(--pink);
     }
 
-    .back-btn {
-      border: 1px solid rgba(255,255,255,.15);
-      background: rgba(255,255,255,.06);
-      color: white;
-      padding: 10px 15px;
-      border-radius: 12px;
-      cursor: pointer;
+    .subtitle {
+      text-align: center;
+      color: var(--muted);
+      margin-bottom: 30px;
+      font-size: 14px;
     }
 
-    .hero,
     .card {
-      background:
-        linear-gradient(
-          145deg,
-          rgba(255,255,255,.07),
-          rgba(255,255,255,.025)
-        );
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
       padding: 25px;
-      margin-bottom: 20px;
-      backdrop-filter: blur(15px);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
     }
 
-    .hero h1 {
-      font-size: 30px;
-      margin-bottom: 10px;
+    h1 {
+      font-size: 25px;
+      margin-bottom: 8px;
     }
 
-    .hero p {
-      color: #b9b4bf;
+    .description {
+      color: var(--muted);
+      font-size: 14px;
       line-height: 1.6;
+      margin-bottom: 25px;
     }
 
-    .card-title {
-      font-size: 20px;
-      font-weight: 800;
-      margin-bottom: 20px;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 18px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .field.full {
-      grid-column: 1 / -1;
+    .section-title {
+      font-size: 14px;
+      color: var(--pink);
+      font-weight: 700;
+      margin: 25px 0 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
 
     label {
-      font-size: 14px;
-      font-weight: 700;
-      color: #ddd;
-    }
-
-    .required {
-      color: #ff6b9d;
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 7px;
+      color: #eeeeee;
     }
 
     input,
     textarea,
     select {
       width: 100%;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(0,0,0,.28);
+      background: var(--card2);
+      border: 1px solid var(--border);
       color: white;
-      border-radius: 13px;
+      border-radius: 10px;
       padding: 13px 14px;
       outline: none;
+      font-size: 14px;
+      transition: 0.2s;
     }
 
     input:focus,
     textarea:focus,
     select:focus {
-      border-color: rgba(216,140,255,.7);
-      box-shadow: 0 0 0 3px rgba(216,140,255,.08);
-    }
-
-    select option {
-      background: #151018;
-      color: white;
+      border-color: var(--pink);
+      box-shadow: 0 0 0 2px rgba(255, 63, 143, 0.08);
     }
 
     textarea {
       min-height: 110px;
       resize: vertical;
-      line-height: 1.5;
     }
 
-    .field-note {
-      color: #8e8995;
-      font-size: 12px;
-      line-height: 1.4;
+    select {
+      appearance: auto;
     }
 
-    .photo-area {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-      flex-wrap: wrap;
+    option {
+      background: #111;
+      color: white;
+    }
+
+    .field {
+      margin-bottom: 17px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+
+    .gender-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .gender-option {
+      position: relative;
+    }
+
+    .gender-option input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .gender-option label {
+      border: 1px solid var(--border);
+      background: var(--card2);
+      padding: 14px;
+      border-radius: 10px;
+      text-align: center;
+      cursor: pointer;
+      margin: 0;
+      color: #ccc;
+      transition: 0.2s;
+    }
+
+    .gender-option input:checked + label {
+      border-color: var(--pink);
+      color: white;
+      background: rgba(255, 63, 143, 0.08);
+    }
+
+    .photo-box {
+      border: 1px dashed #333;
+      border-radius: 12px;
+      padding: 18px;
+      text-align: center;
+      background: #0a0a0a;
     }
 
     .photo-preview {
-      width: 130px;
-      height: 130px;
+      width: 120px;
+      height: 120px;
       border-radius: 50%;
       object-fit: cover;
-      background: #17131b;
-      border: 3px solid rgba(216,140,255,.55);
+      display: none;
+      margin: 0 auto 15px;
+      border: 2px solid var(--pink);
     }
 
-    .photo-info {
-      flex: 1;
-      min-width: 220px;
-    }
-
-    .photo-info h3 {
-      margin-bottom: 7px;
-    }
-
-    .photo-info p {
-      color: #a7a1ad;
-      font-size: 13px;
-      line-height: 1.5;
-      margin-bottom: 12px;
+    .photo-text {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 8px;
     }
 
     .terms {
       display: flex;
       align-items: flex-start;
       gap: 10px;
-      margin-top: 20px;
-      color: #bbb;
-      font-size: 13px;
+      margin: 20px 0;
+      color: #aaa;
+      font-size: 12px;
       line-height: 1.5;
     }
 
     .terms input {
       width: auto;
-      margin-top: 3px;
-      accent-color: #d88cff;
-    }
-
-    .terms a {
-      color: #d88cff;
-    }
-
-    .submit-area {
-      margin-top: 25px;
+      margin-top: 2px;
+      accent-color: var(--pink);
     }
 
     .submit-btn {
       width: 100%;
       border: none;
-      background: linear-gradient(135deg, #d88cff, #a95cff);
+      background: var(--pink);
       color: white;
-      padding: 15px 20px;
-      border-radius: 14px;
+      font-size: 15px;
       font-weight: 800;
+      padding: 15px;
+      border-radius: 11px;
       cursor: pointer;
-      box-shadow: 0 8px 30px rgba(169,92,255,.2);
+      transition: 0.2s;
+    }
+
+    .submit-btn:hover {
+      background: var(--pink-dark);
     }
 
     .submit-btn:disabled {
-      opacity: .6;
+      opacity: 0.55;
       cursor: not-allowed;
     }
 
     .message {
       display: none;
-      padding: 13px 15px;
-      border-radius: 12px;
+      border-radius: 10px;
+      padding: 12px 14px;
       margin-bottom: 18px;
-      font-size: 14px;
+      font-size: 13px;
       line-height: 1.5;
-    }
-
-    .message.success {
-      display: block;
-      background: rgba(65,220,125,.10);
-      border: 1px solid rgba(65,220,125,.2);
-      color: #69e89d;
     }
 
     .message.error {
       display: block;
-      background: rgba(255,75,100,.10);
-      border: 1px solid rgba(255,75,100,.2);
-      color: #ff8799;
+      background: rgba(255, 77, 109, 0.08);
+      border: 1px solid rgba(255, 77, 109, 0.3);
+      color: #ff8ca0;
     }
 
-    .info-box {
-      background: rgba(216,140,255,.06);
-      border: 1px solid rgba(216,140,255,.13);
-      border-radius: 15px;
-      padding: 16px;
-      color: #c9c2cf;
-      font-size: 13px;
+    .message.success {
+      display: block;
+      background: rgba(53, 208, 127, 0.08);
+      border: 1px solid rgba(53, 208, 127, 0.3);
+      color: #72e9a8;
+    }
+
+    .notice {
+      background: rgba(255, 63, 143, 0.06);
+      border: 1px solid rgba(255, 63, 143, 0.2);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 20px;
+      color: #ccc;
+      font-size: 12px;
       line-height: 1.6;
     }
 
-    .info-box strong {
+    .notice strong {
+      color: var(--pink);
+    }
+
+    .back {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #888;
+      font-size: 13px;
+      text-decoration: none;
+    }
+
+    .back:hover {
       color: white;
     }
 
-    .loading {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #aaa;
-      font-size: 15px;
-    }
-
-    .loader {
-      width: 35px;
-      height: 35px;
-      border: 3px solid rgba(255,255,255,.1);
-      border-top-color: #d88cff;
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
-      margin-bottom: 15px;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .loading-inner {
-      text-align: center;
-    }
-
-    .footer {
-      text-align: center;
-      color: #777;
-      font-size: 12px;
-      margin-top: 25px;
-    }
-
-    @media (max-width: 700px) {
-      .page {
-        padding: 15px 12px 40px;
-      }
-
-      .brand {
-        font-size: 24px;
-      }
-
-      .hero,
-      .card {
-        padding: 19px;
-        border-radius: 20px;
-      }
-
-      .hero h1 {
-        font-size: 25px;
-      }
-
-      .form-grid {
+    @media (max-width: 600px) {
+      .grid {
         grid-template-columns: 1fr;
       }
 
-      .field.full {
-        grid-column: auto;
+      .card {
+        padding: 20px;
       }
 
-      .photo-area {
-        flex-direction: column;
-        align-items: flex-start;
-      }
-
-      .photo-preview {
-        width: 115px;
-        height: 115px;
+      body {
+        padding: 20px 12px 40px;
       }
     }
   </style>
@@ -351,349 +311,273 @@
 
 <body>
 
-  <div id="loadingScreen" class="loading">
-    <div class="loading-inner">
-      <div class="loader"></div>
-      <div>Checking your account...</div>
+  <div class="container">
+
+    <div class="brand">
+      ELY<span>RA</span>
     </div>
-  </div>
 
+    <div class="subtitle">
+      Real people. Real conversations. Real connections.
+    </div>
 
-  <main id="mainPage" class="page" style="display:none;">
+    <div class="card">
 
-    <div class="container">
+      <h1>Become a Creator</h1>
 
-      <div class="topbar">
+      <p class="description">
+        Create your ELYRA creator profile and connect with people
+        looking for genuine social companionship.
+      </p>
 
-        <div class="brand">
-          EL<span>Y</span>RA
-        </div>
-
-        <button
-          class="back-btn"
-          type="button"
-          onclick="goBack()"
-        >
-          ← Back
-        </button>
-
+      <div class="notice">
+        <strong>Creator activation:</strong>
+        Your profile will remain inactive until the one-time
+        ₹20 creator activation payment is successfully completed.
       </div>
 
+      <div id="message" class="message"></div>
 
-      <section class="hero">
+      <form id="creatorForm">
 
-        <h1>Become an Elyra Creator</h1>
-
-        <p>
-          Create your creator profile and let customers discover
-          you for lawful social companionship and activities.
-        </p>
-
-      </section>
-
-
-      <div id="messageBox" class="message"></div>
-
-
-      <section class="card">
-
-        <div class="card-title">
-          Profile Photo
+        <div class="section-title">
+          Basic Information
         </div>
 
-        <div class="photo-area">
+        <div class="field">
+          <label for="displayName">
+            Display Name *
+          </label>
 
-          <img
-            id="photoPreview"
-            class="photo-preview"
-            alt="Profile preview"
+          <input
+            id="displayName"
+            type="text"
+            placeholder="Enter your name"
+            maxlength="60"
+            required
           />
+        </div>
 
-          <div class="photo-info">
+        <div class="grid">
 
-            <h3>Upload your photo</h3>
-
-            <p>
-              Use a clear and genuine photo. JPG, PNG or WEBP.
-              Maximum size: 5 MB.
-            </p>
+          <div class="field">
+            <label for="age">
+              Age *
+            </label>
 
             <input
-              id="photoInput"
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
+              id="age"
+              type="number"
+              min="18"
+              max="100"
+              placeholder="18+"
+              required
+            />
+          </div>
+
+          <div class="field">
+            <label>
+              Gender *
+            </label>
+
+            <div class="gender-box">
+
+              <div class="gender-option">
+                <input
+                  type="radio"
+                  id="male"
+                  name="gender"
+                  value="male"
+                  required
+                />
+
+                <label for="male">
+                  Male
+                </label>
+              </div>
+
+              <div class="gender-option">
+                <input
+                  type="radio"
+                  id="female"
+                  name="gender"
+                  value="female"
+                />
+
+                <label for="female">
+                  Female
+                </label>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <div class="section-title">
+          Location
+        </div>
+
+        <div class="grid">
+
+          <div class="field">
+            <label for="city">
+              City *
+            </label>
+
+            <input
+              id="city"
+              type="text"
+              placeholder="Your city"
+              maxlength="80"
+              required
+            />
+          </div>
+
+          <div class="field">
+            <label for="area">
+              Area
+            </label>
+
+            <input
+              id="area"
+              type="text"
+              placeholder="Your area"
+              maxlength="100"
+            />
+          </div>
+
+        </div>
+
+        <div class="section-title">
+          Profile
+        </div>
+
+        <div class="field">
+
+          <label for="photo">
+            Profile Photo *
+          </label>
+
+          <div class="photo-box">
+
+            <img
+              id="photoPreview"
+              class="photo-preview"
+              alt="Profile preview"
             />
 
-          </div>
-
-        </div>
-
-      </section>
-
-
-      <section class="card">
-
-        <div class="card-title">
-          Creator Information
-        </div>
-
-        <form id="creatorForm">
-
-          <div class="form-grid">
-
-            <div class="field">
-
-              <label>
-                Display Name
-                <span class="required">*</span>
-              </label>
-
-              <input
-                id="displayName"
-                type="text"
-                maxlength="60"
-                placeholder="Your display name"
-                required
-              />
-
-            </div>
-
-
-            <div class="field">
-
-              <label>
-                Age
-                <span class="required">*</span>
-              </label>
-
-              <input
-                id="age"
-                type="number"
-                min="18"
-                max="100"
-                placeholder="18"
-                required
-              />
-
-              <div class="field-note">
-                Only users aged 18 or above can become creators.
-              </div>
-
-            </div>
-
-
-            <div class="field">
-
-              <label>
-                Gender
-                <span class="required">*</span>
-              </label>
-
-              <select id="gender" required>
-
-                <option value="">
-                  Select gender
-                </option>
-
-                <option value="male">
-                  Male
-                </option>
-
-                <option value="female">
-                  Female
-                </option>
-
-              </select>
-
-            </div>
-
-
-            <div class="field">
-
-              <label>
-                City
-                <span class="required">*</span>
-              </label>
-
-              <input
-                id="city"
-                type="text"
-                maxlength="80"
-                placeholder="Patna"
-                required
-              />
-
-            </div>
-
-
-            <div class="field">
-
-              <label>
-                Area / Locality
-              </label>
-
-              <input
-                id="area"
-                type="text"
-                maxlength="100"
-                placeholder="Your area"
-              />
-
-              <div class="field-note">
-                Do not enter your exact home address.
-              </div>
-
-            </div>
-
-
-            <div class="field">
-
-              <label>
-                Hourly Charge
-                <span class="required">*</span>
-              </label>
-
-              <input
-                id="hourlyRate"
-                type="number"
-                min="1"
-                max="100000"
-                step="1"
-                placeholder="500"
-                required
-              />
-
-              <div class="field-note">
-                Customers will see this amount per hour.
-              </div>
-
-            </div>
-
-
-            <div class="field full">
-
-              <label>
-                About You
-              </label>
-
-              <textarea
-                id="bio"
-                maxlength="500"
-                placeholder="Tell customers a little about yourself..."
-              ></textarea>
-
-              <div class="field-note">
-                Maximum 500 characters.
-              </div>
-
-            </div>
-
-
-            <div class="field full">
-
-              <label>
-                Availability
-              </label>
-
-              <textarea
-                id="availability"
-                maxlength="500"
-                placeholder="Example: Monday to Saturday, 5 PM - 10 PM"
-              ></textarea>
-
-            </div>
-
-          </div>
-
-
-          <label class="terms">
-
             <input
-              id="terms"
-              type="checkbox"
+              id="photo"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
               required
             />
 
-            <span>
-              I confirm that I am 18+, the information provided is
-              genuine, and I agree to Elyra's rules. I understand that
-              sexual services, prostitution, exploitation, harassment,
-              illegal activity and non-consensual activity are prohibited.
-            </span>
-
-          </label>
-
-
-          <div class="submit-area">
-
-            <button
-              id="submitBtn"
-              class="submit-btn"
-              type="submit"
-            >
-              Create Creator Profile
-            </button>
+            <div class="photo-text">
+              JPG, PNG or WEBP · Maximum 5MB
+            </div>
 
           </div>
 
-        </form>
-
-      </section>
-
-
-      <section class="card">
-
-        <div class="card-title">
-          How Creator Activation Works
         </div>
 
-        <div class="info-box">
+        <div class="field">
 
-          <strong>Step 1:</strong>
-          Create your creator profile.
+          <label for="bio">
+            About You
+          </label>
 
-          <br><br>
-
-          <strong>Step 2:</strong>
-          Your profile remains pending/inactive initially.
-
-          <br><br>
-
-          <strong>Step 3:</strong>
-          Complete the one-time
-          <strong>₹20 activation payment</strong>.
-
-          <br><br>
-
-          <strong>Step 4:</strong>
-          After successful backend payment verification,
-          your profile can become active and visible to customers.
-
-          <br><br>
-
-          <strong>Important:</strong>
-          Never share your password or payment credentials with anyone
-          claiming to be an Elyra administrator.
+          <textarea
+            id="bio"
+            maxlength="500"
+            placeholder="Tell people a little about yourself..."
+          ></textarea>
 
         </div>
 
-      </section>
+        <div class="section-title">
+          Availability & Pricing
+        </div>
 
+        <div class="grid">
 
-      <div class="footer">
-        © 2026 Elyra. All rights reserved.
-      </div>
+          <div class="field">
+
+            <label for="hourlyRate">
+              Hourly Rate (₹) *
+            </label>
+
+            <input
+              id="hourlyRate"
+              type="number"
+              min="1"
+              step="1"
+              placeholder="Example: 500"
+              required
+            />
+
+          </div>
+
+          <div class="field">
+
+            <label for="availability">
+              Availability
+            </label>
+
+            <input
+              id="availability"
+              type="text"
+              maxlength="150"
+              placeholder="Example: 6 PM - 10 PM"
+            />
+
+          </div>
+
+        </div>
+
+        <label class="terms">
+
+          <input
+            id="terms"
+            type="checkbox"
+            required
+          />
+
+          <span>
+            I confirm that I am 18 or older and the information
+            provided is genuine. I agree to ELYRA's terms,
+            privacy rules, safety guidelines and creator policies.
+          </span>
+
+        </label>
+
+        <button
+          id="submitBtn"
+          class="submit-btn"
+          type="submit"
+        >
+          Create Creator Profile
+        </button>
+
+      </form>
+
+      <a
+        href="index.html"
+        class="back"
+      >
+        ← Back to ELYRA
+      </a>
 
     </div>
 
-  </main>
-
+  </div>
 
   <script>
 
-    /* ============================================
-       SUPABASE
-    ============================================ */
+    // =====================================================
+    // SUPABASE
+    // =====================================================
 
     const SUPABASE_URL =
       "https://frvvacirnfvlxifvopcm.supabase.co";
@@ -708,76 +592,146 @@
       );
 
 
-    /* ============================================
-       VARIABLES
-    ============================================ */
+    // =====================================================
+    // ELEMENTS
+    // =====================================================
+
+    const form =
+      document.getElementById("creatorForm");
+
+    const submitBtn =
+      document.getElementById("submitBtn");
+
+    const message =
+      document.getElementById("message");
+
+    const photoInput =
+      document.getElementById("photo");
+
+    const photoPreview =
+      document.getElementById("photoPreview");
+
 
     let currentUser = null;
     let selectedPhoto = null;
 
 
-    /* ============================================
-       ELEMENTS
-    ============================================ */
+    // =====================================================
+    // MESSAGE
+    // =====================================================
 
-    const loadingScreen =
-      document.getElementById("loadingScreen");
+    function showMessage(text, type = "error") {
 
-    const mainPage =
-      document.getElementById("mainPage");
+      message.textContent = text;
 
-    const messageBox =
-      document.getElementById("messageBox");
+      message.className =
+        "message " + type;
 
-    const creatorForm =
-      document.getElementById("creatorForm");
-
-    const photoInput =
-      document.getElementById("photoInput");
-
-    const photoPreview =
-      document.getElementById("photoPreview");
-
-    const displayNameInput =
-      document.getElementById("displayName");
-
-    const ageInput =
-      document.getElementById("age");
-
-    const genderInput =
-      document.getElementById("gender");
-
-    const cityInput =
-      document.getElementById("city");
-
-    const areaInput =
-      document.getElementById("area");
-
-    const bioInput =
-      document.getElementById("bio");
-
-    const hourlyRateInput =
-      document.getElementById("hourlyRate");
-
-    const availabilityInput =
-      document.getElementById("availability");
-
-    const termsInput =
-      document.getElementById("terms");
-
-    const submitBtn =
-      document.getElementById("submitBtn");
+      message.scrollIntoView({
+        behavior: "smooth",
+        block: "center"
+      });
+    }
 
 
-    /* ============================================
-       INIT
-    ============================================ */
+    function clearMessage() {
 
-    document.addEventListener(
-      "DOMContentLoaded",
-      initializePage
+      message.textContent = "";
+
+      message.className =
+        "message";
+
+    }
+
+
+    // =====================================================
+    // PHOTO PREVIEW
+    // =====================================================
+
+    photoInput.addEventListener(
+      "change",
+      function () {
+
+        clearMessage();
+
+        const file =
+          photoInput.files?.[0];
+
+        if (!file) {
+          selectedPhoto = null;
+          photoPreview.style.display = "none";
+          return;
+        }
+
+        const allowedTypes = [
+          "image/jpeg",
+          "image/png",
+          "image/webp"
+        ];
+
+        if (
+          !allowedTypes.includes(
+            file.type
+          )
+        ) {
+
+          photoInput.value = "";
+
+          selectedPhoto = null;
+
+          photoPreview.style.display =
+            "none";
+
+          showMessage(
+            "Please select a JPG, PNG or WEBP image."
+          );
+
+          return;
+        }
+
+        if (
+          file.size >
+          5 * 1024 * 1024
+        ) {
+
+          photoInput.value = "";
+
+          selectedPhoto = null;
+
+          photoPreview.style.display =
+            "none";
+
+          showMessage(
+            "Photo must be smaller than 5MB."
+          );
+
+          return;
+        }
+
+        selectedPhoto = file;
+
+        const reader =
+          new FileReader();
+
+        reader.onload = function (event) {
+
+          photoPreview.src =
+            event.target.result;
+
+          photoPreview.style.display =
+            "block";
+
+        };
+
+        reader.readAsDataURL(file);
+
+      }
     );
 
+
+    // =====================================================
+    // CHECK LOGIN + EXISTING PROFILE
+    // =====================================================
 
     async function initializePage() {
 
@@ -786,60 +740,61 @@
         const {
           data,
           error
-        } = await supabaseClient.auth.getUser();
+        } =
+          await supabaseClient.auth.getUser();
 
         if (error) {
           throw error;
         }
 
-        if (!data || !data.user) {
+        if (
+          !data ||
+          !data.user
+        ) {
 
           window.location.href =
             "login.html?redirect=creator-register.html";
 
           return;
+
         }
 
-        currentUser = data.user;
+        currentUser =
+          data.user;
 
 
-        /*
-          Check whether this user already has
-          a creator profile.
-        */
+        // Check whether creator profile
+        // already exists
 
         const {
           data: existingProfile,
           error: profileError
-        } = await supabaseClient
-
-          .from("creator_profiles")
-
-          .select("id, profile_status, activation_payment_status")
-
-          .eq(
-            "user_id",
-            currentUser.id
-          )
-
-          .maybeSingle();
+        } =
+          await supabaseClient
+            .from("creator_profiles")
+            .select(
+              "id, profile_status, activation_payment_status"
+            )
+            .eq(
+              "user_id",
+              currentUser.id
+            )
+            .maybeSingle();
 
 
         if (profileError) {
 
-          console.error(profileError);
-
-          throw new Error(
-            "Unable to check your creator profile."
+          console.error(
+            "Profile check error:",
+            profileError
           );
+
+          // Don't block the page here.
+          // The Edge Function will perform
+          // the authoritative check.
 
         }
 
-
-        /*
-          If profile already exists, don't create
-          another one.
-        */
 
         if (existingProfile) {
 
@@ -850,140 +805,36 @@
 
         }
 
-
-        /*
-          Show page.
-        */
-
-        photoPreview.src =
-          createPlaceholderImage();
-
-        loadingScreen.style.display =
-          "none";
-
-        mainPage.style.display =
-          "block";
-
       } catch (error) {
 
         console.error(error);
 
-        loadingScreen.innerHTML = `
-          <div class="loading-inner">
-            <div style="color:#ff8799;margin-bottom:10px;">
-              Unable to load creator registration.
-            </div>
-            <div style="font-size:13px;color:#999;">
-              ${escapeHtml(error.message || "Please try again.")}
-            </div>
-          </div>
-        `;
+        showMessage(
+          error.message ||
+          "Unable to verify your account."
+        );
 
       }
 
     }
 
 
-    /* ============================================
-       PHOTO SELECT
-    ============================================ */
+    // =====================================================
+    // FORM SUBMIT
+    // =====================================================
 
-    photoInput.addEventListener(
-      "change",
-      function () {
-
-        const file =
-          this.files[0];
-
-        if (!file) {
-
-          selectedPhoto = null;
-
-          return;
-
-        }
-
-
-        const allowedTypes = [
-          "image/jpeg",
-          "image/png",
-          "image/webp"
-        ];
-
-
-        if (
-          !allowedTypes.includes(file.type)
-        ) {
-
-          showMessage(
-            "Please select a JPG, PNG or WEBP image.",
-            "error"
-          );
-
-          this.value = "";
-          selectedPhoto = null;
-
-          return;
-
-        }
-
-
-        const maxSize =
-          5 * 1024 * 1024;
-
-
-        if (file.size > maxSize) {
-
-          showMessage(
-            "Photo must be smaller than 5 MB.",
-            "error"
-          );
-
-          this.value = "";
-          selectedPhoto = null;
-
-          return;
-
-        }
-
-
-        selectedPhoto = file;
-
-
-        const reader =
-          new FileReader();
-
-
-        reader.onload = function(event) {
-
-          photoPreview.src =
-            event.target.result;
-
-        };
-
-
-        reader.readAsDataURL(file);
-
-      }
-    );
-
-
-    /* ============================================
-       CREATE CREATOR PROFILE
-    ============================================ */
-
-    creatorForm.addEventListener(
+    form.addEventListener(
       "submit",
-      async function(event) {
+      async function (event) {
 
         event.preventDefault();
 
+        clearMessage();
 
         if (!currentUser) {
 
           showMessage(
-            "Please login first.",
-            "error"
+            "Please login first."
           );
 
           return;
@@ -992,39 +843,84 @@
 
 
         const displayName =
-          displayNameInput.value.trim();
+          document
+            .getElementById("displayName")
+            .value
+            .trim();
+
 
         const age =
-          Number(ageInput.value);
+          Number(
+            document
+              .getElementById("age")
+              .value
+          );
+
+
+        const genderElement =
+          document.querySelector(
+            'input[name="gender"]:checked'
+          );
+
 
         const gender =
-          genderInput.value;
+          genderElement
+            ? genderElement.value
+            : "";
+
 
         const city =
-          cityInput.value.trim();
+          document
+            .getElementById("city")
+            .value
+            .trim();
+
 
         const area =
-          areaInput.value.trim();
+          document
+            .getElementById("area")
+            .value
+            .trim();
+
 
         const bio =
-          bioInput.value.trim();
+          document
+            .getElementById("bio")
+            .value
+            .trim();
+
 
         const hourlyRate =
-          Number(hourlyRateInput.value);
+          Number(
+            document
+              .getElementById("hourlyRate")
+              .value
+          );
+
 
         const availability =
-          availabilityInput.value.trim();
+          document
+            .getElementById("availability")
+            .value
+            .trim();
 
 
-        /* ========================================
-           VALIDATION
-        ======================================== */
+        const termsAccepted =
+          document
+            .getElementById("terms")
+            .checked;
 
-        if (!displayName) {
+
+        // -------------------------------------------------
+        // Validation
+        // -------------------------------------------------
+
+        if (
+          displayName.length < 2
+        ) {
 
           showMessage(
-            "Please enter your display name.",
-            "error"
+            "Please enter your display name."
           );
 
           return;
@@ -1039,8 +935,7 @@
         ) {
 
           showMessage(
-            "Creator must be between 18 and 100 years old.",
-            "error"
+            "Age must be between 18 and 100."
           );
 
           return;
@@ -1054,8 +949,7 @@
         ) {
 
           showMessage(
-            "Please select your gender.",
-            "error"
+            "Please select your gender."
           );
 
           return;
@@ -1063,11 +957,12 @@
         }
 
 
-        if (!city) {
+        if (
+          city.length < 2
+        ) {
 
           showMessage(
-            "Please enter your city.",
-            "error"
+            "Please enter your city."
           );
 
           return;
@@ -1081,8 +976,7 @@
         ) {
 
           showMessage(
-            "Please enter a valid hourly charge.",
-            "error"
+            "Please enter a valid hourly rate."
           );
 
           return;
@@ -1090,17 +984,31 @@
         }
 
 
-        if (!termsInput.checked) {
+        if (!selectedPhoto) {
 
           showMessage(
-            "Please accept the Elyra creator rules.",
-            "error"
+            "Please select a profile photo."
           );
 
           return;
 
         }
 
+
+        if (!termsAccepted) {
+
+          showMessage(
+            "Please accept the terms before continuing."
+          );
+
+          return;
+
+        }
+
+
+        // -------------------------------------------------
+        // Disable button
+        // -------------------------------------------------
 
         submitBtn.disabled = true;
 
@@ -1110,227 +1018,208 @@
 
         try {
 
-          /* ======================================
-             CHECK AGAIN FOR DUPLICATE PROFILE
-          ====================================== */
+          // =================================================
+          // 1. Upload creator photo
+          // =================================================
+
+          const extension =
+            selectedPhoto.name
+              .split(".")
+              .pop()
+              .toLowerCase();
+
+
+          const uniqueName =
+            crypto.randomUUID() +
+            "." +
+            extension;
+
+
+          const filePath =
+            currentUser.id +
+            "/" +
+            uniqueName;
+
 
           const {
-            data: existingProfile,
-            error: existingError
-          } = await supabaseClient
-
-            .from("creator_profiles")
-
-            .select("id")
-
-            .eq(
-              "user_id",
-              currentUser.id
-            )
-
-            .maybeSingle();
-
-
-          if (existingError) {
-            throw existingError;
-          }
-
-
-          if (existingProfile) {
-
-            window.location.href =
-              "creator-dashboard.html";
-
-            return;
-
-          }
-
-
-          /* ======================================
-             PHOTO UPLOAD
-          ====================================== */
-
-          let photoUrl = null;
-
-
-          if (selectedPhoto) {
-
-            const extension =
-              getFileExtension(
-                selectedPhoto.name
-              );
-
-
-            const fileName =
-              crypto.randomUUID() +
-              "." +
-              extension;
-
-
-            const filePath =
-              currentUser.id +
-              "/" +
-              fileName;
-
-
-            const {
-              error: uploadError
-            } = await supabaseClient
-
+            error: uploadError
+          } =
+            await supabaseClient
               .storage
-
               .from("creator-photos")
-
               .upload(
                 filePath,
                 selectedPhoto,
                 {
                   cacheControl: "3600",
-                  upsert: false
+                  upsert: false,
+                  contentType:
+                    selectedPhoto.type
                 }
               );
 
 
-            if (uploadError) {
+          if (uploadError) {
 
-              console.error(uploadError);
-
-              throw new Error(
-                "Photo upload failed: " +
-                uploadError.message
-              );
-
-            }
-
-
-            const {
-              data: publicData
-            } =
-              supabaseClient
-
-                .storage
-
-                .from("creator-photos")
-
-                .getPublicUrl(
-                  filePath
-                );
-
-
-            photoUrl =
-              publicData.publicUrl;
+            throw new Error(
+              "Photo upload failed: " +
+              uploadError.message
+            );
 
           }
 
 
-          /* ======================================
-             CREATE DATABASE PROFILE
-          ====================================== */
+          // =================================================
+          // 2. Get public photo URL
+          // =================================================
 
           const {
-            data: createdProfile,
-            error: insertError
-          } = await supabaseClient
-
-            .from("creator_profiles")
-
-            .insert({
-
-              user_id:
-                currentUser.id,
-
-              display_name:
-                displayName,
-
-              age:
-                age,
-
-              gender:
-                gender,
-
-              photo_url:
-                photoUrl,
-
-              city:
-                city,
-
-              area:
-                area || null,
-
-              bio:
-                bio || null,
-
-              hourly_rate:
-                hourlyRate,
-
-              availability:
-                availability || null,
-
-              activation_payment_status:
-                "pending",
-
-              profile_status:
-                "inactive"
-
-            })
-
-            .select("id")
-
-            .single();
+            data: publicUrlData
+          } =
+            supabaseClient
+              .storage
+              .from("creator-photos")
+              .getPublicUrl(
+                filePath
+              );
 
 
-          if (insertError) {
+          const photoUrl =
+            publicUrlData?.publicUrl;
 
-            console.error(insertError);
 
-            /*
-              If database insert fails after photo upload,
-              don't expose technical details unnecessarily.
-            */
+          if (!photoUrl) {
+
+            throw new Error(
+              "Could not create photo URL."
+            );
+
+          }
+
+
+          // =================================================
+          // 3. CREATE PROFILE THROUGH EDGE FUNCTION
+          // =================================================
+          //
+          // IMPORTANT:
+          // We are NOT directly inserting into
+          // creator_profiles anymore.
+          //
+          // The Edge Function:
+          // - verifies the logged-in user
+          // - gets user.id from JWT
+          // - creates pending/inactive profile
+          // - prevents duplicate profile
+          //
+          // =================================================
+
+          const {
+            data: functionData,
+            error: functionError
+          } =
+            await supabaseClient.functions.invoke(
+              "create-creator-profile",
+              {
+                body: {
+                  display_name:
+                    displayName,
+
+                  age:
+                    age,
+
+                  gender:
+                    gender,
+
+                  photo_url:
+                    photoUrl,
+
+                  city:
+                    city,
+
+                  area:
+                    area || null,
+
+                  bio:
+                    bio || null,
+
+                  hourly_rate:
+                    hourlyRate,
+
+                  availability:
+                    availability || null
+                }
+              }
+            );
+
+
+          if (functionError) {
+
+            console.error(
+              "Edge Function error:",
+              functionError
+            );
 
             throw new Error(
               "Could not create creator profile: " +
-              insertError.message
+              functionError.message
             );
 
           }
 
 
-          if (!createdProfile) {
+          if (
+            !functionData ||
+            !functionData.success
+          ) {
 
             throw new Error(
-              "Creator profile was not created."
+              functionData?.error ||
+              "Could not create creator profile."
             );
 
           }
 
 
-          /* ======================================
-             SUCCESS
-          ====================================== */
+          // =================================================
+          // 4. Success
+          // =================================================
 
           showMessage(
-            "✓ Creator profile created successfully. Redirecting to activation...",
+            "Creator profile created successfully. Redirecting to activation...",
             "success"
           );
 
 
-          setTimeout(() => {
+          submitBtn.textContent =
+            "Profile Created";
 
-            window.location.href =
-              "creator-dashboard.html";
 
-          }, 1200);
+          // Go to creator dashboard
+          // where ₹20 activation payment
+          // is handled.
+
+          setTimeout(
+            function () {
+
+              window.location.href =
+                "creator-dashboard.html";
+
+            },
+            900
+          );
 
 
         } catch (error) {
 
-          console.error(error);
+          console.error(
+            "Creator registration error:",
+            error
+          );
+
 
           showMessage(
             error.message ||
-            "Something went wrong while creating your profile.",
-            "error"
+            "Something went wrong while creating your profile."
           );
 
 
@@ -1345,156 +1234,13 @@
     );
 
 
-    /* ============================================
-       FILE EXTENSION
-    ============================================ */
+    // =====================================================
+    // START
+    // =====================================================
 
-    function getFileExtension(filename) {
-
-      const parts =
-        filename.split(".");
-
-      const extension =
-        parts[parts.length - 1].toLowerCase();
-
-
-      if (
-        ["jpg", "jpeg", "png", "webp"]
-          .includes(extension)
-      ) {
-
-        if (extension === "jpeg") {
-          return "jpg";
-        }
-
-        return extension;
-
-      }
-
-
-      return "jpg";
-
-    }
-
-
-    /* ============================================
-       PLACEHOLDER
-    ============================================ */
-
-    function createPlaceholderImage() {
-
-      return (
-        "data:image/svg+xml;charset=UTF-8," +
-        encodeURIComponent(`
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="300"
-            height="300"
-            viewBox="0 0 300 300"
-          >
-            <rect
-              width="300"
-              height="300"
-              fill="#17131b"
-            />
-
-            <circle
-              cx="150"
-              cy="115"
-              r="55"
-              fill="#302736"
-            />
-
-            <path
-              d="
-                M70 270
-                C70 205 105 175 150 175
-                C195 175 230 205 230 270
-                Z
-              "
-              fill="#302736"
-            />
-
-            <text
-              x="150"
-              y="290"
-              text-anchor="middle"
-              fill="#8f8597"
-              font-size="16"
-              font-family="Arial"
-            >
-              ELYRA
-            </text>
-
-          </svg>
-        `)
-      );
-
-    }
-
-
-    /* ============================================
-       MESSAGE
-    ============================================ */
-
-    function showMessage(message, type) {
-
-      messageBox.className =
-        "message " + type;
-
-      messageBox.textContent =
-        message;
-
-      messageBox.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      });
-
-    }
-
-
-    /* ============================================
-       HTML ESCAPE
-    ============================================ */
-
-    function escapeHtml(value) {
-
-      return String(value)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-
-    }
-
-
-    /* ============================================
-       BACK
-    ============================================ */
-
-    function goBack() {
-
-      if (
-        document.referrer &&
-        document.referrer.includes(
-          window.location.hostname
-        )
-      ) {
-
-        history.back();
-
-      } else {
-
-        window.location.href =
-          "index.html";
-
-      }
-
-    }
+    initializePage();
 
   </script>
 
 </body>
 </html>
-```
