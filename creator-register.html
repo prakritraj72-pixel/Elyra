@@ -1,12 +1,9 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  />
-
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Become a Creator — ELYRA</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -125,10 +122,6 @@
     textarea {
       min-height: 110px;
       resize: vertical;
-    }
-
-    select {
-      appearance: auto;
     }
 
     option {
@@ -340,14 +333,10 @@
 
       <form id="creatorForm">
 
-        <div class="section-title">
-          Basic Information
-        </div>
+        <div class="section-title">Basic Information</div>
 
         <div class="field">
-          <label for="displayName">
-            Display Name *
-          </label>
+          <label for="displayName">Display Name *</label>
 
           <input
             id="displayName"
@@ -361,9 +350,7 @@
         <div class="grid">
 
           <div class="field">
-            <label for="age">
-              Age *
-            </label>
+            <label for="age">Age *</label>
 
             <input
               id="age"
@@ -376,9 +363,7 @@
           </div>
 
           <div class="field">
-            <label>
-              Gender *
-            </label>
+            <label>Gender *</label>
 
             <div class="gender-box">
 
@@ -391,9 +376,7 @@
                   required
                 />
 
-                <label for="male">
-                  Male
-                </label>
+                <label for="male">Male</label>
               </div>
 
               <div class="gender-option">
@@ -404,9 +387,7 @@
                   value="female"
                 />
 
-                <label for="female">
-                  Female
-                </label>
+                <label for="female">Female</label>
               </div>
 
             </div>
@@ -414,16 +395,12 @@
 
         </div>
 
-        <div class="section-title">
-          Location
-        </div>
+        <div class="section-title">Location</div>
 
         <div class="grid">
 
           <div class="field">
-            <label for="city">
-              City *
-            </label>
+            <label for="city">City *</label>
 
             <input
               id="city"
@@ -435,9 +412,7 @@
           </div>
 
           <div class="field">
-            <label for="area">
-              Area
-            </label>
+            <label for="area">Area</label>
 
             <input
               id="area"
@@ -449,15 +424,11 @@
 
         </div>
 
-        <div class="section-title">
-          Profile
-        </div>
+        <div class="section-title">Profile</div>
 
         <div class="field">
 
-          <label for="photo">
-            Profile Photo *
-          </label>
+          <label for="photo">Profile Photo *</label>
 
           <div class="photo-box">
 
@@ -484,9 +455,7 @@
 
         <div class="field">
 
-          <label for="bio">
-            About You
-          </label>
+          <label for="bio">About You</label>
 
           <textarea
             id="bio"
@@ -496,9 +465,7 @@
 
         </div>
 
-        <div class="section-title">
-          Availability & Pricing
-        </div>
+        <div class="section-title">Availability & Pricing</div>
 
         <div class="grid">
 
@@ -562,10 +529,7 @@
 
       </form>
 
-      <a
-        href="index.html"
-        class="back"
-      >
+      <a href="index.html" class="back">
         ← Back to ELYRA
       </a>
 
@@ -763,9 +727,6 @@
           data.user;
 
 
-        // Check whether creator profile
-        // already exists
-
         const {
           data: existingProfile,
           error: profileError
@@ -788,10 +749,6 @@
             "Profile check error:",
             profileError
           );
-
-          // Don't block the page here.
-          // The Edge Function will perform
-          // the authoritative check.
 
         }
 
@@ -1100,25 +1057,13 @@
           // =================================================
           // 3. CREATE PROFILE THROUGH EDGE FUNCTION
           // =================================================
-          //
-          // IMPORTANT:
-          // We are NOT directly inserting into
-          // creator_profiles anymore.
-          //
-          // The Edge Function:
-          // - verifies the logged-in user
-          // - gets user.id from JWT
-          // - creates pending/inactive profile
-          // - prevents duplicate profile
-          //
-          // =================================================
 
           const {
             data: functionData,
             error: functionError
           } =
             await supabaseClient.functions.invoke(
-              "create-creator-profile",
+              "smooth-service",
               {
                 body: {
                   display_name:
@@ -1194,10 +1139,6 @@
             "Profile Created";
 
 
-          // Go to creator dashboard
-          // where ₹20 activation payment
-          // is handled.
-
           setTimeout(
             function () {
 
@@ -1244,3 +1185,4 @@
 
 </body>
 </html>
+```
