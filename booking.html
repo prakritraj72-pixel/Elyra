@@ -14,13 +14,14 @@
 <body>
 <header><div class="logo">ELY<span>R</span>A</div><a href="creators.html" class="back" id="backBtn">← Back</a></header>
 <main>
-<div class="heading"><h1>Book your <span>time</span></h1><p>Choose your date, time and duration. Your request will be checked against your active subscription and the creator's current profile.</p></div>
+<div class="heading"><h1>Book your <span>time</span></h1><p>Choose your date, time, duration and meeting location. Your request will be checked against your active subscription and the creator's current profile.</p></div>
 <div id="warning" class="warning"></div><div id="success" class="success"></div><div id="loading" class="loading">Loading creator...</div>
 <div id="content" class="hidden">
 <div class="card"><div class="creator"><div id="creatorPhoto"></div><div class="creator-info"><h2 id="creatorName">Creator</h2><p id="creatorLocation">Location</p></div><div class="rate"><strong id="creatorRate">₹0</strong><span>per hour</span></div></div></div>
 <div class="card">
 <div class="field"><label for="date">Select Date</label><input type="date" id="date"></div>
 <div class="row"><div class="field"><label for="time">Select Time</label><input type="time" id="time"></div><div class="field"><label for="hours">Number of Hours</label><select id="hours"></select></div></div>
+<div class="field"><label for="meetingAddress">Meeting Address / Location</label><input type="text" id="meetingAddress" maxlength="300" placeholder="Where should you meet? Enter a safe public meeting location" autocomplete="street-address"><div style="margin-top:7px;color:#777;font-size:12px;line-height:1.5">This address is shared only with the booked creator for this booking. For safety, choose a public and lawful meeting place.</div></div>
 <div class="field"><label for="notes">Notes (optional)</label><textarea id="notes" maxlength="500" placeholder="Anything the creator should know about the activity or meeting?"></textarea></div>
 <div class="summary"><div class="summary-row"><span>Hourly rate</span><span id="summaryRate">₹0</span></div><div class="summary-row"><span>Duration</span><span id="summaryHours">1 hour</span></div><div class="summary-row total"><span>Total</span><span id="totalAmount">₹0</span></div></div>
 <div class="note"><strong>Before you request:</strong> Elyra is 18+ only and for lawful social companionship and activities. Sexual services, prostitution, exploitation, harassment and illegal activity are prohibited.</div>
@@ -61,14 +62,14 @@ async function loadPage(){
 }
 $("hours").addEventListener("change",updateSummary);$("hours").addEventListener("input",updateSummary);
 $("bookBtn").addEventListener("click",async()=>{
- hideMessages();if(!currentUser||!creator)return;const date=$("date").value,time=$("time").value,hours=Number($("hours").value||0),notes=$("notes").value.trim();
- if(!date||!time){warn("Please select a date and time.");return}if(date<todayString()){warn("Please choose today or a future date.");return}if(!hours||hours<1||hours>24){warn("Please select valid booking hours.");return}
+ hideMessages();if(!currentUser||!creator)return;const date=$("date").value,time=$("time").value,hours=Number($("hours").value||0),meetingAddress=$("meetingAddress").value.trim(),notes=$("notes").value.trim();
+ if(!date||!time){warn("Please select a date and time.");return}if(!date||date<todayString()){warn("Please choose today or a future date.");return}if(!hours||hours<1||hours>24){warn("Please select valid booking hours.");return}if(!meetingAddress){warn("Please enter the meeting address or location.");$("meetingAddress").focus();return}if(meetingAddress.length<5){warn("Please enter a more complete meeting location.");$("meetingAddress").focus();return}
  const selected=new Date(`${date}T${time}:00`);if(Number.isNaN(selected.getTime())){warn("Please select a valid date and time.");return}if(selected.getTime()<Date.now()+5*60*1000){warn("Please choose a booking time at least 5 minutes from now.");return}
  const total=Number(creator.hourly_rate||0)*hours;if(!Number.isFinite(total)||total<=0){warn("This creator currently has an invalid rate.");return}
  const end=endTime(time,hours);
  $("bookBtn").disabled=true;$("bookBtn").textContent="Creating request...";
  try{
-   const {data,error}=await supabaseClient.from("bookings").insert({customer_id:currentUser.id,creator_id:creator.id,booking_date:date,start_time:`${time}:00`,end_time:end,duration_hours:hours,amount:total,status:"pending",notes:notes||null}).select("id,status").single();
+   const {data,error}=await supabaseClient.from("bookings").insert({customer_id:currentUser.id,creator_id:creator.id,booking_date:date,start_time:`${time}:00`,end_time:end,duration_hours:hours,amount:total,status:"pending",meeting_address:meetingAddress,notes:notes||null}).select("id,status").single();
    if(error)throw error;
    success("✓ Booking request sent. The creator can now review it from their dashboard.");
    $("bookBtn").textContent="Request Sent";
