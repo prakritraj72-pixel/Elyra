@@ -11,51 +11,54 @@ for select
 to authenticated
 using (creator_id = auth.uid());
 
-create or replace function public.creator_set_booking_status(
-  p_booking_id uuid,
-  p_status text
+-- Allow creators to update their own booking rows, but the trigger below limits
+-- creator updates to status + updated_at only.
+drop policy if exists "Creators can update own pending booking status" on public.bookings;
+create policy "Creators can update own pending booking status"
+on public.bookings
+for update
+to authenticated
+using (
+  creator_id = auth.uid()
+  and status = 'pending'
 )
-returns jsonb
+with check (
+  creator_id = auth.uid()
+  and status in ('accepted', 'rejected')
+);
+
+-- Prevent a creator from changing amount, date, customer, address, notes, etc.
+-- while using the booking-status update policy.
+create or replace function public.protect_creator_booking_update()
+returns trigger
 language plpgsql
 security definer
 set search_path = public
 as $$
-declare
-  v_booking public.bookings%rowtype;
 begin
-  if auth.uid() is null then
-    raise exception 'Not authenticated';
+  if auth.uid() = old.creator_id then
+    if old.status <> 'pending' then
+      raise exception 'Only pending bookings can be changed';
+    end if;
+
+    if new.status not in ('accepted', 'rejected') then
+      raise exception 'Invalid booking status';
+    end if;
+
+    if (to_jsonb(new) - 'status' - 'updated_at')
+       <> (to_jsonb(old) - 'status' - 'updated_at') then
+      raise exception 'Creators may only change booking status';
+    end if;
   end if;
 
-  if p_status not in ('accepted', 'rejected') then
-    raise exception 'Invalid booking status';
-  end if;
-
-  select * into v_booking
-  from public.bookings
-  where id = p_booking_id
-    and creator_id = auth.uid()
-  for update;
-
-  if not found then
-    raise exception 'Booking not found';
-  end if;
-
-  if v_booking.status <> 'pending' then
-    raise exception 'Only pending bookings can be changed';
-  end if;
-
-  update public.bookings
-  set status = p_status, updated_at = now()
-  where id = p_booking_id
-    and creator_id = auth.uid()
-    and status = 'pending';
-
-  return jsonb_build_object('id', p_booking_id, 'status', p_status);
+  return new;
 end;
 $$;
 
-revoke all on function public.creator_set_booking_status(uuid, text) from public;
-grant execute on function public.creator_set_booking_status(uuid, text) to authenticated;
+drop trigger if exists protect_creator_booking_update on public.bookings;
+create trigger protect_creator_booking_update
+before update on public.bookings
+for each row
+execute function public.protect_creator_booking_update();
 
-Important: the creator booking page should call this RPC for Accept/Reject. Do not add a broad creator UPDATE policy, because that would let a creator modify amount, date, address, or other booking fields.
+Important: the creator-bookings.html page now uses the normal Supabase update call. The RLS policy + trigger make that update safe: creators can only move their own pending booking from pending → accepted/rejected and cannot alter price, date, address, customer data, or other fields.
