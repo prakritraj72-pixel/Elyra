@@ -1,8 +1,12 @@
 ELYRA — Creator booking management security
 
-Run this SQL once in the Supabase SQL Editor:
+Run this SQL once in the Supabase SQL Editor. If you already ran an earlier version, run this updated version too; the GRANT lines fix `permission denied for table bookings` when the table privileges are missing.
 
 alter table public.bookings enable row level security;
+
+-- Make sure logged-in creators have the underlying table privileges.
+-- RLS below still limits which rows they can actually read/update.
+grant select, update on table public.bookings to authenticated;
 
 drop policy if exists "Creators can view own booking requests" on public.bookings;
 create policy "Creators can view own booking requests"
@@ -61,4 +65,6 @@ before update on public.bookings
 for each row
 execute function public.protect_creator_booking_update();
 
-Important: the creator-bookings.html page now uses the normal Supabase update call. The RLS policy + trigger make that update safe: creators can only move their own pending booking from pending → accepted/rejected and cannot alter price, date, address, customer data, or other fields.
+Important: creator-bookings.html uses the normal Supabase update call. The RLS policy + trigger make that update safe: creators can only move their own pending booking from pending → accepted/rejected and cannot alter price, date, address, customer data, or other fields.
+
+Privacy note: the page may display the customer phone only when that value exists in the booking row. Do not add customer email/phone to public creator profile pages or expose it before the creator has accepted the booking.
