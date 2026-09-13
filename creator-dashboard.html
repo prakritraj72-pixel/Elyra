@@ -2259,7 +2259,265 @@
     }
   );
 
+/* ================================
+   ELYRA MOBILE CREATOR DASHBOARD
+   ================================ */
 
+@media (max-width: 600px) {
+
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  header {
+    position: sticky;
+    top: 0;
+  }
+
+  .nav {
+    min-height: 58px;
+    padding: 0 14px;
+    gap: 8px;
+  }
+
+  .brand {
+    font-size: 21px;
+    letter-spacing: 2px;
+    flex-shrink: 0;
+  }
+
+  .nav-right {
+    gap: 7px;
+    margin-left: auto;
+  }
+
+  .nav-link {
+    display: none !important;
+  }
+
+  .logout-btn {
+    padding: 8px 11px;
+    font-size: 12px;
+    border-radius: 9px;
+    white-space: nowrap;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 100%;
+    padding: 20px 12px 45px;
+  }
+
+  .page-heading {
+    margin-bottom: 20px;
+  }
+
+  .page-heading h1 {
+    font-size: 29px;
+    line-height: 1.08;
+    margin-bottom: 7px;
+  }
+
+  .page-heading p {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  #message {
+    font-size: 13px;
+    padding: 11px 12px;
+    margin-bottom: 15px;
+    line-height: 1.45;
+  }
+
+  .dashboard-grid {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 14px;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 100%;
+    padding: 17px 15px;
+    border-radius: 15px;
+    margin: 0 !important;
+  }
+
+  .card + .card {
+    margin-top: 0 !important;
+  }
+
+  .card-title {
+    font-size: 17px;
+    line-height: 1.3;
+  }
+
+  .card-subtitle {
+    font-size: 12px;
+    line-height: 1.55;
+    margin-bottom: 16px;
+  }
+
+  .activation-price {
+    font-size: 34px;
+    margin: 8px 0 4px;
+  }
+
+  .activation-small {
+    font-size: 11px;
+    line-height: 1.4;
+    margin-bottom: 14px;
+  }
+
+  .status-row {
+    padding: 10px 0;
+    gap: 8px;
+  }
+
+  .status-label,
+  .status-value {
+    font-size: 12px;
+  }
+
+  #activationButton,
+  .save-btn {
+    min-height: 48px;
+    padding: 13px 15px;
+    font-size: 14px;
+    border-radius: 11px;
+  }
+
+  .secure-note {
+    font-size: 10px;
+    line-height: 1.4;
+  }
+
+  .form-group {
+    margin-bottom: 14px;
+  }
+
+  label {
+    font-size: 12px;
+    margin-bottom: 7px;
+  }
+
+  input,
+  textarea,
+  select {
+    width: 100%;
+    max-width: 100%;
+    min-height: 46px;
+    padding: 12px;
+    font-size: 14px;
+    border-radius: 10px;
+  }
+
+  textarea {
+    min-height: 105px;
+  }
+
+  .two-col {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 0;
+  }
+
+  .two-col > * {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .photo-section {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 13px;
+    margin-bottom: 19px;
+    padding-bottom: 18px;
+  }
+
+  .photo-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 15px;
+    margin: 0 auto;
+  }
+
+  .photo-info {
+    width: 100%;
+  }
+
+  .photo-info h3 {
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+
+  .photo-info p {
+    font-size: 11px;
+    line-height: 1.5;
+    margin-bottom: 9px;
+  }
+
+  .file-input {
+    width: 100%;
+    max-width: 100%;
+    font-size: 11px;
+    padding: 8px;
+  }
+
+  .info-list {
+    gap: 9px;
+  }
+
+  .info-list li {
+    font-size: 12px;
+    line-height: 1.5;
+    padding-left: 16px;
+  }
+
+  footer {
+    padding: 20px 14px;
+    font-size: 10px;
+    line-height: 1.5;
+  }
+}
+
+/* Extra-small phones */
+@media (max-width: 380px) {
+
+  .container {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .nav {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .brand {
+    font-size: 19px;
+  }
+
+  .logout-btn {
+    padding: 7px 9px;
+    font-size: 11px;
+  }
+
+  .page-heading h1 {
+    font-size: 26px;
+  }
+
+  .card {
+    padding: 15px 13px;
+  }
+}
   /* =====================================================
      AUTH STATE
   ===================================================== */
