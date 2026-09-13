@@ -65,11 +65,29 @@ $("bookBtn").addEventListener("click",async()=>{
  hideMessages();if(!currentUser||!creator)return;const date=$("date").value,time=$("time").value,hours=Number($("hours").value||0),meetingAddress=$("meetingAddress").value.trim(),notes=$("notes").value.trim();
  if(!date||!time){warn("Please select a date and time.");return}if(!date||date<todayString()){warn("Please choose today or a future date.");return}if(!hours||hours<1||hours>24){warn("Please select valid booking hours.");return}if(!meetingAddress){warn("Please enter the meeting address or location.");$("meetingAddress").focus();return}if(meetingAddress.length<5){warn("Please enter a more complete meeting location.");$("meetingAddress").focus();return}
  const selected=new Date(`${date}T${time}:00`);if(Number.isNaN(selected.getTime())){warn("Please select a valid date and time.");return}if(selected.getTime()<Date.now()+5*60*1000){warn("Please choose a booking time at least 5 minutes from now.");return}
- const total=Number(creator.hourly_rate||0)*hours;if(!Number.isFinite(total)||total<=0){warn("This creator currently has an invalid rate.");return}
- const end=endTime(time,hours);
+ const rate=Number(creator.hourly_rate||0);const total=rate*hours;if(!Number.isFinite(total)||total<=0){warn("This creator currently has an invalid rate.");return}
+ const end=endTime(time,hours);const scheduledAt=new Date(`${date}T${time}:00`).toISOString();
  $("bookBtn").disabled=true;$("bookBtn").textContent="Creating request...";
  try{
-   const {data,error}=await supabaseClient.from("bookings").insert({customer_id:currentUser.id,creator_id:creator.id,booking_date:date,start_time:`${time}:00`,end_time:end,duration_hours:hours,amount:total,status:"pending",meeting_address:meetingAddress,notes:notes||null}).select("id,status").single();
+   const payload={
+     customer_id:currentUser.id,
+     creator_id:creator.id,
+     booking_date:date,
+     start_time:`${time}:00`,
+     end_time:end,
+     duration_hours:hours,
+     hours:hours,
+     hourly_rate:rate,
+     amount:total,
+     total_amount:total,
+     first_payment_amount:total,
+     second_payment_amount:0,
+     scheduled_at:scheduledAt,
+     status:"pending",
+     meeting_address:meetingAddress,
+     notes:notes||null
+   };
+   const {data,error}=await supabaseClient.from("bookings").insert(payload).select("id,status").single();
    if(error)throw error;
    success("✓ Booking request sent. The creator can now review it from their dashboard.");
    $("bookBtn").textContent="Request Sent";
