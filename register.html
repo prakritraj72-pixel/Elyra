@@ -10,7 +10,8 @@
     body{min-height:100vh;font-family:Arial,sans-serif;background:radial-gradient(circle at top left,#3a0d20 0%,transparent 35%),radial-gradient(circle at bottom right,#24103d 0%,transparent 35%),#080709;color:white;display:flex;justify-content:center;align-items:center;padding:25px}
     .container{width:100%;max-width:470px}.logo{text-align:center;font-size:32px;font-weight:800;letter-spacing:5px;margin-bottom:8px}.tagline{text-align:center;color:#aaa;margin-bottom:25px;font-size:14px}.card{background:rgba(20,17,22,.95);border:1px solid #302934;border-radius:22px;padding:30px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
     h1{font-size:27px;margin-bottom:8px}.subtitle{color:#999;font-size:14px;margin-bottom:25px;line-height:1.5}label{display:block;font-size:13px;color:#cfcfcf;margin-bottom:7px}input{width:100%;padding:14px 15px;border-radius:11px;border:1px solid #39333d;background:#100e12;color:white;outline:none;margin-bottom:17px;font-size:14px}input:focus{border-color:#9b315b}input::placeholder{color:#666}
-    .age-row{display:flex;align-items:center;gap:10px;margin:3px 0 20px;color:#bbb;font-size:13px}.age-row input{width:16px;height:16px;margin:0;accent-color:#9b315b;cursor:pointer}.age-row label{margin:0;cursor:pointer;line-height:1.4}button{width:100%;border:none;padding:15px;border-radius:12px;background:linear-gradient(135deg,#8e234d,#4e1e62);color:white;font-weight:700;font-size:15px;cursor:pointer;transition:.2s}button:hover{transform:translateY(-1px);opacity:.95}button:disabled{opacity:.6;cursor:not-allowed;transform:none}.message{display:none;margin-top:15px;padding:12px;border-radius:10px;font-size:13px;line-height:1.5}.error{display:block;background:rgba(150,30,50,.15);border:1px solid #692637;color:#ff9cad}.success{display:block;background:rgba(30,130,80,.12);border:1px solid #286b4b;color:#8ce0b2}.login{text-align:center;color:#999;font-size:14px;margin-top:22px}.login a{color:#e28aae;text-decoration:none}.login a:hover{text-decoration:underline}.back{display:block;text-align:center;margin-top:18px;color:#777;text-decoration:none;font-size:13px}.back:hover{color:#aaa}.terms{color:#666;font-size:11px;line-height:1.5;text-align:center;margin-top:18px}@media(max-width:520px){body{padding:15px}.card{padding:23px 20px}.logo{font-size:28px}h1{font-size:24px}}
+    .password-wrap{position:relative;margin-bottom:17px}.password-wrap input{padding-right:76px;margin-bottom:0}.password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:auto;padding:7px 9px;border:1px solid #39333d;border-radius:8px;background:#19151c;color:#c9a0b1;font-size:12px;font-weight:600;cursor:pointer}.password-toggle:hover{background:#241c28;opacity:1;transform:translateY(-50%)}
+    .age-row{display:flex;align-items:center;gap:10px;margin:3px 0 20px;color:#bbb;font-size:13px}.age-row input{width:16px;height:16px;margin:0;accent-color:#9b315b;cursor:pointer}.age-row label{margin:0;cursor:pointer;line-height:1.4}button{width:100%;border:none;padding:15px;border-radius:12px;background:linear-gradient(135deg,#8e234d,#4e1e62);color:white;font-weight:700;font-size:15px;cursor:pointer;transition:.2s}button:hover{transform:translateY(-1px);opacity:.95}button:disabled{opacity:.6;cursor:not-allowed;transform:none}.password-toggle:disabled{opacity:1;cursor:pointer;transform:translateY(-50%)}.message{display:none;margin-top:15px;padding:12px;border-radius:10px;font-size:13px;line-height:1.5}.error{display:block;background:rgba(150,30,50,.15);border:1px solid #692637;color:#ff9cad}.success{display:block;background:rgba(30,130,80,.12);border:1px solid #286b4b;color:#8ce0b2}.login{text-align:center;color:#999;font-size:14px;margin-top:22px}.login a{color:#e28aae;text-decoration:none}.login a:hover{text-decoration:underline}.back{display:block;text-align:center;margin-top:18px;color:#777;text-decoration:none;font-size:13px}.back:hover{color:#aaa}.terms{color:#666;font-size:11px;line-height:1.5;text-align:center;margin-top:18px}@media(max-width:520px){body{padding:15px}.card{padding:23px 20px}.logo{font-size:28px}h1{font-size:24px}}
   </style>
 </head>
 <body>
@@ -28,7 +29,10 @@
       <label for="email">Email</label>
       <input type="email" id="email" placeholder="you@example.com" required>
       <label for="password">Password</label>
-      <input type="password" id="password" placeholder="Minimum 6 characters" minlength="6" required>
+      <div class="password-wrap">
+        <input type="password" id="password" placeholder="Minimum 6 characters" minlength="6" required>
+        <button type="button" class="password-toggle" id="passwordToggle" aria-label="Show password">Show</button>
+      </div>
       <label for="age">Age</label>
       <input type="number" id="age" placeholder="18+" min="18" max="100" required>
       <label for="city">City</label>
@@ -52,6 +56,15 @@
   const form=document.getElementById("registerForm");
   const button=document.getElementById("registerBtn");
   const message=document.getElementById("message");
+  const passwordInput=document.getElementById("password");
+  const passwordToggle=document.getElementById("passwordToggle");
+
+  passwordToggle.addEventListener("click",function(){
+    const showing=passwordInput.type==="text";
+    passwordInput.type=showing?"password":"text";
+    passwordToggle.textContent=showing?"Show":"Hide";
+    passwordToggle.setAttribute("aria-label",showing?"Show password":"Hide password");
+  });
 
   function showMessage(text,type){message.textContent=text;message.className="message "+type}
 
@@ -61,7 +74,7 @@
     const fullName=document.getElementById("fullName").value.trim();
     const username=document.getElementById("username").value.trim();
     const email=document.getElementById("email").value.trim().toLowerCase();
-    const password=document.getElementById("password").value;
+    const password=passwordInput.value;
     const age=Number(document.getElementById("age").value);
     const city=document.getElementById("city").value.trim();
 
@@ -82,7 +95,6 @@
       if(error)throw error;
       if(!data?.user)throw new Error("Account could not be created. Please try again.");
 
-      /* Save the customer's profile immediately when a session is available. */
       if(data.session){
         const {error:profileError}=await supabaseClient.from("profiles").upsert({
           id:data.user.id,
@@ -98,20 +110,16 @@
           throw new Error("Account was created, but your profile could not be saved. Please try again.");
         }
 
-        /* Keep the profile data in auth metadata too, so it remains available immediately. */
         await supabaseClient.auth.updateUser({
           data:{full_name:fullName,username,age,city,role:"customer"}
         });
 
         showMessage("Account created! Taking you to Elyra...","success");
         button.textContent="Opening Elyra...";
-
-        /* No second login. The Supabase session is already active. */
         setTimeout(()=>{window.location.replace("index.html");},700);
         return;
       }
 
-      /* If email confirmation is enabled, Supabase intentionally does not create a session. */
       showMessage("Account created. Please confirm your email, then log in to continue.","success");
       button.disabled=false;
       button.textContent="Create account";
