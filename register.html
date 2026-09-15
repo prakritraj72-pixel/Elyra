@@ -86,6 +86,18 @@
     button.textContent="Creating account...";
 
     try{
+      // Check the username before creating the Auth user when the profiles table is readable.
+      // If RLS blocks this public lookup, signup continues and the database trigger remains authoritative.
+      const {data:existingUsername,error:usernameCheckError}=await supabaseClient
+        .from("profiles")
+        .select("id")
+        .eq("username",username)
+        .maybeSingle();
+
+      if(!usernameCheckError && existingUsername){
+        throw new Error("Username is already taken. Please choose another username.");
+      }
+
       const {data,error}=await supabaseClient.auth.signUp({
         email,
         password,
@@ -95,21 +107,9 @@
       if(error)throw error;
       if(!data?.user)throw new Error("Account could not be created. Please try again.");
 
+      // handle_new_user() creates the profiles row automatically inside the auth transaction.
+      // Do not upsert here: the client only has INSERT/SELECT permission, and an upsert also needs UPDATE.
       if(data.session){
-        const {error:profileError}=await supabaseClient.from("profiles").upsert({
-          id:data.user.id,
-          full_name:fullName,
-          username:username,
-          age:age,
-          city:city,
-          role:"customer"
-        },{onConflict:"id"});
-
-        if(profileError){
-          console.error("Profile creation error:",profileError);
-          throw new Error("Account was created, but your profile could not be saved. Please try again.");
-        }
-
         await supabaseClient.auth.updateUser({
           data:{full_name:fullName,username,age,city,role:"customer"}
         });
@@ -127,8 +127,15 @@
     }catch(error){
       console.error("Registration error:",error);
       let errorMessage=error?.message||"Something went wrong while creating your account.";
-      if(errorMessage.toLowerCase().includes("user already registered")){
+      const lower=errorMessage.toLowerCase();
+      if(lower.includes("user already registered")){
         errorMessage="This email is already registered. Please log in instead.";
+      }else if(lower.includes("duplicate key")&&lower.includes("username")){
+        errorMessage="Username is already taken. Please choose another username.";
+      }else if(lower.includes("profiles_username_key")||lower.includes("username_key")){
+        errorMessage="Username is already taken. Please choose another username.";
+      }else if(lower.includes("database error saving new user")){
+        errorMessage="We could not create your profile. Please check your details and try again.";
       }
       showMessage(errorMessage,"error");
       button.disabled=false;
