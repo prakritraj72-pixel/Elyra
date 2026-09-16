@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signing in — Elyra</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#080709;color:#fff;font-family:Arial,sans-serif;text-align:center}
+    .box{padding:32px}.logo{font-size:30px;font-weight:800;letter-spacing:5px;margin-bottom:12px}.text{color:#aaa;font-size:14px}
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="logo">ELYRA</div>
+    <div class="text" id="status">Completing Google sign in...</div>
+  </div>
+<script>
+  const SUPABASE_URL = "https://frvvacirnfvlxifvopcm.supabase.co";
+  const SUPABASE_KEY = "sb_publishable_l7fygMVXGAkbskkiBom8uw_-86tU6L0";
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const statusEl = document.getElementById("status");
+
+  async function finishLogin() {
+    try {
+      const { data: sessionData, error: sessionError } = await supabaseClient.auth.getSession();
+      if (sessionError) throw sessionError;
+      if (!sessionData.session || !sessionData.session.user) throw new Error("Google sign in did not create a session.");
+
+      const user = sessionData.session.user;
+      const metadata = user.user_metadata || {};
+      const fullName = metadata.full_name || metadata.name || "";
+      const email = user.email || "";
+      const baseUsername = (metadata.user_name || metadata.preferred_username || (email ? email.split("@")[0] : "elyrauser"))
+        .toLowerCase().replace(/[^a-z0-9_]/g, "").slice(0, 24) || "elyrauser";
+
+      const { data: profile, error: profileError } = await supabaseClient
+        .from("profiles")
+        .select("id, role, full_name, username")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      if (profileError) console.error("Profile lookup error:", profileError);
+
+      if (!profile) {
+        let username = baseUsername;
+        const { data: sameUsername } = await supabaseClient
+          .from("profiles")
+          .select("id")
+          .eq("username", username)
+          .maybeSingle();
+
+        if (sameUsername && sameUsername.id !== user.id) {
+          username = baseUsername + "_" + user.id.replace(/-/g, "").slice(0, 6);
+        }
+
+        const { error: insertError } = await supabaseClient.from("profiles").insert({
+          id: user.id,
+          full_name: fullName,
+          username: username,
+          city: metadata.city || "",
+          role: "customer"
+        });
+
+        if (insertError) console.error("Profile creation error:", insertError);
+      }
+
+      const redirectPage = sessionStorage.getItem("elyra_google_redirect") || "index.html";
+      sessionStorage.removeItem("elyra_google_redirect");
+      statusEl.textContent = "Login successful! Redirecting...";
+      setTimeout(() => { window.location.href = redirectPage; }, 500);
+    } catch (error) {
+      console.error("Google callback error:", error);
+      statusEl.textContent = error?.message || "Google login failed. Please try again.";
+      setTimeout(() => { window.location.href = "login.html"; }, 2200);
+    }
+  }
+
+  finishLogin();
+</script>
+</body>
+</html>
