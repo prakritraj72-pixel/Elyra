@@ -1,11 +1,26 @@
 -- ELYRA — FREE / MANUAL IDENTITY VERIFICATION
 -- Phase 1: no paid KYC provider required.
--- Users upload a government-ID image and a live selfie.
+-- Users upload a government-ID image and a selfie.
 -- An authorized Elyra admin manually reviews both and marks the record verified/rejected.
 -- IMPORTANT: This is NOT automated KYC, biometric liveness, or government verification.
 -- Do not describe a manually reviewed upload as provider/KYC verified.
 -- Keep the bucket private and delete documents when no longer needed.
 
+-- 1) Identity status columns for creator profiles.
+alter table public.creator_profiles
+  add column if not exists identity_status text default 'unverified',
+  add column if not exists identity_provider text,
+  add column if not exists identity_reference text,
+  add column if not exists identity_verified_at timestamptz,
+  add column if not exists identity_rejection_reason text;
+
+-- Keep creator identity states controlled.
+drop constraint if exists creator_profiles_identity_status_check on public.creator_profiles;
+alter table public.creator_profiles
+  add constraint creator_profiles_identity_status_check
+  check (identity_status in ('unverified','pending','verified','rejected'));
+
+-- 2) Identity verification records.
 create table if not exists public.identity_verifications (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null unique references auth.users(id) on delete cascade,
@@ -29,12 +44,12 @@ create table if not exists public.identity_verifications (
 alter table public.identity_verifications enable row level security;
 revoke all on public.identity_verifications from anon, authenticated;
 
--- Private storage bucket. Never make this bucket public.
+-- 3) Private storage bucket.
 insert into storage.buckets (id, name, public)
 values ('identity-documents', 'identity-documents', false)
 on conflict (id) do update set public=false;
 
--- Users can upload/read/delete only files inside their own UUID folder.
+-- Users may upload/delete only inside their own UUID folder.
 drop policy if exists "Identity users upload own files" on storage.objects;
 create policy "Identity users upload own files"
 on storage.objects for insert to authenticated
@@ -59,7 +74,7 @@ using (
   and (storage.foldername(name))[1] = auth.uid()::text
 );
 
--- Admin can review private identity files. This is the only admin storage read path.
+-- Only the Elyra admin can read submitted identity files for manual review.
 drop policy if exists "Identity admin read files" on storage.objects;
 create policy "Identity admin read files"
 on storage.objects for select to authenticated
@@ -68,9 +83,7 @@ using (
   and auth.uid() = '2b6e3748-1702-4cdc-b38d-b826577af65a'::uuid
 );
 
--- Logged-in user can create/update their own verification record only through RPC.
--- Direct table access remains blocked.
-
+-- 4) User submission RPC.
 drop function if exists public.start_manual_identity_verification(text,text,text,text);
 create or replace function public.start_manual_identity_verification(
   p_role text,
@@ -101,22 +114,35 @@ begin
 
   insert into public.identity_verifications(
     user_id,role,status,provider,provider_reference,document_type,
-    id_document_path,selfie_path,updated_at,verified_at,rejection_reason
+    id_document_path,selfie_path,updated_at,verified_at,rejection_reason,
+    name_match,face_match,liveness_passed
   ) values (
     v_user,p_role,'pending','manual_admin',null,p_document_type,
-    p_id_document_path,p_selfie_path,now(),null,null
+    p_id_document_path,p_selfie_path,now(),null,null,null,null,null
   )
   on conflict(user_id) do update set
-    role=excluded.role,status='pending',provider='manual_admin',
-    document_type=excluded.document_type,id_document_path=excluded.id_document_path,
-    selfie_path=excluded.selfie_path,updated_at=now(),verified_at=null,
-    rejection_reason=null,name_match=null,face_match=null,liveness_passed=null;
+    role=excluded.role,
+    status='pending',
+    provider='manual_admin',
+    provider_reference=null,
+    document_type=excluded.document_type,
+    id_document_path=excluded.id_document_path,
+    selfie_path=excluded.selfie_path,
+    updated_at=now(),
+    verified_at=null,
+    rejection_reason=null,
+    name_match=null,
+    face_match=null,
+    liveness_passed=null;
 
   if p_role='creator' then
     update public.creator_profiles
-    set identity_status='pending', identity_provider='manual_admin',
-        identity_reference=null, identity_verified_at=null,
-        identity_rejection_reason=null, updated_at=now()
+    set identity_status='pending',
+        identity_provider='manual_admin',
+        identity_reference=null,
+        identity_verified_at=null,
+        identity_rejection_reason=null,
+        updated_at=now()
     where user_id=v_user;
   end if;
 
@@ -126,19 +152,22 @@ $$;
 revoke execute on function public.start_manual_identity_verification(text,text,text,text) from public, anon;
 grant execute on function public.start_manual_identity_verification(text,text,text,text) to authenticated;
 
--- Safe status for the logged-in user.
+-- 5) Logged-in user's safe verification status.
 drop function if exists public.my_identity_status();
 create or replace function public.my_identity_status()
 returns table(status text, role text, provider text, verified_at timestamptz, rejection_reason text)
-language sql security definer set search_path=public,auth
+language sql
+security definer
+set search_path=public,auth
 as $$
   select status,role,provider,verified_at,rejection_reason
-  from public.identity_verifications where user_id=auth.uid();
+  from public.identity_verifications
+  where user_id=auth.uid();
 $$;
 revoke execute on function public.my_identity_status() from public, anon;
 grant execute on function public.my_identity_status() to authenticated;
 
--- Admin review queue.
+-- 6) Admin review queue.
 drop function if exists public.admin_list_identity_verifications();
 create or replace function public.admin_list_identity_verifications()
 returns table(
@@ -146,7 +175,9 @@ returns table(
   id_document_path text,selfie_path text,created_at timestamptz,
   updated_at timestamptz,rejection_reason text,user_email text
 )
-language plpgsql security definer set search_path=public,auth
+language plpgsql
+security definer
+set search_path=public,auth
 as $$
 begin
   if auth.uid() <> '2b6e3748-1702-4cdc-b38d-b826577af65a'::uuid then
@@ -164,7 +195,7 @@ $$;
 revoke execute on function public.admin_list_identity_verifications() from public, anon;
 grant execute on function public.admin_list_identity_verifications() to authenticated;
 
--- Only the hard-coded admin can approve/reject. Verification requires BOTH files.
+-- 7) Admin approve/reject.
 drop function if exists public.admin_review_identity_verification(uuid,text,text);
 create or replace function public.admin_review_identity_verification(
   p_id uuid,
@@ -172,7 +203,9 @@ create or replace function public.admin_review_identity_verification(
   p_rejection_reason text default null
 )
 returns jsonb
-language plpgsql security definer set search_path=public,auth
+language plpgsql
+security definer
+set search_path=public,auth
 as $$
 declare
   v identity_verifications%rowtype;
@@ -196,9 +229,10 @@ begin
   update public.identity_verifications
   set status=p_status,
       provider='manual_admin',
-      name_match=case when p_status='verified' then true else null end,
-      face_match=case when p_status='verified' then true else null end,
-      liveness_passed=case when p_status='verified' then null else null end,
+      provider_reference=null,
+      name_match=null,
+      face_match=null,
+      liveness_passed=null,
       verified_at=case when p_status='verified' then now() else null end,
       rejection_reason=nullif(trim(coalesce(p_rejection_reason,'')),''),
       updated_at=now()
@@ -222,34 +256,61 @@ begin
   return jsonb_build_object('success',true,'status',p_status);
 end;
 $$;
-revoke all on function public.admin_review_identity_verification(uuid,text,text) from public, anon;
+revoke execute on function public.admin_review_identity_verification(uuid,text,text) from public, anon;
 grant execute on function public.admin_review_identity_verification(uuid,text,text) to authenticated;
 
--- Booking gate: active subscription + verified customer + verified creator.
+-- 8) Booking gate: active subscription + verified customer + verified creator.
 drop function if exists public.can_user_book(uuid);
 create or replace function public.can_user_book(p_creator_user_id uuid)
-returns jsonb language plpgsql security definer set search_path=public,auth
+returns jsonb
+language plpgsql
+security definer
+set search_path=public,auth
 as $$
 declare
   v_customer_verified boolean;
   v_creator_verified boolean;
   v_subscription boolean;
 begin
-  select exists(select 1 from public.identity_verifications where user_id=auth.uid() and role='customer' and status='verified') into v_customer_verified;
-  select exists(select 1 from public.identity_verifications where user_id=p_creator_user_id and role='creator' and status='verified') into v_creator_verified;
-  select exists(select 1 from public.subscriptions where user_id=auth.uid() and status='active' and (expires_at is null or expires_at>now())) into v_subscription;
-  return jsonb_build_object('allowed',v_customer_verified and v_creator_verified and v_subscription,'customer_verified',v_customer_verified,'creator_verified',v_creator_verified,'active_subscription',v_subscription);
+  select exists(
+    select 1 from public.identity_verifications
+    where user_id=auth.uid() and role='customer' and status='verified'
+  ) into v_customer_verified;
+
+  select exists(
+    select 1 from public.identity_verifications
+    where user_id=p_creator_user_id and role='creator' and status='verified'
+  ) into v_creator_verified;
+
+  select exists(
+    select 1 from public.subscriptions
+    where user_id=auth.uid() and status='active'
+      and (expires_at is null or expires_at>now())
+  ) into v_subscription;
+
+  return jsonb_build_object(
+    'allowed',v_customer_verified and v_creator_verified and v_subscription,
+    'customer_verified',v_customer_verified,
+    'creator_verified',v_creator_verified,
+    'active_subscription',v_subscription
+  );
 end;
 $$;
 revoke execute on function public.can_user_book(uuid) from public, anon;
 grant execute on function public.can_user_book(uuid) to authenticated;
 
--- Enforce the gate at the database policy, not only in the browser.
+-- 9) Enforce the booking gate in the database, not only in browser JavaScript.
 drop policy if exists "Users can create bookings" on public.bookings;
 drop policy if exists "Customers can create bookings" on public.bookings;
 create policy "Customers can create bookings"
-on public.bookings for insert to authenticated
+on public.bookings
+for insert
+to authenticated
 with check (
   customer_id=auth.uid()
   and (public.can_user_book(creator_id)->>'allowed')::boolean = true
 );
+
+-- IMPORTANT:
+-- This manual system is not automated KYC/liveness/biometric verification.
+-- Admin approval means the admin reviewed the submitted files; it must not be marketed as Aadhaar/KYC/provider verified.
