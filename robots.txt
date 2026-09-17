@@ -1,0 +1,16 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /admin-subscriptions.html
+Disallow: /admin-creator-payments.html
+Disallow: /admin-identity-verifications.html
+Disallow: /admin-control-center.html
+Disallow: /creator-dashboard.html
+Disallow: /creator-bookings.html
+Disallow: /identity-verification.html
+Disallow: /subscription.html
+Disallow: /subscribe.html
+Disallow: /booking.html
+Disallow: /login.html
+Disallow: /signup.html
+Sitemap: https://elyrapatner.site/sitemap.xml
