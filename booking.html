@@ -26,7 +26,7 @@ button.primary{width:100%;height:55px;border:0;border-radius:13px;background:lin
 <body>
 <header><div class="logo">ELY<span>R</span>A</div><a href="creators.html" class="back" id="backBtn">← Back</a></header>
 <main>
-<div class="heading"><h1>Book your <span>time</span></h1><p>Choose your date, time, duration and meeting location. Your request will be checked against your active subscription and the creator's current profile.</p></div>
+<div class="heading"><h1>Book your <span>time</span></h1><p>Choose your date, time, duration and meeting location. Your request will be checked against your active subscription, identity verification and the creator's current profile.</p></div>
 <div id="warning" class="warning"></div><div id="success" class="success"></div>
 <div id="loading" class="loading">Loading creator...</div>
 <div id="content" class="hidden">
@@ -51,7 +51,7 @@ const SUPABASE_URL="https://frvvacirnfvlxifvopcm.supabase.co";
 const SUPABASE_ANON_KEY="sb_publishable_l7fygMVXGAkbskkiBom8uw_-86tU6L0";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const creatorId=new URLSearchParams(location.search).get("creator");
-let currentUser=null;let creator=null;const $=id=>document.getElementById(id);
+let currentUser=null;let creator=null;let identityVerified=false;const $=id=>document.getElementById(id);
 function money(v){return "₹"+Number(v||0).toLocaleString("en-IN")}
 function warn(t){$("warning").textContent=t;$("warning").classList.add("show");$("success").classList.remove("show")}
 function success(t){$("success").textContent=t;$("success").classList.add("show");$("warning").classList.remove("show")}
@@ -60,6 +60,7 @@ function todayString(){const d=new Date();return `${d.getFullYear()}-${String(d.
 function normalizePhone(value){let v=String(value||"").replace(/\D/g,"");if(v.startsWith("91")&&v.length===12)v=v.slice(2);return v}
 function updateSummary(){if(!creator)return;const h=Number($("hours").value||1);$("summaryRate").textContent=money(creator.hourly_rate);$("summaryHours").textContent=h===1?"1 hour":`${h} hours`;$("totalAmount").textContent=money(Number(creator.hourly_rate)*h)}
 function endTime(start,hours){const [hh,mm]=start.split(":").map(Number);const total=hh*60+mm+hours*60;const end=total%(24*60);return `${String(Math.floor(end/60)).padStart(2,"0")}:${String(end%60).padStart(2,"0")}:00`}
+function verificationRedirect(){return `identity-verification.html?redirect=${encodeURIComponent(`booking.html?creator=${creatorId}`)}`}
 async function loadPage(){
 if(!creatorId){$("loading").innerHTML='<div class="error">Creator information is missing.</div>';return}
 const {data:{session}}=await supabaseClient.auth.getSession();
@@ -68,6 +69,10 @@ currentUser=session.user;
 const {data:sub,error:subErr}=await supabaseClient.from("subscriptions").select("id,status,expires_at").eq("user_id",currentUser.id).eq("status","active").order("created_at",{ascending:false}).limit(1).maybeSingle();
 if(subErr){console.error(subErr);warn("Unable to verify your subscription. Please try again.");$("loading").classList.add("hidden");return}
 if(!sub||(sub.expires_at&&new Date(sub.expires_at)<=new Date())){warn("An active Elyra subscription is required before booking.");$("loading").classList.add("hidden");setTimeout(()=>location.href="subscription.html",1200);return}
+const {data:identity,error:identityErr}=await supabaseClient.from("identity_verifications").select("id,verification_status,identity_verified,age_verified,verified_at").eq("user_id",currentUser.id).order("created_at",{ascending:false}).limit(1).maybeSingle();
+if(identityErr){console.error(identityErr);warn("Unable to verify your identity status. Please try again.");$("loading").classList.add("hidden");return}
+identityVerified=!!identity&&identity.verification_status==="verified"&&identity.identity_verified===true&&identity.age_verified===true;
+if(!identityVerified){$("loading").classList.add("hidden");warn(identity?.verification_status==="pending"?"Your identity verification is still under review. Booking will be available after it is approved.":"Identity verification is required before you can book. Please submit your ID and selfie for verification.");setTimeout(()=>location.href=verificationRedirect(),1400);return}
 const {data,error}=await supabaseClient.from("public_creator_profiles").select("id,user_id,display_name,age,city,area,hourly_rate,availability,bio,photo_url").eq("id",creatorId).maybeSingle();
 if(error||!data){console.error(error);$("loading").innerHTML='<div class="error">This creator is currently unavailable.</div>';return}
 creator=data;
@@ -83,7 +88,7 @@ if(authPhone){$("customerPhone").value=authPhone.replace(/^\+91/,'').replace(/\D
 updateSummary();$("loading").classList.add("hidden");$("content").classList.remove("hidden")}
 $("hours").addEventListener("change",updateSummary);$("hours").addEventListener("input",updateSummary);
 $("bookBtn").addEventListener("click",async()=>{
-hideMessages();if(!currentUser||!creator)return;
+hideMessages();if(!currentUser||!creator||!identityVerified)return;
 const date=$("date").value;const time=$("time").value;const hours=Number($("hours").value||0);const customerPhone=normalizePhone($("customerPhone").value);const meetingAddress=$("meetingAddress").value.trim();const notes=$("notes").value.trim();
 if(!date||!time){warn("Please select a date and time.");return}
 if(date<todayString()){warn("Please choose today or a future date.");return}
