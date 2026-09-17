@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Elyra Admin Control Center</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#080708;color:#f7f4f7;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif} .wrap{max-width:900px;margin:auto;padding:28px 18px 60px}.top{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:28px}.brand{font-size:28px;font-weight:800;letter-spacing:.08em}.brand span{color:#ff3f8f}.tag{font-size:12px;color:#aaa;background:#151217;border:1px solid #29222b;padding:8px 11px;border-radius:999px}.hero{background:linear-gradient(145deg,#171018,#0d0b0f);border:1px solid #302531;border-radius:24px;padding:25px;margin-bottom:18px}.hero h1{margin:0 0 9px;font-size:26px}.hero p{margin:0;color:#aaa;line-height:1.6}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{background:#100d11;border:1px solid #28202a;border-radius:18px;padding:19px}.card h2{font-size:17px;margin:0 0 7px}.card p{font-size:13px;color:#999;line-height:1.55;min-height:42px}.btn{display:block;text-decoration:none;text-align:center;background:#ff3f8f;color:#fff;font-weight:700;padding:12px 14px;border-radius:12px;margin-top:13px}.btn.alt{background:#1b161d;border:1px solid #382d39}.status{margin-top:18px;padding:16px;border-radius:16px;background:#0e0c10;border:1px solid #28202a}.status b{color:#ff3f8f}.small{font-size:12px;color:#777;line-height:1.55}.danger{border-color:#4a2637}.danger .btn{background:#24151d}.footer{margin-top:22px;text-align:center;color:#666;font-size:12px}@media(max-width:650px){.grid{grid-template-columns:1fr}.top{align-items:flex-start}.brand{font-size:24px}.hero h1{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><div class="brand">ELY<span>RA</span></div><div class="tag">ADMIN CONTROL CENTER</div></div>
+  <section class="hero">
+    <h1>Everything in one place</h1>
+    <p>Yahan se Elyra ke verification, subscriptions, creator payments aur database setup ke admin tools ek hi jagah milenge. Kisi public user ko ye page share mat karna.</p>
+  </section>
+
+  <div class="grid">
+    <div class="card">
+      <h2>🪪 Identity Verification</h2>
+      <p>Customer/creator ki ID + selfie requests dekho, documents review karo aur approve/reject karo.</p>
+      <a class="btn" href="admin-identity-verifications.html">Open Identity Review</a>
+    </div>
+    <div class="card">
+      <h2>💳 User Subscriptions</h2>
+      <p>₹199 monthly / ₹699 yearly UPI payment requests verify karo aur subscriptions manage karo.</p>
+      <a class="btn" href="admin-subscriptions.html">Open Subscriptions</a>
+    </div>
+    <div class="card">
+      <h2>👤 Creator Activation</h2>
+      <p>₹20 creator activation payment ke pending requests ko verify karke approve/reject karo.</p>
+      <a class="btn" href="admin-creator-payments.html">Open Creator Payments</a>
+    </div>
+    <div class="card">
+      <h2>🏋️ Creator / Booking Admin</h2>
+      <p>Creator profiles aur incoming booking-management pages ko quickly access karo.</p>
+      <a class="btn alt" href="creator-bookings.html">Open Creator Bookings</a>
+    </div>
+    <div class="card">
+      <h2>🗄️ Supabase Dashboard</h2>
+      <p>Database, Authentication, Storage, SQL Editor aur project settings yahan se open karo.</p>
+      <a class="btn alt" target="_blank" rel="noopener" href="https://supabase.com/dashboard/project/frvvacirnfvlxifvopcm">Open Supabase</a>
+    </div>
+    <div class="card">
+      <h2>💻 GitHub Repository</h2>
+      <p>Website files, SQL setup files aur commit history ko ek click mein open karo.</p>
+      <a class="btn alt" target="_blank" rel="noopener" href="https://github.com/prakritraj72-pixel/Elyra">Open GitHub</a>
+    </div>
+  </div>
+
+  <div class="status">
+    <b>Important:</b> Admin approval se pehle ID/selfie ko manually check karo. Elyra ka current verification flow manual review hai; ye automated government KYC, liveness detection ya guaranteed face-match service nahi hai.
+    <div class="small" style="margin-top:8px">Security: admin pages ko sirf apne admin account se use karo. Kisi user ko admin URL ya admin credentials mat do.</div>
+  </div>
+  <div class="footer">Elyra Admin • One control center</div>
+</div>
+</body>
+</html>
