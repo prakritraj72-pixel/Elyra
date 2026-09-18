@@ -25,7 +25,7 @@ async function loadCreators(){
   showLoading();
   try{
     const [{data,error},{data:activityData,error:activityError}]=await Promise.all([
-      supabaseClient.from("public_creator_profiles").select("id,user_id,creator_username,display_name,age,gender,photo_url,city,area,bio,hourly_rate,availability,created_at,is_verified").order("created_at",{ascending:false}),
+      supabaseClient.from("public_creator_profiles").select("id,user_id,creator_username,display_name,age,gender,photo_url,city,area,bio,hourly_rate,availability,created_at,is_verified,creator_activities").order("created_at",{ascending:false}),
       supabaseClient.from("activities").select("id,name,slug,icon").eq("is_active",true).order("sort_order",{ascending:true})
     ]);
     if(error)throw error;if(activityError)throw activityError;
