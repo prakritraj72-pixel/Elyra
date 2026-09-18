@@ -299,7 +299,7 @@
         padding: 20px 12px 40px;
       }
     }
-  </style>
+  .activity-help{color:var(--muted);font-size:12px;line-height:1.55;margin:-4px 0 14px}.activity-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.activity-option{position:relative}.activity-option input{position:absolute;opacity:0;pointer-events:none}.activity-option label{display:flex;align-items:center;gap:8px;border:1px solid var(--border);background:var(--card2);padding:11px 12px;border-radius:10px;cursor:pointer;color:#bbb;margin:0;font-size:12px}.activity-option input:checked+label{border-color:var(--pink);background:rgba(255,63,143,.08);color:#fff}.activity-icon{font-size:17px}@media(max-width:600px){.activity-grid{grid-template-columns:1fr}}</style>
 </head>
 
 <body>
@@ -546,7 +546,7 @@
 
         </div>
 
-        <div class="section-title">Availability & Pricing</div>
+        <div class="section-title">Partner Categories</div><div class="activity-help">Choose the experiences you genuinely offer. Customers will only see your profile when they select one of these categories.</div><div id="activityGrid" class="activity-grid"><div class="activity-help">Loading categories...</div></div><div class="section-title">Availability & Pricing</div>
 
         <div class="grid">
 
@@ -659,6 +659,9 @@
 
     let currentUser = null;
     let selectedPhoto = null;
+
+    function escapeHTML(value){return String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
+    async function loadActivityOptions(){const grid=document.getElementById("activityGrid");try{const{data,error}=await supabaseClient.from("activities").select("id,name,slug,icon,description").eq("is_active",true).order("sort_order",{ascending:true});if(error)throw error;grid.innerHTML=(data||[]).map(a=>'<div class="activity-option"><input type="checkbox" id="activity-'+a.id+'" name="activities" value="'+escapeHTML(a.slug)+'"><label for="activity-'+a.id+'"><span class="activity-icon">'+escapeHTML(a.icon||"🤝")+'</span>'+escapeHTML(a.name)+'</label></div>').join("");}catch(e){console.error("Activity loading error:",e);grid.innerHTML='<div class="activity-help">Categories could not be loaded. Please refresh and try again.</div>';}}
 
 
     // =====================================================
@@ -1052,6 +1055,16 @@
 
         }
 
+        const selectedActivitySlugs = Array.from(document.querySelectorAll('input[name="activities"]:checked')).map(el => el.value);
+
+        if (!selectedActivitySlugs.length) {
+
+          showMessage("Please select at least one partner category.");
+
+          return;
+
+        }
+
 
         if (!termsAccepted) {
 
@@ -1228,6 +1241,34 @@
 
           }
 
+          // =================================================
+          // 4. Save creator partner categories
+          // =================================================
+
+          const { data: createdProfile, error: createdProfileError } = await supabaseClient.from("creator_profiles").select("id").eq("user_id", currentUser.id).maybeSingle();
+
+          if (createdProfileError || !createdProfile) {
+            throw new Error("Creator profile was created, but its partner categories could not be linked.");
+          }
+
+          const { data: categoryRows, error: categoryError } = await supabaseClient.from("activities").select("id,slug").in("slug", selectedActivitySlugs);
+
+          if (categoryError) {
+            throw new Error("Could not load selected partner categories.");
+          }
+
+          const mappings = (categoryRows || []).map(row => ({ creator_profile_id: createdProfile.id, activity_id: row.id }));
+
+          if (!mappings.length) {
+            throw new Error("Selected partner categories were not found.");
+          }
+
+          const { error: mappingError } = await supabaseClient.from("creator_activities").insert(mappings);
+
+          if (mappingError) {
+            throw new Error("Creator profile was created, but categories could not be saved: " + mappingError.message);
+          }
+
 
           // =================================================
           // 4. Success
@@ -1283,6 +1324,7 @@
     // START
     // =====================================================
 
+    loadActivityOptions();
     initializePage();
 
   </script>
