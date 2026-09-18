@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>ELYRA Admin Login</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 20% 0%,rgba(200,90,131,.18),transparent 35%),#070609;color:#fff;font-family:Arial,sans-serif}.card{width:min(430px,100%);background:#110e13;border:1px solid #302632;border-radius:22px;padding:30px;box-shadow:0 25px 70px #000}.logo{text-align:center;font-size:27px;font-weight:900;letter-spacing:5px;margin-bottom:8px}.logo span{color:#c85a83}.eyebrow{text-align:center;color:#e28aaa;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:25px}.notice{padding:11px 12px;border:1px solid #40313f;background:#0c0a0e;border-radius:10px;color:#aaa;font-size:11px;line-height:1.5;margin-bottom:20px}label{display:block;color:#ccc;font-size:12px;margin:0 0 7px}input{width:100%;padding:13px;border-radius:10px;border:1px solid #3a303e;background:#0b090d;color:#fff;outline:none;margin-bottom:16px}input:focus{border-color:#8e3b60}button{width:100%;padding:14px;border:0;border-radius:11px;background:linear-gradient(135deg,#8e234d,#4e1e62);color:#fff;font-weight:700;cursor:pointer}button:disabled{opacity:.6}.msg{display:none;margin-top:14px;padding:11px;border-radius:10px;font-size:12px;line-height:1.5}.error{display:block;background:#35131d;border:1px solid #682638;color:#ff9cac}.back{display:block;text-align:center;color:#777;text-decoration:none;font-size:12px;margin-top:18px}
+</style>
+</head>
+<body>
+<div class="card">
+<div class="logo">ELY<span>RA</span></div>
+<div class="eyebrow">Private administrator access</div>
+<div class="notice">This area is restricted to the authorized Elyra administrator. Your normal Elyra account cannot access the admin dashboard.</div>
+<form id="form">
+<label for="adminId">Admin ID</label>
+<input id="adminId" autocomplete="username" placeholder="Enter admin ID" required>
+<label for="password">Password</label>
+<input id="password" type="password" autocomplete="current-password" placeholder="Enter admin password" required>
+<button id="btn" type="submit">Enter Admin Panel</button>
+<div id="msg" class="msg"></div>
+</form>
+<a class="back" href="index.html">← Back to Elyra</a>
+</div>
+<script>
+const SUPABASE_URL="https://frvvacirnfvlxifvopcm.supabase.co";
+const SUPABASE_KEY="sb_publishable_l7fygMVXGAkbskkiBom8uw_-86tU6L0";
+const ADMIN_USER_ID="2b6e3748-1702-4cdc-b38d-b826577af65a";
+const ADMIN_LOGIN_ID="ELYRAADMIN";
+const ADMIN_AUTH_EMAIL="prakritraj72@gmail.com";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const form=document.getElementById("form"),btn=document.getElementById("btn"),msg=document.getElementById("msg");
+function show(text){msg.textContent=text;msg.className="msg error";}
+async function checkSession(){
+ const {data:{session}}=await supabaseClient.auth.getSession();
+ if(session?.user?.id===ADMIN_USER_ID){location.href="admin.html";return;}
+}
+form.addEventListener("submit",async e=>{
+ e.preventDefault();
+ const id=document.getElementById("adminId").value.trim();
+ const password=document.getElementById("password").value;
+ if(id.toUpperCase()!==ADMIN_LOGIN_ID){show("Invalid admin ID or password.");return;}
+ btn.disabled=true;btn.textContent="Verifying...";
+ try{
+  const {data,error}=await supabaseClient.auth.signInWithPassword({email:ADMIN_AUTH_EMAIL,password});
+  if(error)throw error;
+  if(data.user?.id!==ADMIN_USER_ID){
+   await supabaseClient.auth.signOut();
+   throw new Error("This account is not authorized for administrator access.");
+  }
+  location.href="admin.html";
+ }catch(err){console.error(err);show("Invalid admin ID or password.");}
+ btn.disabled=false;btn.textContent="Enter Admin Panel";
+});
+checkSession();
+</script>
+</body>
+</html>
