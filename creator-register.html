@@ -300,9 +300,24 @@
       }
     }
   .activity-help{color:var(--muted);font-size:12px;line-height:1.55;margin:-4px 0 14px}.activity-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.activity-option{position:relative}.activity-option input{position:absolute;opacity:0;pointer-events:none}.activity-option label{display:flex;align-items:center;gap:8px;border:1px solid var(--border);background:var(--card2);padding:11px 12px;border-radius:10px;cursor:pointer;color:#bbb;margin:0;font-size:12px}.activity-option input:checked+label{border-color:var(--pink);background:rgba(255,63,143,.08);color:#fff}.activity-icon{font-size:17px}@media(max-width:600px){.activity-grid{grid-template-columns:1fr}}</style>
-</head>
+<style id="elyra-back-style">
+.elyra-back-button{position:fixed;top:16px;left:16px;z-index:99999;width:42px;height:42px;border:1px solid rgba(255,255,255,.12);border-radius:50%;background:rgba(8,7,8,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;display:flex;align-items:center;justify-content:center;font-size:25px;line-height:1;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.28);transition:.2s ease}
+.elyra-back-button:hover{transform:translateX(-2px);border-color:rgba(240,107,170,.55);color:#f06baa}
+.elyra-back-button:active{transform:scale(.94)}
+@media(max-width:600px){.elyra-back-button{top:12px;left:12px;width:40px;height:40px;font-size:23px}}
+</style></head>
 
-<body>
+<body><button class="elyra-back-button" id="elyraBackButton" aria-label="Go back" title="Go back">‹</button>
+<script>
+(function(){
+  const b=document.getElementById("elyraBackButton");
+  if(!b)return;
+  b.addEventListener("click",function(){
+    if(history.length>1) history.back();
+    else window.location.href="/index.html";
+  });
+})();
+</script>
 
   <div class="container">
 
