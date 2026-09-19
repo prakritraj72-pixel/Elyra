@@ -102,12 +102,15 @@ const rate=Number(creator.hourly_rate||0);const total=rate*hours;if(!Number.isFi
 const end=endTime(time,hours);const scheduledAt=new Date(`${date}T${time}:00`).toISOString();
 $("bookBtn").disabled=true;$("bookBtn").textContent="Creating request...";
 try{
+const {data:bookingAccess,error:bookingAccessError}=await supabaseClient.rpc("can_user_book",{p_creator_id:creator.user_id});
+if(bookingAccessError) throw bookingAccessError;
+if(!bookingAccess?.allowed){warn(bookingAccess?.reason||"Booking is not available for this account or creator.");return;}
 const payload={customer_id:currentUser.id,creator_id:creator.user_id,booking_date:date,start_time:`${time}:00`,end_time:end,duration_hours:hours,hours:hours,hourly_rate:rate,amount:total,total_amount:total,first_payment_amount:total,second_payment_amount:0,scheduled_at:scheduledAt,status:"pending",customer_name:currentUser.user_metadata?.full_name||currentUser.user_metadata?.name||null,customer_phone:customerPhone,meeting_address:meetingAddress,notes:notes||null};
 console.log("Booking payload:",payload);
 const {data,error}=await supabaseClient.from("bookings").insert(payload).select("id,status").single();
 if(error)throw error;
 success("✓ Booking request sent. The creator can now review it from their dashboard.");$("bookBtn").textContent="Request Sent";setTimeout(()=>location.href="profile.html",1400);
-}catch(error){console.error("Booking error:",error);if(error.code==="42501"){warn("Booking permission is not enabled for your account yet. Please contact Elyra support.")}else{warn(error.message||"Unable to create booking right now. Please try again.")}$("bookBtn").disabled=false;$("bookBtn").textContent="Request Booking"}
+}catch(error){console.error("Booking error:",error);if(error.code==="42501"){warn("Booking access was rejected by the database. Please refresh and try again.")}else{warn(error.message||"Unable to create booking right now. Please try again.")}$("bookBtn").disabled=false;$("bookBtn").textContent="Request Booking"}
 });
 loadPage();
 </script>
