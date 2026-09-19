@@ -41,7 +41,7 @@ function renderCreators(){
   if(currentGender)filtered=filtered.filter(c=>String(c.gender||"").toLowerCase()===currentGender);
   if(currentActivity)filtered=filtered.filter(c=>Array.isArray(c.creator_activities)&&c.creator_activities.some(x=>x.activities&&x.activities.slug===currentActivity));
   if(search)filtered=filtered.filter(c=>[c.display_name,c.city,c.area].some(v=>String(v||"").toLowerCase().includes(search)));
-  filtered.sort((a,b)=>Number(b.average_rating||0)-Number(a.average_rating||0)||Number(b.rating_count||0)-Number(a.rating_count||0)||String(a.display_name||"").localeCompare(String(b.display_name||"")));
+  filtered.sort((a,b)=>{const ar=Number(a.average_rating||0),br=Number(b.average_rating||0),ac=Number(a.rating_count||0),bc=Number(b.rating_count||0); const aNew=ac===0,bNew=bc===0; if(aNew!==bNew)return aNew?-1:1; if(!aNew && br!==ar)return br-ar; if(!aNew && bc!==ac)return bc-ac; return new Date(b.created_at||0)-new Date(a.created_at||0)||String(a.display_name||"").localeCompare(String(b.display_name||""));});
   const selectedActivity=activities.find(a=>a.slug===currentActivity);
   resultsTitle.textContent=selectedActivity?((selectedActivity.icon||"🤝")+" "+selectedActivity.name):currentGender?(currentGender==="male"?"Available male creators":"Available female creators"):"Top Creators Across India";
   document.title=selectedActivity?"Elyra — "+selectedActivity.name:currentGender?(currentGender==="male"?"Elyra — Male Creators":"Elyra — Female Creators"):"Elyra — Top Creators Across India";
