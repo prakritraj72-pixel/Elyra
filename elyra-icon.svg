@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+<rect width="512" height="512" rx="88" fill="#000"/>
+<g text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-weight="700" font-size="112" letter-spacing="-7">
+<text x="256" y="285" fill="#fff">ELY<tspan fill="#f06baa">RA</tspan></text>
+</g>
+<path d="M391 271c-9 42-38 73-75 73" fill="none" stroke="#f06baa" stroke-width="7" stroke-linecap="round"/>
+</svg>
