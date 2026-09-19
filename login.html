@@ -33,8 +33,23 @@
     .register a { color: #e28aae; text-decoration: none; }
     .back { display: block; text-align: center; margin-top: 18px; color: #777; text-decoration: none; font-size: 13px; }
   </style>
-</head>
-<body>
+<style id="elyra-back-style">
+.elyra-back-button{position:fixed;top:16px;left:16px;z-index:99999;width:42px;height:42px;border:1px solid rgba(255,255,255,.12);border-radius:50%;background:rgba(8,7,8,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;display:flex;align-items:center;justify-content:center;font-size:25px;line-height:1;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.28);transition:.2s ease}
+.elyra-back-button:hover{transform:translateX(-2px);border-color:rgba(240,107,170,.55);color:#f06baa}
+.elyra-back-button:active{transform:scale(.94)}
+@media(max-width:600px){.elyra-back-button{top:12px;left:12px;width:40px;height:40px;font-size:23px}}
+</style></head>
+<body><button class="elyra-back-button" id="elyraBackButton" aria-label="Go back" title="Go back">‹</button>
+<script>
+(function(){
+  const b=document.getElementById("elyraBackButton");
+  if(!b)return;
+  b.addEventListener("click",function(){
+    if(history.length>1) history.back();
+    else window.location.href="/index.html";
+  });
+})();
+</script>
 <div class="container">
   <div class="logo">ELYRA</div>
   <div class="tagline">Meet someone worth knowing.</div>
