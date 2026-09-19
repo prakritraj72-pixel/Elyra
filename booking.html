@@ -22,8 +22,23 @@ main{width:min(700px,92%);margin:42px auto 80px}.heading{margin-bottom:25px}.hea
 button.primary{width:100%;height:55px;border:0;border-radius:13px;background:linear-gradient(135deg,#ff3f8f,#ff5ca0);color:#fff;font-size:16px;font-weight:800;cursor:pointer;margin-top:16px;box-shadow:0 10px 30px rgba(255,63,143,.22)}button.primary:disabled{opacity:.5;cursor:not-allowed}.safety{text-align:center;color:#777;font-size:12px;line-height:1.6;margin-top:22px}.hidden{display:none!important}.loading{text-align:center;color:#888;padding:60px 0}.error{text-align:center;color:#ff9b9b;padding:40px 0}
 @media(max-width:600px){header{padding:0 5%}.logo{font-size:22px}main{width:92%;margin-top:30px}.heading h1{font-size:28px}.card{padding:19px;border-radius:18px}.creator{align-items:flex-start}.creator img,.creator-placeholder{width:68px;height:68px}.creator-info h2{font-size:18px}.rate{display:none}.row{grid-template-columns:1fr;gap:0}}
 </style>
-</head>
-<body>
+<style id="elyra-back-style">
+.elyra-back-button{position:fixed;top:16px;left:16px;z-index:99999;width:42px;height:42px;border:1px solid rgba(255,255,255,.12);border-radius:50%;background:rgba(8,7,8,.86);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);color:#fff;display:flex;align-items:center;justify-content:center;font-size:25px;line-height:1;cursor:pointer;box-shadow:0 6px 24px rgba(0,0,0,.28);transition:.2s ease}
+.elyra-back-button:hover{transform:translateX(-2px);border-color:rgba(240,107,170,.55);color:#f06baa}
+.elyra-back-button:active{transform:scale(.94)}
+@media(max-width:600px){.elyra-back-button{top:12px;left:12px;width:40px;height:40px;font-size:23px}}
+</style></head>
+<body><button class="elyra-back-button" id="elyraBackButton" aria-label="Go back" title="Go back">‹</button>
+<script>
+(function(){
+  const b=document.getElementById("elyraBackButton");
+  if(!b)return;
+  b.addEventListener("click",function(){
+    if(history.length>1) history.back();
+    else window.location.href="/index.html";
+  });
+})();
+</script>
 <header><div class="logo">ELY<span>R</span>A</div><a href="creators.html" class="back" id="backBtn">← Back</a></header>
 <main>
 <div class="heading"><h1>Book your <span>time</span></h1><p>Choose your date, time, duration and meeting location. Your request will be checked against your active subscription, identity verification and the creator's current profile.</p></div>
