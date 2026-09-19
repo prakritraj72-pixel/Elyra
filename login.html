@@ -145,7 +145,8 @@
       }
 
       showMessage("Login successful! Redirecting...", "success");
-      const redirectPage = getRedirectPage();
+      const requestedRedirect = getRedirectPage();
+      const redirectPage = requestedRedirect === "index.html" && profile?.role === "creator" ? "creator-dashboard.html" : requestedRedirect;
       setTimeout(function() { window.location.href = redirectPage; }, 700);
     } catch (error) {
       console.error("Login error:", error);
