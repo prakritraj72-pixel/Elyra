@@ -11,7 +11,7 @@
 <body>
 <header class="nav"><a class="brand" href="index.html">ELY<span>RA</span></a><a class="back" href="profile.html">← My Account</a></header>
 <main class="wrap">
-<section class="hero"><h1>Identity <span>Verification</span></h1><p id="intro">Upload a government-issued ID and a selfie. An Elyra administrator will manually review your submission.</p></section>
+<section class="hero"><h1>Identity <span>Verification</span></h1><p id="intro">Upload a government-issued ID and a selfie. Your documents are used only for identity and age verification and are handled through Elyra’s restricted verification system.</p></section>
 <section class="card">
 <div class="step"><div class="num">1</div><div><h3>Government-issued ID</h3><p>Upload a clear image of an eligible government ID.</p></div></div>
 <div class="step"><div class="num">2</div><div><h3>Selfie</h3><p>Upload a recent clear selfie. This is a manual review and does not provide automated liveness detection.</p></div></div>
@@ -24,7 +24,7 @@
 <div class="preview"><div><img id="idPreview" class="hidden" alt="ID preview"></div><div><img id="selfiePreview" class="hidden" alt="Selfie preview"></div></div>
 <button id="submit" class="primary">Submit for Manual Review</button>
 </div>
-<div class="note"><b>Privacy:</b> Files are stored in a private Supabase bucket. This is manual identity verification, not automated government KYC, biometric face matching or liveness verification. Do not send passwords, OTPs or payment PINs to support.</div>
+<div class="note"><b>Privacy & retention:</b> Your government ID and selfie are collected only for Elyra identity and age verification. Verification files are stored in a private, access-controlled system and are <strong>automatically deleted from Elyra after 30 days from submission</strong>. The verification record is also automatically removed after the retention period. This process is designed to minimize how long sensitive documents are retained. This is manual identity verification, not automated government KYC, biometric face matching or liveness verification. Do not send passwords, OTPs or payment PINs to support.</div>
 </section></main>
 <script>
 const SUPABASE_URL='https://frvvacirnfvlxifvopcm.supabase.co';
