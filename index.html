@@ -46,7 +46,7 @@
 <a href="index.html" class="logo">ELY<span>RA</span></a>
 <nav class="nav-links">
 <a href="#book" class="nav-main-link">Book</a>
-<a href="creator-dashboard.html" class="nav-pill nav-creator">Creator Dashboard</a>
+<a href="profile.html" class="nav-pill booking-link">My Bookings</a><a href="creator-dashboard.html" class="nav-pill nav-creator">Creator Dashboard</a>
 <a href="creator-register.html" class="nav-pill nav-become">Become a Creator</a>
 <a href="#plans" class="nav-main-link">Plans</a>
 <a href="#safety" class="nav-main-link">Safety</a>
@@ -57,7 +57,7 @@
 <div class="mobile-menu" id="mobileMenu">
 <div class="mobile-menu-inner">
 <a href="#book">Book</a>
-<a href="creator-dashboard.html">Creator Dashboard</a>
+<a href="profile.html">My Bookings</a><a href="creator-dashboard.html">Creator Dashboard</a>
 <a href="creator-register.html">Become a Creator</a>
 <a href="#plans">Plans</a>
 <a href="#safety">Safety</a>
@@ -91,8 +91,8 @@
       return;
     }
     const username=session.user.user_metadata?.username||session.user.user_metadata?.full_name||session.user.email?.split("@")[0]||"Account";
-    authArea.innerHTML=`<a href="profile.html" class="nav-pill booking-link">My Bookings</a><a href="subscription-status.html" class="nav-pill nav-subscription">My Subscription</a><a href="profile.html" class="nav-user">${escapeHTML(username)}</a><button class="nav-logout" id="logoutBtn">Log out</button>`;
-    mobileAuthArea.innerHTML=`<a href="profile.html" class="mobile-subscription">My Bookings</a><a href="subscription-status.html" class="mobile-subscription">My Subscription</a><a href="profile.html">Profile · ${escapeHTML(username)}</a><button type="button" id="mobileLogoutBtn">Log out</button>`;
+    authArea.innerHTML=`<a href="subscription-status.html" class="nav-pill nav-subscription">My Subscription</a><a href="profile.html" class="nav-user">${escapeHTML(username)}</a><button class="nav-logout" id="logoutBtn">Log out</button>`;
+    mobileAuthArea.innerHTML=`<a href="subscription-status.html" class="mobile-subscription">My Subscription</a><a href="profile.html">Profile · ${escapeHTML(username)}</a><button type="button" id="mobileLogoutBtn">Log out</button>`;
     document.getElementById("logoutBtn").onclick=async()=>{await supabaseClient.auth.signOut();location.href="index.html"};
     document.getElementById("mobileLogoutBtn").onclick=async()=>{await supabaseClient.auth.signOut();location.href="index.html"};
   }catch(e){console.error(e)}
