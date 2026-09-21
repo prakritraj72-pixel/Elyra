@@ -6,7 +6,7 @@
 <title>ELYRA Admin Login</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0}body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 20% 0%,rgba(200,90,131,.18),transparent 35%),#070609;color:#fff;font-family:Arial,sans-serif}.card{width:min(430px,100%);background:#110e13;border:1px solid #302632;border-radius:22px;padding:30px;box-shadow:0 25px 70px #000}.logo{text-align:center;font-size:27px;font-weight:900;letter-spacing:5px;margin-bottom:8px}.logo span{color:#c85a83}.eyebrow{text-align:center;color:#e28aaa;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:25px}.notice{padding:11px 12px;border:1px solid #40313f;background:#0c0a0e;border-radius:10px;color:#aaa;font-size:11px;line-height:1.5;margin-bottom:20px}label{display:block;color:#ccc;font-size:12px;margin:0 0 7px}input{width:100%;padding:13px;border-radius:10px;border:1px solid #3a303e;background:#0b090d;color:#fff;outline:none;margin-bottom:16px}input:focus{border-color:#8e3b60}button{width:100%;padding:14px;border:0;border-radius:11px;background:linear-gradient(135deg,#8e234d,#4e1e62);color:#fff;font-weight:700;cursor:pointer}button:disabled{opacity:.6}.msg{display:none;margin-top:14px;padding:11px;border-radius:10px;font-size:12px;line-height:1.5}.error{display:block;background:#35131d;border:1px solid #682638;color:#ff9cac}.back{display:block;text-align:center;color:#777;text-decoration:none;font-size:12px;margin-top:18px}
+*{box-sizing:border-box;margin:0;padding:0}body{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:radial-gradient(circle at 20% 0%,rgba(200,90,131,.18),transparent 35%),#070609;color:#fff;font-family:Arial,sans-serif}.card{width:min(430px,100%);background:#110e13;border:1px solid #302632;border-radius:22px;padding:30px;box-shadow:0 25px 70px #000}.logo{text-align:center;font-size:27px;font-weight:900;letter-spacing:5px;margin-bottom:8px}.logo span{color:#c85a83}.eyebrow{text-align:center;color:#e28aaa;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:25px}.notice{padding:11px 12px;border:1px solid #40313f;background:#0c0a0e;border-radius:10px;color:#aaa;font-size:11px;line-height:1.5;margin-bottom:20px}label{display:block;color:#ccc;font-size:12px;margin:0 0 7px}input{width:100%;padding:13px;border-radius:10px;border:1px solid #3a303e;background:#0b090d;color:#fff;outline:none;margin-bottom:16px}input:focus{border-color:#8e3b60}button{width:100%;padding:14px;border:0;border-radius:11px;background:linear-gradient(135deg,#8e234d,#4e1e62);color:#fff;font-weight:700;cursor:pointer}button:disabled{opacity:.6}.divider{display:flex;align-items:center;gap:10px;color:#625a64;font-size:10px;margin:15px 0}.divider:before,.divider:after{content:"";height:1px;background:#29212c;flex:1}.google{background:#fff;color:#17131a;border:1px solid #ddd}.google:hover{background:#f3f3f3}.google-note{text-align:center;color:#6f6771;font-size:10px;line-height:1.5;margin-top:8px}.msg{display:none;margin-top:14px;padding:11px;border-radius:10px;font-size:12px;line-height:1.5}.error{display:block;background:#35131d;border:1px solid #682638;color:#ff9cac}.back{display:block;text-align:center;color:#777;text-decoration:none;font-size:12px;margin-top:18px}
 </style>
 </head>
 <body>
@@ -20,6 +20,9 @@
 <label for="password">Password</label>
 <input id="password" type="password" autocomplete="current-password" placeholder="Enter admin password" required>
 <button id="btn" type="submit">Enter Admin Panel</button>
+<div class="divider"><span>OR</span></div>
+<button id="googleBtn" class="google" type="button">Continue with Google</button>
+<div class="google-note">Google login is restricted to <b>prakritraj72@gmail.com</b>.</div>
 <div id="msg" class="msg"></div>
 </form>
 <a class="back" href="index.html">← Back to Elyra</a>
@@ -31,12 +34,22 @@ const ADMIN_USER_ID="2b6e3748-1702-4cdc-b38d-b826577af65a";
 const ADMIN_LOGIN_ID="ELYRAADMIN";
 const ADMIN_AUTH_EMAIL="prakritraj72@gmail.com";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-const form=document.getElementById("form"),btn=document.getElementById("btn"),msg=document.getElementById("msg");
+const form=document.getElementById("form"),btn=document.getElementById("btn"),googleBtn=document.getElementById("googleBtn"),msg=document.getElementById("msg");
 function show(text){msg.textContent=text;msg.className="msg error";}
 async function checkSession(){
  const {data:{session}}=await supabaseClient.auth.getSession();
  if(session?.user?.id===ADMIN_USER_ID){location.href="admin.html";return;}
 }
+googleBtn.addEventListener("click",async()=>{
+ googleBtn.disabled=true;googleBtn.textContent="Opening Google…";
+ try{
+  const {error}=await supabaseClient.auth.signInWithOAuth({
+   provider:"google",
+   options:{redirectTo:window.location.origin+"/admin.html",queryParams:{access_type:"offline",prompt:"select_account"}}
+  });
+  if(error)throw error;
+ }catch(err){console.error(err);show("Google sign-in could not start. Make sure Google provider is enabled in Supabase.");googleBtn.disabled=false;googleBtn.textContent="Continue with Google";}
+});
 form.addEventListener("submit",async e=>{
  e.preventDefault();
  const id=document.getElementById("adminId").value.trim();
