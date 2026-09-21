@@ -38,7 +38,7 @@ const form=document.getElementById("form"),btn=document.getElementById("btn"),go
 function show(text){msg.textContent=text;msg.className="msg error";}
 async function checkSession(){
  const {data:{session}}=await supabaseClient.auth.getSession();
- if(session?.user?.id===ADMIN_USER_ID){location.href="admin.html";return;}
+ if(session?.user?.id===ADMIN_USER_ID || String(session?.user?.email||"").toLowerCase()===ADMIN_AUTH_EMAIL.toLowerCase()){location.href="admin.html";return;}
 }
 googleBtn.addEventListener("click",async()=>{
  googleBtn.disabled=true;googleBtn.textContent="Opening Google…";
