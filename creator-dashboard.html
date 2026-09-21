@@ -46,7 +46,7 @@ if(!window.supabase){throw new Error("Supabase client library did not load.");}
 const SUPABASE_URL="https://frvvacirnfvlxifvopcm.supabase.co",KEY="sb_publishable_l7fygMVXGAkbskkiBom8uw_-86tU6L0",sb=window.supabase.createClient(SUPABASE_URL,KEY);let user,cp,bookings=[];
 const $=x=>document.getElementById(x);const esc=x=>String(x??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));const money=x=>"₹"+Number(x||0).toLocaleString("en-IN");
 function toast(x,ok=true){$("toast").textContent=x;$("toast").className="toast "+(ok?"ok":"err");setTimeout(()=>$("toast").classList.add("hidden"),3200)}
-function isVerified(){return cp?.is_verified===true&&cp?.activation_payment_status==="paid"&&cp?.profile_status==="active"}
+function isVerified(){return (cp?.is_verified===true||((cp?._verification_status==="verified")&&cp?._identity_verified===true&&cp?._age_verified===true))&&cp?.activation_payment_status==="paid"&&cp?.profile_status==="active"}
 function renderStatus(){const v=isVerified();$("verifiedBadge").classList.toggle("hidden",!v);$("status").textContent=cp.profile_status==="active"?"Active":(cp.profile_status||"Pending");$("verification").innerHTML=v?"":'<div class="notice warn">Profile status: <b>'+esc(cp.profile_status||"pending")+'</b> · activation: <b>'+esc(cp.activation_payment_status||"pending")+'</b>. Complete the required steps before going live.</div>';$("onboarding-stack")?.classList.toggle("hidden",v)}
 function fill(){ $("name").value=cp.display_name||"";$("username").value=cp.creator_username||"";$("city").value=cp.city||"";$("area").value=cp.area||"";$("rate").value=cp.hourly_rate||"";$("availability").value=cp.availability||"";$("bio").value=cp.bio||"";$("preview").href="creator.html?id="+encodeURIComponent(cp.id);if(cp.photo_url){$("avatar").innerHTML='<img class="avatar" src="'+esc(cp.photo_url)+'" alt="Profile">'}else $("avatar").textContent="♡";const t=cp.username_changed_at?Math.max(0,30-Math.floor((Date.now()-new Date(cp.username_changed_at).getTime())/86400000)):0;$("userCool").textContent=t?"Username change available in about "+t+" day(s).":"Username can be changed now."}
 function renderHome(){const p=bookings.filter(x=>x.status==="pending").length;if(isVerified()){$("homeBody").innerHTML='<div class="notice ok"><b>Welcome back, '+esc(cp.display_name||"Creator")+'.</b><br>Your creator workspace is active. Manage your profile, bookings and settings from the tabs above.</div>';}else{$("homeBody").innerHTML='<div class="notice">Complete payment and KYC verification to unlock your full creator workspace.</div>';}if(p)$("homeBody").innerHTML+='<div class="notice"><b>'+p+'</b> pending request(s). <button class="tab" onclick="switchTab(\'bookings\')">Review bookings →</button></div>'}
@@ -95,6 +95,9 @@ async function loadOnboardingStatus(){try{
   if(!data?.success)throw new Error(data?.message||"Unable to load verification status.");
   cp.activation_payment_status=data.payment_status||cp.activation_payment_status;
   cp.profile_status=data.profile_status||cp.profile_status;
+  cp._verification_status=data.verification_status||"unverified";
+  cp._identity_verified=data.identity_verified===true;
+  cp._age_verified=data.age_verified===true;
   const ps=data.payment_status||"pending",paid=ps==="paid";
   const paymentSubmitted=!!localStorage.getItem("elyra_payment_submitted_at_"+user.id);
   $("paymentStatus").className="status-line "+(paid?"ok":"warn");
@@ -112,6 +115,8 @@ async function loadOnboardingStatus(){try{
   $("kycStatus").textContent=kycApproved?"KYC verified by Elyra.":kycSubmitted?"KYC submitted. Waiting for manual verification.":vs==="pending"?"KYC submitted and is under review.":!kycReady?"KYC is available to submit now. Payment and KYC are reviewed separately.":"Ready for KYC submission.";
   if(kycSubmitted&&!kycApproved)startKycCountdown(localStorage.getItem("elyra_kyc_submitted_at_"+user.id));
   else if(kycApproved||!kycSubmitted)clearInterval(kycCountdownTimer);
+  renderStatus();
+  renderHome();
 }catch(e){console.error(e);$("paymentStatus").textContent="Unable to load payment status.";$("kycStatus").textContent="Unable to load KYC status."}}
 async function submitPayment(){const btn=$("paymentSubmit"),txn=$("paymentTxn").value.trim();if(txn.length<6){toast("Please enter a valid UTR / transaction ID.",false);return}btn.disabled=true;btn.textContent="Submitting…";try{const{data,error}=await sb.rpc("submit_creator_activation_payment",{p_transaction_id:txn});if(error)throw error;if(!data?.success)throw new Error(data?.message||"Payment submission failed.");localStorage.setItem("elyra_payment_submitted_at_"+user.id,String(Date.now()));
 toast("Payment details submitted for review.");startPaymentCountdown(Date.now());await loadOnboardingStatus();}catch(e){toast(e.message||"Unable to submit payment.",false);btn.disabled=false;btn.textContent="Submit Payment"}}
