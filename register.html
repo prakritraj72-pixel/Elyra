@@ -79,8 +79,9 @@
     const city=document.getElementById("city").value.trim();
 
     if(!Number.isInteger(age)||age<18||age>100){showMessage("Elyra is available only to users aged 18 or above.","error");return}
-    if(!fullName||!username||!email||!password||!city){showMessage("Please fill in all required fields.","error");return}
-    if(password.length<6){showMessage("Password must contain at least 6 characters.","error");return}
+    const googleSignup=!!(await supabaseClient.auth.getSession()).data.session && sessionStorage.getItem("elyra_google_signup")==="1";
+    if(!fullName||!username||!email||!city||(!googleSignup&&!password)){showMessage("Please fill in all required fields.","error");return}
+    if(!googleSignup && password.length<6){showMessage("Password must contain at least 6 characters.","error");return}
 
     button.disabled=true;
     button.textContent="Creating account...";
