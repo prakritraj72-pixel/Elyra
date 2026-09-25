@@ -29,6 +29,19 @@
 
       const user = sessionData.session.user;
       const metadata = user.user_metadata || {};
+
+      if(sessionStorage.getItem("elyra_google_signup")==="1"){
+        const {data:existingProfile}=await supabaseClient.from("profiles").select("id").eq("id",user.id).maybeSingle();
+        if(existingProfile){
+          sessionStorage.removeItem("elyra_google_signup");
+          statusEl.textContent="This Google account already has an Elyra account. Redirecting to login...";
+          setTimeout(()=>{window.location.href="login.html";},900);
+          return;
+        }
+        statusEl.textContent="Google connected. Completing your Elyra account...";
+        setTimeout(()=>{window.location.href="register.html";},250);
+        return;
+      }
       const fullName = metadata.full_name || metadata.name || "";
       const email = user.email || "";
       const baseUsername = (metadata.user_name || metadata.preferred_username || (email ? email.split("@")[0] : "elyrauser"))
