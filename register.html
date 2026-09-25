@@ -11,7 +11,7 @@
     .container{width:100%;max-width:470px}.logo{text-align:center;font-size:32px;font-weight:800;letter-spacing:5px;margin-bottom:8px}.tagline{text-align:center;color:#aaa;margin-bottom:25px;font-size:14px}.card{background:rgba(20,17,22,.95);border:1px solid #302934;border-radius:22px;padding:30px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
     h1{font-size:27px;margin-bottom:8px}.subtitle{color:#999;font-size:14px;margin-bottom:25px;line-height:1.5}label{display:block;font-size:13px;color:#cfcfcf;margin-bottom:7px}input{width:100%;padding:14px 15px;border-radius:11px;border:1px solid #39333d;background:#100e12;color:white;outline:none;margin-bottom:17px;font-size:14px}input:focus{border-color:#9b315b}input::placeholder{color:#666}
     .password-wrap{position:relative;margin-bottom:17px}.password-wrap input{padding-right:76px;margin-bottom:0}.password-toggle{position:absolute;right:8px;top:50%;transform:translateY(-50%);width:auto;padding:7px 9px;border:1px solid #39333d;border-radius:8px;background:#19151c;color:#c9a0b1;font-size:12px;font-weight:600;cursor:pointer}.password-toggle:hover{background:#241c28;opacity:1;transform:translateY(-50%)}
-    .age-row{display:flex;align-items:center;gap:10px;margin:3px 0 20px;color:#bbb;font-size:13px}.age-row input{width:16px;height:16px;margin:0;accent-color:#9b315b;cursor:pointer}.age-row label{margin:0;cursor:pointer;line-height:1.4}button{width:100%;border:none;padding:15px;border-radius:12px;background:linear-gradient(135deg,#8e234d,#4e1e62);color:white;font-weight:700;font-size:15px;cursor:pointer;transition:.2s}button:hover{transform:translateY(-1px);opacity:.95}button:disabled{opacity:.6;cursor:not-allowed;transform:none}.password-toggle:disabled{opacity:1;cursor:pointer;transform:translateY(-50%)}.message{display:none;margin-top:15px;padding:12px;border-radius:10px;font-size:13px;line-height:1.5}.error{display:block;background:rgba(150,30,50,.15);border:1px solid #692637;color:#ff9cad}.success{display:block;background:rgba(30,130,80,.12);border:1px solid #286b4b;color:#8ce0b2}.login{text-align:center;color:#999;font-size:14px;margin-top:22px}.login a{color:#e28aae;text-decoration:none}.login a:hover{text-decoration:underline}.back{display:block;text-align:center;margin-top:18px;color:#777;text-decoration:none;font-size:13px}.back:hover{color:#aaa}.terms{color:#666;font-size:11px;line-height:1.5;text-align:center;margin-top:18px}@media(max-width:520px){body{padding:15px}.card{padding:23px 20px}.logo{font-size:28px}h1{font-size:24px}}
+    .age-row{display:flex;align-items:center;gap:10px;margin:3px 0 20px;color:#bbb;font-size:13px}.age-row input{width:16px;height:16px;margin:0;accent-color:#9b315b;cursor:pointer}.age-row label{margin:0;cursor:pointer;line-height:1.4}button{width:100%;border:none;padding:15px;border-radius:12px;background:linear-gradient(135deg,#8e234d,#4e1e62);color:white;font-weight:700;font-size:15px;cursor:pointer;transition:.2s}button:hover{transform:translateY(-1px);opacity:.95}button:disabled{opacity:.6;cursor:not-allowed;transform:none}.password-toggle:disabled{opacity:1;cursor:pointer;transform:translateY(-50%)}.message{display:none;margin-top:15px;padding:12px;border-radius:10px;font-size:13px;line-height:1.5}.error{display:block;background:rgba(150,30,50,.15);border:1px solid #692637;color:#ff9cad}.success{display:block;background:rgba(30,130,80,.12);border:1px solid #286b4b;color:#8ce0b2}.google-btn{margin-top:12px;background:#fff;color:#171717;border:1px solid #ddd;display:flex;align-items:center;justify-content:center;gap:10px}.google-icon{width:19px;height:19px}.divider{display:flex;align-items:center;gap:12px;margin:18px 0 6px;color:#777;font-size:12px}.divider::before,.divider::after{content:"";flex:1;height:1px;background:#302934}.login{text-align:center;color:#999;font-size:14px;margin-top:22px}.login a{color:#e28aae;text-decoration:none}.login a:hover{text-decoration:underline}.back{display:block;text-align:center;margin-top:18px;color:#777;text-decoration:none;font-size:13px}.back:hover{color:#aaa}.terms{color:#666;font-size:11px;line-height:1.5;text-align:center;margin-top:18px}@media(max-width:520px){body{padding:15px}.card{padding:23px 20px}.logo{font-size:28px}h1{font-size:24px}}
   </style>
 </head>
 <body>
@@ -41,7 +41,7 @@
         <input type="checkbox" id="adultCheck" required>
         <label for="adultCheck">I confirm that I am 18 years or older.</label>
       </div>
-      <button type="submit" id="registerBtn">Create account</button>
+      <button type="submit" id="registerBtn">Create account</button><div class="divider"><span>OR</span></div><button type="button" id="googleBtn" class="google-btn"><svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M21.35 12.27c0-.71-.06-1.4-.18-2.05H12v3.88h5.24a4.48 4.48 0 0 1-1.94 2.94v2.44h3.14c1.84-1.69 2.91-4.18 2.91-7.21z"/><path fill="#34A853" d="M12 21.84c2.63 0 4.84-.87 6.45-2.36l-3.14-2.44c-.87.58-1.98.92-3.31.92-2.54 0-4.69-1.72-5.46-4.03H3.29v2.52A9.74 9.74 0 0 0 12 21.84z"/><path fill="#FBBC05" d="M6.54 13.93a5.86 5.86 0 0 1 0-3.76V7.65H3.29a9.84 9.84 0 0 0 0 8.8l3.25-2.52z"/><path fill="#EA4335" d="M12 6.14c1.43 0 2.72.49 3.73 1.46l2.8-2.8C16.84 3.22 14.63 2.16 12 2.16a9.74 9.74 0 0 0-8.71 5.49l3.25 2.52C7.31 7.86 9.46 6.14 12 6.14z"/></svg>Sign up with Google</button>
       <div id="message" class="message"></div>
     </form>
     <div class="login">Already have an account? <a href="login.html">Log in</a></div>
@@ -56,6 +56,7 @@
   const form=document.getElementById("registerForm");
   const button=document.getElementById("registerBtn");
   const message=document.getElementById("message");
+  const googleButton=document.getElementById("googleBtn");
   const passwordInput=document.getElementById("password");
   const passwordToggle=document.getElementById("passwordToggle");
 
@@ -87,6 +88,22 @@
     button.textContent="Creating account...";
 
     try{
+      const {data:{session:googleSession}}=await supabaseClient.auth.getSession();
+      const isGoogleSignup=!!googleSession?.user && sessionStorage.getItem("elyra_google_signup")==="1";
+      if(isGoogleSignup){
+        const user=googleSession.user;
+        const {data:existingProfile}=await supabaseClient.from("profiles").select("id").eq("id",user.id).maybeSingle();
+        if(existingProfile) throw new Error("This Google account already has an Elyra account. Please log in instead.");
+        const {error:insertError}=await supabaseClient.from("profiles").insert({id:user.id,full_name:fullName,username,age,city,role:"customer"});
+        if(insertError) throw insertError;
+        await supabaseClient.auth.updateUser({data:{full_name:fullName,username,age,city,role:"customer"}});
+        sessionStorage.removeItem("elyra_google_signup");
+        showMessage("Account created! Taking you to Elyra...","success");
+        button.textContent="Opening Elyra...";
+        setTimeout(()=>window.location.replace("index.html"),700);
+        return;
+      }
+
       // Check the username before creating the Auth user when the profiles table is readable.
       // If RLS blocks this public lookup, signup continues and the database trigger remains authoritative.
       const {data:existingUsername,error:usernameCheckError}=await supabaseClient
@@ -143,6 +160,32 @@
       button.textContent="Create account";
     }
   });
+
+  googleButton.addEventListener("click",async function(){
+    googleButton.disabled=true;button.disabled=true;googleButton.textContent="Opening Google...";
+    sessionStorage.setItem("elyra_google_signup","1");
+    try{
+      const {error}=await supabaseClient.auth.signInWithOAuth({provider:"google",options:{redirectTo:window.location.origin+"/oauth-callback.html"}});
+      if(error)throw error;
+    }catch(error){
+      sessionStorage.removeItem("elyra_google_signup");
+      showMessage(error?.message||"Google sign up could not be started.","error");
+      googleButton.disabled=false;button.disabled=false;googleButton.textContent="Sign up with Google";
+    }
+  });
+
+  async function prepareGoogleSignup(){
+    const {data:{session}}=await supabaseClient.auth.getSession();
+    if(!session?.user||sessionStorage.getItem("elyra_google_signup")!=="1")return;
+    const u=session.user,m=u.user_metadata||{};
+    document.getElementById("fullName").value=m.full_name||m.name||"";
+    document.getElementById("email").value=u.email||"";
+    document.getElementById("email").readOnly=true;
+    document.getElementById("password").closest(".password-wrap").style.display="none";
+    document.querySelector('label[for="password"]').style.display="none";
+    showMessage("Google connected. Add your username, age and city to finish your Elyra account.","success");
+  }
+  prepareGoogleSignup();
 </script>
 </body>
 </html>
